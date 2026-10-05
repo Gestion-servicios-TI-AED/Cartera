@@ -56,7 +56,7 @@ function EstadisticasPanel({ stats }) {
 
       <div className={styles.desgloseGrid}>
         <div className={styles.desgloseCard}>
-          <p className={styles.kpiLabel}>Por estado</p>
+          <p className={styles.desgloseTitulo}>Por estado</p>
           <div className={styles.desgloseLista}>
             {stats.porEstado.map((e) => (
               <div key={e.estado} className={styles.desgloseFila}>
@@ -71,7 +71,7 @@ function EstadisticasPanel({ stats }) {
         </div>
 
         <div className={styles.desgloseCard}>
-          <p className={styles.kpiLabel}>Por etapa</p>
+          <p className={styles.desgloseTitulo}>Por etapa</p>
           <div className={styles.desgloseLista}>
             {stats.porEtapa.map((e) => (
               <div key={e.etapa} className={styles.desgloseFila}>
@@ -86,7 +86,7 @@ function EstadisticasPanel({ stats }) {
         </div>
 
         <div className={styles.desgloseCard}>
-          <p className={styles.kpiLabel}>Por frente</p>
+          <p className={styles.desgloseTitulo}>Por frente</p>
           <div className={styles.desgloseLista}>
             {stats.porFrente.map((f) => (
               <div key={f.frente} className={styles.desgloseFila}>

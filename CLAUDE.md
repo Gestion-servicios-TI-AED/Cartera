@@ -751,5 +751,13 @@ HRMS y se adaptan solo textos/datos). Se hace por pasos, con el HRMS como modelo
   `WizardLayout.module.css`) con iniciales, contacto/proyecto, última sync, etapa y
   referencia de recaudo; cada bloque es una tarjeta de sección; el `Accordion`
   pasa a tarjeta redonda con más aire. No cambió ninguna lógica ni endpoint.
-- Pendiente (en orden): Inicio, Dashboard, Negocios, Inmuebles, Encargos,
-  Movimientos, Resumen, Cartera y Otrosíes (de Baía Kristal y Oliv).
+- **Paso 6 — Negocios de Baía Kristal y Oliv (hecho):** el maestro-detalle ya hablaba un
+  lenguaje parecido, así que el cambio es de CSS (Oliv comparte los 3 módulos:
+  `NegociosPage`, `NegociosSidebar`, `NegocioDetallePage`). El panel derecho deja de
+  ser una caja con marco (cada bloque es su propia tarjeta); el encabezado del
+  negocio pasa a banner degradado como el hero de las fichas; las tarjetas de
+  estadísticas son KPI (cifra arriba, etiqueta abajo) con títulos de desglose en
+  tipografía de sección; la lista lateral es una tarjeta redondeada blanca. JSX:
+  solo se cambió la clase de los títulos "Por estado/etapa/frente".
+- Pendiente (en orden): Inicio, Dashboard, Inmuebles, Encargos, Movimientos,
+  Resumen, Cartera y Otrosíes (de Baía Kristal y Oliv).
