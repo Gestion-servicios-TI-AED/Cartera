@@ -518,7 +518,8 @@ export function OlivResumenPage() {
       {/* Filtros globales de ubicación -- afectan KPIs y tendencia. Sin
           cascada (Torre y Estado del inmueble son independientes, Oliv no
           tiene jerarquía Etapa->Frente->Torre). */}
-      <div className={dashStyles.filterRow}>
+      <div className={styles.toolbarCard}>
+      <div className={styles.toolbarFila}>
         {torresDisponibles.length > 0 && (
           <Field className={dashStyles.fieldSm} label={<span className={styles.labelConIcono}><Building2 size={13} />Torre</span>}>
             {(p) => (
@@ -545,7 +546,7 @@ export function OlivResumenPage() {
       </div>
 
       {/* Filtro de periodo -- afecta KPIs y tendencia */}
-      <div className={dashStyles.filterRow}>
+      <div className={`${styles.toolbarFila} ${styles.toolbarPeriodo}`}>
         <span className={styles.filtroLabel}>Periodo</span>
         <div className={dashStyles.toggleGroup}>
           {RANGOS_TENDENCIA.map((r) => (
@@ -564,6 +565,7 @@ export function OlivResumenPage() {
             {aniosDisponibles.map((a) => <option key={a} value={a}>{a}</option>)}
           </select>
         )}
+      </div>
       </div>
 
       {/* KPIs gerenciales */}
@@ -704,7 +706,7 @@ export function OlivResumenPage() {
 
 function StatTileConHint({ label, value, sub, description }) {
   return (
-    <div className={dashStyles.statTile}>
+    <div className={`${dashStyles.statTile} ${styles.tileBloque}`}>
       <span className={dashStyles.statValue}>{value}</span>
       {sub && <span className={styles.statSub}>{sub}</span>}
       <div className={dashStyles.statLabelRow}>

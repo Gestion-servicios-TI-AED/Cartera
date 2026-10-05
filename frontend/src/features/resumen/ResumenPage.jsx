@@ -560,7 +560,8 @@ export function ResumenPage() {
       {error && <div className={dashStyles.formError}>{error}</div>}
 
       {/* Filtros globales de ubicación -- afectan KPIs y tendencia */}
-      <div className={dashStyles.filterRow}>
+      <div className={styles.toolbarCard}>
+      <div className={styles.toolbarFila}>
         {etapasDisponibles.length > 0 && (
           <Field className={dashStyles.fieldSm} label={<span className={styles.labelConIcono}><Layers size={13} />Etapa</span>}>
             {(p) => (
@@ -597,7 +598,7 @@ export function ResumenPage() {
       </div>
 
       {/* Filtro de periodo -- afecta KPIs y tendencia */}
-      <div className={dashStyles.filterRow}>
+      <div className={`${styles.toolbarFila} ${styles.toolbarPeriodo}`}>
         <span className={styles.filtroLabel}>Periodo</span>
         <div className={dashStyles.toggleGroup}>
           {RANGOS_TENDENCIA.map((r) => (
@@ -616,6 +617,7 @@ export function ResumenPage() {
             {aniosDisponibles.map((a) => <option key={a} value={a}>{a}</option>)}
           </select>
         )}
+      </div>
       </div>
 
       {/* KPIs gerenciales */}
@@ -754,7 +756,7 @@ export function ResumenPage() {
 
 function StatTileConHint({ label, value, sub, description }) {
   return (
-    <div className={dashStyles.statTile}>
+    <div className={`${dashStyles.statTile} ${styles.tileBloque}`}>
       <span className={dashStyles.statValue}>{value}</span>
       {sub && <span className={styles.statSub}>{sub}</span>}
       <div className={dashStyles.statLabelRow}>

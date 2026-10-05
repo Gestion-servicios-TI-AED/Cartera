@@ -39,13 +39,53 @@
   gap: var(--space-lg);
 }
 
+/* Cada bloque de KPIs es una tarjeta de sección con su título. */
+.kpiSecciones > div {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  padding: 24px 28px;
+  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
 .kpiSeccionTitulo {
-  font-size: var(--text-label-size);
-  font-weight: var(--text-label-weight);
-  letter-spacing: var(--text-label-tracking);
-  text-transform: uppercase;
-  color: var(--color-ink-muted);
-  margin: 0 0 var(--space-sm);
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-title-size);
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+/* Tarjeta de cifra dentro de un bloque: sin segundo marco, solo fondo */
+.tileBloque {
+  background: var(--color-surface) !important;
+  border-color: transparent !important;
+}
+
+/* Barra única de filtros (ubicación + periodo) */
+.toolbarCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  padding: 20px 24px;
+  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.toolbarFila {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-md);
+}
+
+.toolbarPeriodo {
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--color-border);
+  align-items: center;
 }
 
 .statSub {
@@ -56,9 +96,9 @@
 /* ── Tendencia ───────────────────────────────────────────────────────── */
 
 .tendenciaCard {
-  background: var(--color-surface);
+  background: #fff;
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   padding: var(--space-lg);
   display: flex;
   flex-direction: column;
@@ -142,9 +182,9 @@
 /* ── Consolidado / Recaudo por Etapa (contenedores) ─────────────────────── */
 
 .consolidadoCard {
-  background: var(--color-surface);
+  background: #fff;
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   padding: var(--space-lg);
   display: flex;
   flex-direction: column;
@@ -207,7 +247,7 @@
 .consolidadoWrap {
   overflow-x: auto;
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
 }
 
 /* table-layout:fixed + <colgroup> (ver ConsolidadoCarteraEtapa en el JSX) --
@@ -342,9 +382,9 @@
   display: flex;
   align-items: center;
   gap: var(--space-md);
-  background: var(--color-surface);
+  background: #fff;
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   padding: var(--space-md) var(--space-lg);
   font-size: var(--text-data-size);
   color: var(--color-ink-muted);

@@ -800,5 +800,17 @@ HRMS y se adaptan solo textos/datos). Se hace por pasos, con el HRMS como modelo
   movimiento en una tarjeta con la cuadrícula de campos crudos. Estilos en
   `fiducia/MovimientosPage.module.css` (extras) sobre
   `negocios/NegociosPage.module.css`; el export y toda la lógica no cambian.
-- Pendiente (en orden): Inicio, Dashboard, Resumen, Cartera y Otrosíes (de Baía
-  Kristal y Oliv).
+- **Paso 10 — Resumen de Baía Kristal y Oliv (hecho):** además del layout, se tocó el
+  CSS compartido de `dashboard/Dashboard.module.css` (lo usan Dashboard, Cartera en
+  mora y Resumen, así que esos dos módulos heredan el cambio): la **cifra de cada
+  KPI se ajusta al ancho de su tarjeta** con container query
+  (`font-size: clamp(1.05rem, 8.4cqw, 1.75rem)`) -- antes los montos largos
+  (`$ 301.770.576.660`) se cortaban --, etiqueta en minúsculas bajo la cifra,
+  tarjetas redondeadas, control segmentado para rango/vista/periodo y tablas con
+  encabezado discreto. En el Resumen: **una sola barra de filtros** (ubicación +
+  periodo, antes dos cajas), cada bloque de KPIs (Cuota inicial / Saldo /
+  Inventario) es una tarjeta con título y las cifras sin segundo marco, y el
+  Consolidado, la tendencia y el pie de sync son tarjetas del mismo estilo. La
+  lógica y los gráficos (ApexCharts) no cambian.
+- Pendiente (en orden): Inicio, Dashboard, Cartera y Otrosíes (de Baía Kristal y
+  Oliv) -- Dashboard y Cartera ya heredaron los estilos de tarjetas/KPIs.
