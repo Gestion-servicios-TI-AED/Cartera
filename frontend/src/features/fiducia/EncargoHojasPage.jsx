@@ -5,10 +5,9 @@
 // enlazada desde el header de esa página ("Ver hojas del Excel"), en vez de
 // perderla del todo.
 import { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
-import { BackLink } from '../../components/ui/BackLink.jsx';
+import { useParams } from 'react-router-dom';
 import { getEncargo } from '../../api/fiducia.js';
-import styles from './EncargoHojasPage.module.css';
+import { EncargoHojasVista } from './HojasVistas.jsx';
 
 export function EncargoHojasPage() {
   const { id } = useParams();
@@ -25,34 +24,5 @@ export function EncargoHojasPage() {
   if (cargando) return <p>Cargando…</p>;
   if (!encargo) return <p>No encontrado.</p>;
 
-  return (
-    <div className={styles.page}>
-      <BackLink to={`/fiducia/${id}`}>{encargo.nombre}</BackLink>
-      <h1 className={styles.title}>Hojas del Excel</h1>
-      <p className={styles.subtitle}>
-        Código: {encargo.codigo ?? '—'} — Archivo: {encargo.archivo_nombre}
-      </p>
-
-      <div className={styles.tableWrap}>
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th>Hoja</th>
-              <th>Filas</th>
-            </tr>
-          </thead>
-          <tbody>
-            {(encargo.hojas ?? []).map((hoja) => (
-              <tr key={hoja.id}>
-                <td>
-                  <Link to={`/fiducia/${id}/hojas/${hoja.id}`}>{hoja.nombre_hoja}</Link>
-                </td>
-                <td>{hoja.total_filas}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
+  return <EncargoHojasVista encargo={encargo} volverA={`/fiducia/${id}`} volverLabel={encargo.nombre} rutaHoja={(hojaId) => `/fiducia/${id}/hojas/${hojaId}`} />;
 }

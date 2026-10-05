@@ -10,6 +10,7 @@ import { useParams } from 'react-router-dom';
 import { BackLink } from '../../components/ui/BackLink.jsx';
 import { Badge } from '../../components/ui/Badge.jsx';
 import { Accordion } from '../../components/ui/Accordion.jsx';
+import { Tabs } from '../../components/ui/Tabs.jsx';
 import { ConceptoHint } from '../../components/ui/ConceptoHint.jsx';
 import { ListaInfo, ListaFinanciera } from '../../components/ui/DatosFinancieros.jsx';
 import { getApartamentoDetalle } from '../../api/fiducia.js';
@@ -140,6 +141,7 @@ function MovimientoRow({ mov, fields }) {
 
 export function ApartamentoDetallePage() {
   const { id, referencia: rawRef } = useParams();
+  const [tab, setTab] = useState('resumen');
   const referencia = decodeURIComponent(rawRef);
   const [data, setData] = useState(null);
   const [cargando, setCargando] = useState(true);
@@ -198,7 +200,20 @@ export function ApartamentoDetallePage() {
         </div>
       </div>
 
-      <Accordion title="Comprador" badge={negocio.compradores?.length}>
+      <Tabs
+        ariaLabel="Secciones de la unidad"
+        value={tab}
+        onChange={setTab}
+        tabs={[
+          { key: 'resumen', label: 'Resumen' },
+          { key: 'financiero', label: 'Financiero' },
+          { key: 'movimientos', label: 'Movimientos', badge: totalMovimientos },
+        ]}
+      />
+
+      {tab === 'resumen' && (
+        <>
+      <Accordion collapsible={false} title="Comprador" badge={negocio.compradores?.length}>
         {negocio.compradores?.length > 0 ? (
           <div className={styles.listaCompradores}>
             {negocio.compradores.map((c, i) => {
@@ -219,16 +234,23 @@ export function ApartamentoDetallePage() {
           <p className={styles.sinDatosPad}>Sin compradores registrados</p>
         )}
       </Accordion>
-
-      <Accordion title="Info del apartamento" badge={aptoEntries.length}>
+      <Accordion collapsible={false} title="Info del apartamento" badge={aptoEntries.length}>
         {aptoEntries.length > 0 ? <ListaInfo entries={aptoEntries} hoja="resumen" format={formatCell} /> : <p className={styles.sinDatosPad}>Sin datos del apartamento</p>}
       </Accordion>
+        </>
+      )}
 
-      <Accordion title="Estructura financiera y abonos" badge={finEntries.length}>
+      {tab === 'financiero' && (
+        <>
+      <Accordion collapsible={false} title="Estructura financiera y abonos" badge={finEntries.length}>
         {finEntries.length > 0 ? <ListaFinanciera entries={finEntries} format={formatCell} /> : <p className={styles.sinDatosPad}>Sin datos financieros</p>}
       </Accordion>
+        </>
+      )}
 
-      <Accordion title="Historial de movimientos" badge={totalMovimientos} defaultOpen={false}>
+      {tab === 'movimientos' && (
+        <>
+      <Accordion collapsible={false} title="Historial de movimientos" badge={totalMovimientos}>
         {movimientos.length === 0 ? (
           <p className={styles.sinDatosPad}>Sin movimientos registrados</p>
         ) : (
@@ -250,6 +272,8 @@ export function ApartamentoDetallePage() {
           </div>
         )}
       </Accordion>
+        </>
+      )}
     </div>
   );
 }

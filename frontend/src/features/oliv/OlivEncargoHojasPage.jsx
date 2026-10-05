@@ -5,10 +5,9 @@
 // en la lista -- no hay todavía reglas para cruzar estos movimientos con un
 // Negocio de Oliv (columnas aún no definidas).
 import { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
-import { BackLink } from '../../components/ui/BackLink.jsx';
+import { useParams } from 'react-router-dom';
 import { getEncargoOliv } from '../../api/oliv.js';
-import styles from '../fiducia/EncargoHojasPage.module.css';
+import { EncargoHojasVista } from '../fiducia/HojasVistas.jsx';
 
 export function OlivEncargoHojasPage() {
   const { id } = useParams();
@@ -25,34 +24,5 @@ export function OlivEncargoHojasPage() {
   if (cargando) return <p>Cargando…</p>;
   if (!encargo) return <p>No encontrado.</p>;
 
-  return (
-    <div className={styles.page}>
-      <BackLink to="/oliv/encargos">Encargos de Oliv</BackLink>
-      <h1 className={styles.title}>{encargo.nombre}</h1>
-      <p className={styles.subtitle}>
-        Código: {encargo.codigo ?? '—'} — Archivo: {encargo.archivo_nombre}
-      </p>
-
-      <div className={styles.tableWrap}>
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th>Hoja</th>
-              <th>Filas</th>
-            </tr>
-          </thead>
-          <tbody>
-            {(encargo.hojas ?? []).map((hoja) => (
-              <tr key={hoja.id}>
-                <td>
-                  <Link to={`/oliv/encargos/${id}/hojas/${hoja.id}`}>{hoja.nombre_hoja}</Link>
-                </td>
-                <td>{hoja.total_filas}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
+  return <EncargoHojasVista encargo={encargo} volverA="/oliv/encargos" volverLabel="Encargos de Oliv" rutaHoja={(hojaId) => `/oliv/encargos/${id}/hojas/${hojaId}`} />;
 }

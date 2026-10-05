@@ -776,5 +776,18 @@ HRMS y se adaptan solo textos/datos). Se hace por pasos, con el HRMS como modelo
   ruta propia**: banner, cifras clave y "Todas las variables" con **buscador**.
   Reusa los estilos de lista de `negocios/NegociosPage.module.css` (chips y
   `syncError` se agregaron ahí). Se eliminaron los sidebars de inventario y su CSS.
-- Pendiente (en orden): Inicio, Dashboard, Encargos, Movimientos, Resumen, Cartera
-  y Otrosíes (de Baía Kristal y Oliv).
+- **Paso 8 — Encargos de Baía Kristal y Oliv (hecho, rediseño estructural):** todo el flujo.
+  Lista (`fiducia/EncargosLista.jsx`, compartida y parametrizada por una `config`;
+  `EncargosListPage` y `OlivEncargosListPage` son wrappers delgados): **zona de
+  importación con arrastrar y soltar**, resumen del total, filtros con etiqueta y
+  tabla en tarjeta (ícono de archivo, código y descripción del proyecto, etiquetas de
+  hojas, acciones por fila con ícono). Unidades de un encargo (BK,
+  `EncargoNomenclaturasPage`): banner + **tabla** de unidades (antes una grilla de
+  tarjetas) con comprador, estado, saldo y movimientos. Hojas del Excel y visor
+  (`fiducia/HojasVistas.jsx`, compartido BK/Oliv): banner + KPIs (hojas / filas) y
+  visor con encabezado fijo. `ApartamentoDetallePage`: banner degradado + pestañas
+  (Resumen / Financiero / Movimientos). Estilos propios en
+  `fiducia/Encargos.module.css`; la estructura de página sale de
+  `negocios/NegociosPage.module.css`. Se eliminaron 4 CSS viejos de fiducia.
+- Pendiente (en orden): Inicio, Dashboard, Movimientos, Resumen, Cartera y Otrosíes
+  (de Baía Kristal y Oliv).
