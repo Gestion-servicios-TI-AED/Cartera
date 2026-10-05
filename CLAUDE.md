@@ -992,6 +992,22 @@ HRMS y se adaptan solo textos/datos). Se hace por pasos, con el HRMS como modelo
   refresh directo, login + Inicio + Negocios sin errores de JS ni de red, precalentado en 25 s.
   `.gitignore` reescrito (secretos `.env*` salvo `.env.example`, builds, logs, uploads, SO, editores,
   herramientas locales); `.impeccable/` pasó a ignorarse (igual que el HRMS) y se destrackeó.
+- **Migración a la base de datos NUEVA de producción (2026-10-05):** base `72.62.100.53:5440/postgres`
+  (URL en `backend/.env` como `DESTINO_DATABASE_URL`, ignorado por git; NO es la misma que
+  `cartera_aed_v2`/legada, que están en el puerto 5436). Fuentes: **Baía Kristal con movimientos
+  diarios = base legada `postgres` (Prisma, `LEGACY_DATABASE_URL`)** vía `scripts/importarDatosLegado.js`
+  (apuntado al destino con `PG*`); **todo Oliv = `cartera_aed_v2`** y lo que solo existe en la v2
+  (usuarios, roles, auditoría, inventario, oportunidades, otrosíes, config de frentes, logs) vía
+  `scripts/migracion/copiarDesdeV2.js`. Orígenes siempre en SOLO LECTURA. Pasos y "pasada final"
+  en `backend/scripts/migracion/README.md`. Resultado verificado: todas las tablas coinciden fila
+  por fila (3.089.180 movimientos fiduciarios, 1.285 hojas, 1.206 encargos, 1.711 negocios, 2.247
+  compradores, 48.166 movimientos de negocio, 4 meses de resumen; + 17 tablas de la v2), sin llaves
+  huérfanas ni `legacy_id` duplicados; la base nueva pesa ~3,2 GB. **Pendiente del corte:** una
+  pasada final cuando Baía Kristal deje de recibir movimientos en la legada (esa base está viva: una
+  re-subida de hojas borra/recrea filas, así que la pasada final debe reconciliar también borrados),
+  apuntar las variables del despliegue a la base nueva y reiniciar el servidor.
+  **Idea pendiente, NO empezar sin orden del usuario:** "Normalización de movimientos fiduciarios"
+  (sacar el jsonb `datos` a columnas; ver notas en memoria).
 - Pendiente: Panel de Alertas con más tipos y filas clicables en Cartera/Otrosíes (ver brechas
   conocidas arriba).
   Cartera ya heredó los estilos de tarjetas/KPIs de `Dashboard.module.css`.
