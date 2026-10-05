@@ -916,5 +916,15 @@ HRMS y se adaptan solo textos/datos). Se hace por pasos, con el HRMS como modelo
   abre desde el enlace de la unidad y el menú contextual) y las **acciones de fila con
   `RowIconButtons`** (el componente está copiado pero Cartera no tiene tablas con
   editar/activar).
+- **Fechas de entrega como árbol desplegable (Configuración, `/accesos/frentes`):** la tabla
+  plana + formulario de texto libre se reemplazó por **Frente > Torre > Piso** desplegables
+  (`ConfiguracionFrentesPage.jsx` + `ConfiguracionFrentes.module.css`). El endpoint
+  `GET /configuraciones/frentes` ya devolvía una fila por cada nivel; el árbol se arma en el
+  cliente. Cada nodo edita su fecha en línea (input de fecha + Guardar/Quitar) y muestra un
+  badge ("Fecha única" / "N configuradas"). La exclusión entre niveles que el backend exige
+  (409) se refleja en la UI: si un nivel superior tiene fecha, los inferiores quedan bloqueados
+  con una nota, y al revés. Hay buscador de frente (persistente), "Expandir todo" y
+  "Contraer todo". Sin paginación (es un árbol). No se probó guardar una fecha para no tocar
+  datos reales de producción.
 - Pendiente (en orden): Inicio (de Baía Kristal y Oliv) --
   Cartera ya heredó los estilos de tarjetas/KPIs de `Dashboard.module.css`.

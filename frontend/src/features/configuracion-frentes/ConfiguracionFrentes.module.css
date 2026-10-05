@@ -1,0 +1,187 @@
+/* Arbol de Fechas de entrega: Frente > Torre > Piso (desplegables). */
+
+.barra {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.buscador {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  min-width: 260px;
+  min-height: 44px;
+  padding: 0 14px;
+  background: var(--color-surface-sunken);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-ink-muted);
+}
+
+.buscador input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  font: inherit;
+  color: var(--color-ink);
+}
+
+.resumen {
+  color: var(--color-ink-muted);
+  font-size: var(--text-data-size);
+}
+
+.barraAcciones {
+  display: flex;
+  gap: var(--space-sm);
+  margin-left: auto;
+}
+
+.estado {
+  margin: 0;
+  padding: var(--space-lg);
+  text-align: center;
+  color: var(--color-ink-muted);
+  font-size: var(--text-data-size);
+}
+
+.lista {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+/* Cada frente es una tarjeta */
+.nodo {
+  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.fila {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  padding: 12px 20px;
+}
+
+.toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  flex: 1 1 280px;
+  min-width: 0;
+  padding: 4px 0;
+  border: none;
+  background: none;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.toggle:hover .nombre,
+.toggle:hover .nombreTorre {
+  color: var(--color-primary);
+}
+
+.chevron {
+  flex-shrink: 0;
+  color: var(--color-ink-muted);
+  transition: transform var(--duration-fast) var(--ease-standard);
+}
+
+.chevronAbierto {
+  transform: rotate(90deg);
+  color: var(--color-primary);
+}
+
+.nombre {
+  font-family: var(--font-display);
+  font-size: var(--text-title-size);
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+.nombreTorre {
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+.meta {
+  color: var(--color-ink-muted);
+  font-size: var(--text-data-size);
+}
+
+/* Torres y pisos: sangria + guia vertical a la izquierda */
+.hijos {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--color-border);
+  background: var(--color-surface);
+}
+
+.nodoTorre + .nodoTorre {
+  border-top: 1px solid var(--color-border);
+}
+
+.nodoTorre > .fila {
+  padding-left: 44px;
+}
+
+.pisos {
+  display: flex;
+  flex-direction: column;
+  margin: 0 20px 12px 64px;
+  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.filaPiso {
+  padding: 8px 16px;
+}
+
+.filaPiso + .filaPiso {
+  border-top: 1px solid var(--color-border);
+}
+
+.nombrePiso {
+  color: var(--color-ink);
+  font-size: var(--text-data-size);
+  font-weight: 500;
+}
+
+.fechaControl {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.fechaInput {
+  min-height: 40px;
+  padding: 0 12px;
+  background: #fff;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  font: inherit;
+  color: var(--color-ink);
+}
+
+.fechaInput:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
+}
+
+.bloqueado {
+  color: var(--color-ink-muted);
+  font-size: var(--text-label-size);
+  font-style: italic;
+}
