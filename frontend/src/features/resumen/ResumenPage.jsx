@@ -20,7 +20,7 @@
 // GET /oportunidades/sync/logs.
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import ExcelJS from 'exceljs';
-import { Maximize2, Minimize2, Layers, MapPin, Building, X, ChevronDown, ChevronUp, CheckCircle2, XCircle, Clock } from 'lucide-react';
+import { Maximize2, Minimize2, Layers, MapPin, Building, X, ChevronDown, ChevronUp, CheckCircle2, XCircle, Clock, Building2, Wallet, AlertTriangle, Hourglass, Target, KeyRound } from 'lucide-react';
 import { Field, Select } from '../../components/ui/Field.jsx';
 import { Button } from '../../components/ui/Button.jsx';
 import { Badge } from '../../components/ui/Badge.jsx';
@@ -625,27 +625,27 @@ export function ResumenPage() {
         <div>
           <h3 className={styles.kpiSeccionTitulo}>Cuota inicial (30%) — {labelVentana}</h3>
           <div className={dashStyles.statsGrid}>
-            <StatTileConHint label="Totalidad del 30%" value={kpisRecaudo ? fmtMoney(kpisRecaudo.totalidad30) : '—'} description={`Total esperado de la Cuota Inicial según el plan de pagos, dentro del periodo seleccionado (${labelVentana}).`} />
-            <StatTileConHint label="Recaudado del 30%" value={kpisRecaudo ? fmtMoney(kpisRecaudo.recaudado30) : '—'} description={`Lo realmente recaudado hacia la Cuota Inicial, dentro del periodo seleccionado (${labelVentana}).`} />
-            <StatTileConHint label="Por recaudar (30%)" value={kpisRecaudo ? fmtMoney(kpisRecaudo.porRecaudar30) : '—'} description={`Cuota Inicial esperada menos lo recaudado real, dentro del periodo seleccionado (${labelVentana}).`} />
-            <StatTileConHint label="Cuotas vencidas (30%) (actual)" value={kpisActuales ? String(kpisActuales.cuotasEnMoraInicial) : '—'} sub={kpisActuales ? fmtMoney(kpisActuales.montoEnMoraInicial) : undefined} description="Cuotas atrasadas SOLO de la Cuota Inicial, a hoy -- no cambia con el filtro de periodo." />
+            <StatTileConHint label="Totalidad del 30%" icon={Target} tone="primary" value={kpisRecaudo ? fmtMoney(kpisRecaudo.totalidad30) : '—'} description={`Total esperado de la Cuota Inicial según el plan de pagos, dentro del periodo seleccionado (${labelVentana}).`} />
+            <StatTileConHint label="Recaudado del 30%" icon={CheckCircle2} tone="success" value={kpisRecaudo ? fmtMoney(kpisRecaudo.recaudado30) : '—'} description={`Lo realmente recaudado hacia la Cuota Inicial, dentro del periodo seleccionado (${labelVentana}).`} />
+            <StatTileConHint label="Por recaudar (30%)" icon={Hourglass} tone="neutral" value={kpisRecaudo ? fmtMoney(kpisRecaudo.porRecaudar30) : '—'} description={`Cuota Inicial esperada menos lo recaudado real, dentro del periodo seleccionado (${labelVentana}).`} />
+            <StatTileConHint label="Cuotas vencidas (30%) (actual)" icon={AlertTriangle} tone="warning" value={kpisActuales ? String(kpisActuales.cuotasEnMoraInicial) : '—'} sub={kpisActuales ? fmtMoney(kpisActuales.montoEnMoraInicial) : undefined} description="Cuotas atrasadas SOLO de la Cuota Inicial, a hoy -- no cambia con el filtro de periodo." />
           </div>
         </div>
 
         <div>
           <h3 className={styles.kpiSeccionTitulo}>Saldo contraentrega (70%) — {labelVentana}</h3>
           <div className={dashStyles.statsGrid}>
-            <StatTileConHint label="Totalidad del 70%" value={kpisRecaudo ? fmtMoney(kpisRecaudo.totalidad70) : '—'} description={`Total esperado del Saldo Contraentrega según conciliación, dentro del periodo seleccionado (${labelVentana}).`} />
-            <StatTileConHint label="Saldo recaudado contraentrega" value={kpisRecaudo ? fmtMoney(kpisRecaudo.recaudado70) : '—'} description={`Lo realmente recaudado hacia el Saldo Contraentrega, dentro del periodo seleccionado (${labelVentana}).`} />
-            <StatTileConHint label="Saldo pendiente contraentrega" value={kpisRecaudo ? fmtMoney(kpisRecaudo.pendienteContraentrega) : '—'} description={`Saldo Contraentrega según conciliación, menos lo recaudado real, dentro del periodo seleccionado (${labelVentana}).`} />
+            <StatTileConHint label="Totalidad del 70%" icon={Target} tone="primary" value={kpisRecaudo ? fmtMoney(kpisRecaudo.totalidad70) : '—'} description={`Total esperado del Saldo Contraentrega según conciliación, dentro del periodo seleccionado (${labelVentana}).`} />
+            <StatTileConHint label="Saldo recaudado contraentrega" icon={Wallet} tone="success" value={kpisRecaudo ? fmtMoney(kpisRecaudo.recaudado70) : '—'} description={`Lo realmente recaudado hacia el Saldo Contraentrega, dentro del periodo seleccionado (${labelVentana}).`} />
+            <StatTileConHint label="Saldo pendiente contraentrega" icon={Hourglass} tone="neutral" value={kpisRecaudo ? fmtMoney(kpisRecaudo.pendienteContraentrega) : '—'} description={`Saldo Contraentrega según conciliación, menos lo recaudado real, dentro del periodo seleccionado (${labelVentana}).`} />
           </div>
         </div>
 
         <div>
           <h3 className={styles.kpiSeccionTitulo}>Inventario y ventas (actual)</h3>
           <div className={dashStyles.statsGrid}>
-            <StatTileConHint label="Inmuebles disponibles (actual)" value={kpisActuales ? fmtMoney(kpisActuales.valorDisponible) : '—'} sub={kpisActuales ? `${kpisActuales.cantidadDisponible} unidades` : undefined} description="Valor y cantidad de los inmuebles cuyo negocio en la fiducia NO está en Prometido, Opcionado, Vendido ni Escritura autorizada, a hoy (misma regla que 'Uni. disponible' del Consolidado)." />
-            <StatTileConHint label="Inmuebles vendidos (actual)" value={kpisActuales ? fmtMoney(kpisActuales.valorVendidos) : '—'} sub={kpisActuales ? `${kpisActuales.cantidadVendidos} unidades` : undefined} description="Valor y cantidad de los inmuebles cuyo negocio en la fiducia está en Prometido, Opcionado, Vendido o Escritura autorizada, a hoy." />
+            <StatTileConHint label="Inmuebles disponibles (actual)" icon={Building2} tone="primary" value={kpisActuales ? fmtMoney(kpisActuales.valorDisponible) : '—'} sub={kpisActuales ? `${kpisActuales.cantidadDisponible} unidades` : undefined} description="Valor y cantidad de los inmuebles cuyo negocio en la fiducia NO está en Prometido, Opcionado, Vendido ni Escritura autorizada, a hoy (misma regla que 'Uni. disponible' del Consolidado)." />
+            <StatTileConHint label="Inmuebles vendidos (actual)" icon={KeyRound} tone="success" value={kpisActuales ? fmtMoney(kpisActuales.valorVendidos) : '—'} sub={kpisActuales ? `${kpisActuales.cantidadVendidos} unidades` : undefined} description="Valor y cantidad de los inmuebles cuyo negocio en la fiducia está en Prometido, Opcionado, Vendido o Escritura autorizada, a hoy." />
           </div>
         </div>
       </div>
@@ -754,15 +754,20 @@ export function ResumenPage() {
   );
 }
 
-function StatTileConHint({ label, value, sub, description }) {
+function StatTileConHint({ label, value, sub, description, icon: Icon, tone = 'primary' }) {
   return (
     <div className={`${dashStyles.statTile} ${styles.tileBloque}`}>
-      <span className={dashStyles.statValue}>{value}</span>
-      {sub && <span className={styles.statSub}>{sub}</span>}
-      <div className={dashStyles.statLabelRow}>
-        <span className={dashStyles.statLabel}>{label}</span>
+      <div className={dashStyles.statTop}>
+        {Icon && (
+          <span className={`${dashStyles.iconChip} ${dashStyles[`tone_${tone}`]}`}>
+            <Icon size={20} strokeWidth={1.75} aria-hidden="true" />
+          </span>
+        )}
         {description && <InfoTooltip text={description} />}
       </div>
+      <span className={dashStyles.statValue}>{value}</span>
+      {sub && <span className={styles.statSub}>{sub}</span>}
+      <span className={dashStyles.statLabel}>{label}</span>
     </div>
   );
 }

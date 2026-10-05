@@ -898,5 +898,11 @@ HRMS y se adaptan solo textos/datos). Se hace por pasos, con el HRMS como modelo
   página). No se tocaron los tiles de Resumen (11 cifras dentro de bloques; el
   HRMS limita a 5 KPIs por pantalla) ni los `kpiCard` de las listas, que siguen el
   patrón del listado de Usuarios del HRMS.
+- **Iconos en Resumen (a pedido, pese a que el HRMS limita a 5 KPIs):** las 9 cifras
+  de Resumen (BK y Oliv) usan el mismo diseño de KPI con pastilla de icono por `tone`
+  (Target/primary para las "Totalidad", CheckCircle2 y Wallet/success para lo recaudado,
+  Hourglass/neutral para lo por recaudar o pendiente, AlertTriangle/warning para cuotas
+  vencidas, Building2 y KeyRound para inmuebles disponibles y vendidos). `StatTileConHint`
+  de cada Resumen replica el mismo marcado que `dashboard/StatTile.jsx`.
 - Pendiente (en orden): Inicio (de Baía Kristal y Oliv) --
   Cartera ya heredó los estilos de tarjetas/KPIs de `Dashboard.module.css`.
