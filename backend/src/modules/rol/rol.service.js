@@ -4,14 +4,20 @@ const Rol = require('./rol.model');
 const Usuario = require('../usuario/usuario.model');
 const { PERMISOS_DISPONIBLES } = require('../../utils/permisos');
 
-function _enrich(rol) {
+// total_usuarios y es_admin alimentan la lista de roles (cuantas cuentas tiene
+// cada rol, si es el rol de sistema) -- migracion de diseno 2026-10-05.
+function _enrich(rol, totalUsuarios = 0) {
   const data = rol.toJSON();
-  return { id: data.id, nombre: data.nombre, permisos: data.permisos };
+  return { id: data.id, nombre: data.nombre, permisos: data.permisos, es_admin: Boolean(data.es_admin), total_usuarios: totalUsuarios };
+}
+
+async function _contarUsuarios(nombre) {
+  return Usuario.count({ where: { roles: { [Op.contains]: [nombre] } } });
 }
 
 async function list() {
   const roles = await Rol.findAll({ order: [['nombre', 'ASC']] });
-  return roles.map(_enrich);
+  return Promise.all(roles.map(async (rol) => _enrich(rol, await _contarUsuarios(rol.nombre))));
 }
 
 async function funcionalidadesDisponibles() {
@@ -22,7 +28,7 @@ async function create(data) {
   const existente = await Rol.findOne({ where: { nombre: data.nombre } });
   if (existente) throw new ApiError(409, `Ya existe un rol con el nombre "${data.nombre}"`);
   const rol = await Rol.create({ nombre: data.nombre, permisos: data.permisos ?? [] });
-  return _enrich(rol);
+  return _enrich(rol, 0);
 }
 
 async function update(id, data) {
@@ -49,7 +55,18 @@ async function update(id, data) {
   }
   if (data.permisos !== undefined) rol.permisos = data.permisos;
   await rol.save();
-  return _enrich(rol);
+  return _enrich(rol, await _contarUsuarios(rol.nombre));
 }
 
-module.exports = { list, funcionalidadesDisponibles, create, update };
+// Solo roles personalizados y sin cuentas asignadas: borrar uno en uso dejaria a
+// esas cuentas con un nombre de rol que ya no otorga nada.
+async function remove(id) {
+  const rol = await Rol.findByPk(id);
+  if (!rol) throw new ApiError(404, 'Rol no encontrado');
+  if (rol.es_admin) throw new ApiError(400, 'El rol de administrador no se puede eliminar');
+  const total = await _contarUsuarios(rol.nombre);
+  if (total > 0) throw new ApiError(400, `El rol tiene ${total} cuenta(s) asignada(s). Quítaselo primero.`);
+  await rol.destroy();
+}
+
+module.exports = { list, funcionalidadesDisponibles, create, update, remove };

@@ -18,5 +18,6 @@ router.get('/funcionalidades-disponibles', requireAuth, requireModulo('accesos-r
 router.get('/', requireAuth, requireModulo('accesos-roles'), controller.list);
 router.post('/', requireAuth, requireModulo('accesos-roles'), validate(createSchema, 'body'), controller.create);
 router.put('/:id', requireAuth, requireModulo('accesos-roles'), validate(updateSchema, 'body'), controller.update);
+router.delete('/:id', requireAuth, requireModulo('accesos-roles'), controller.remove);
 
 module.exports = router;

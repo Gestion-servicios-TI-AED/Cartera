@@ -15,3 +15,7 @@ export function createRol(data) {
 export function updateRol(id, data) {
   return client.put(`/roles/${id}`, data);
 }
+
+export function deleteRol(id) {
+  return client.delete(`/roles/${id}`);
+}

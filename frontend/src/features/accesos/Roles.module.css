@@ -1,7 +1,5 @@
-/* Mismas clases genéricas que Usuarios.module.css (page/header/card/table/
-   form), recortadas a lo que las 3 pantallas de Roles necesitan -- sin
-   búsqueda/avatar/skeleton/password (propios de Usuarios), con
-   .permisosCell nueva para la lista de badges de permisos por rol. */
+/* Mismos tokens/patrones que Usuarios.module.css (misma zona de Accesos) --
+   ver el Fluid Width Rule de DESIGN.md: sin max-width en .card. */
 
 .page {
   display: flex;
@@ -10,10 +8,18 @@
   width: 100%;
 }
 
+.rolesLayout {
+  --accesos-content-gap: calc(var(--space-lg) - 8px);
+}
+
 .header {
   display: flex;
   flex-direction: column;
   gap: var(--space-sm);
+}
+
+.detailHeader {
+  gap: 24px;
 }
 
 .headerRow {
@@ -43,12 +49,10 @@
   flex-shrink: 0;
 }
 
-/* --- tabla --- */
-
 .tableWrap {
-  background: var(--color-surface);
+  background: #fff;
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   overflow: auto;
 }
 
@@ -57,6 +61,9 @@
   border-collapse: collapse;
 }
 
+/* Borde inferior en Azul Vibrante (2px) en vez del neutro -- pedido
+   explicito del usuario (2026-09-17): "acentos de color en
+   encabezados/secciones" tambien para las tablas. */
 .table thead th {
   text-align: left;
   font-family: var(--font-body);
@@ -64,16 +71,15 @@
   font-weight: var(--text-label-weight);
   letter-spacing: var(--text-label-tracking);
   text-transform: uppercase;
-  color: var(--color-ink-secondary);
-  background: var(--color-surface-sunken);
-  border-bottom: 2px solid var(--color-primary);
-  padding: var(--space-sm) var(--space-md);
+  color: var(--color-ink-muted);
+  background: var(--color-surface);
+  padding: 12px var(--space-md);
   border-bottom: 1px solid var(--color-border);
   white-space: nowrap;
 }
 
 .table tbody td {
-  padding: var(--space-sm) var(--space-md);
+  padding: 12px var(--space-md);
   font-size: var(--text-data-size);
   color: var(--color-ink);
   border-bottom: 1px solid var(--color-border);
@@ -82,10 +88,6 @@
 
 .table tbody tr:last-child td {
   border-bottom: none;
-}
-
-.table tbody tr:nth-child(even) {
-  background: var(--color-surface-sunken);
 }
 
 .table tbody tr:hover {
@@ -107,17 +109,6 @@
   gap: 4px;
 }
 
-.emptyState {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-sm);
-  padding: var(--space-2xl) var(--space-lg);
-  text-align: center;
-  color: var(--color-ink-muted);
-}
-
 .errorBanner {
   display: flex;
   align-items: center;
@@ -129,13 +120,15 @@
   font-size: var(--text-data-size);
 }
 
-.loadingState {
+.emptyState {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: var(--space-sm);
-  color: var(--color-ink-muted);
-  padding: var(--space-2xl) 0;
   justify-content: center;
+  gap: var(--space-sm);
+  padding: var(--space-2xl) var(--space-lg);
+  text-align: center;
+  color: var(--color-ink-muted);
 }
 
 /* --- formulario (crear/editar) --- */
@@ -144,7 +137,16 @@
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  padding: var(--space-xl);
+  padding: 24px;
+}
+
+.loadingState {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  color: var(--color-ink-muted);
+  padding: var(--space-2xl) 0;
+  justify-content: center;
 }
 
 .form {
@@ -167,6 +169,16 @@
 
 .fieldMd {
   flex: 1 1 200px;
+}
+
+/* Nota informativa (ej. "ADMIN siempre tiene acceso total") -- mismo tono
+   que .passwordBanner en Usuarios.module.css pero neutral, no de exito. */
+.infoBanner {
+  background: var(--color-surface-sunken);
+  color: var(--color-ink-secondary);
+  border-radius: var(--radius-sm);
+  padding: var(--space-sm) var(--space-md);
+  font-size: var(--text-data-size);
 }
 
 .formError {
@@ -194,13 +206,78 @@
   gap: var(--space-sm);
 }
 
-/* Árbol de permisos -- ver ModuloPermisos.jsx. Los hijos (módulos de un
-   proyecto) van indentados debajo del checkbox del proyecto (el padre),
-   mismo valor de indent que Solicitudes-Indirectos/Contratación AED. */
-.moduloItems {
+/* --- rediseno 2026-10-03: lista, ficha y formulario --- */
+
+.rolCell {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.rolIcon {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  border-radius: var(--radius-full);
+  background: var(--color-info-surface);
+  color: var(--color-primary);
+}
+
+.rolTexto {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  margin-top: 6px;
-  margin-left: 28px;
+  gap: 1px;
+}
+
+.rolTipo {
+  font-size: var(--text-label-size);
+  color: var(--color-ink-muted);
+}
+
+.muted {
+  color: var(--color-ink-muted);
+}
+
+.cuentasLink {
+  font-weight: 700;
+  color: var(--color-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.heroLink {
+  color: #fff;
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.formStack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.sectionCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  padding: var(--space-xl);
+  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.sectionTitle {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-title-size);
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+.sectionHint {
+  margin: 2px 0 0;
+  font-size: var(--text-data-size);
+  color: var(--color-ink-muted);
 }

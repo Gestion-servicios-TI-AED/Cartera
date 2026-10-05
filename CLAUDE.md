@@ -728,5 +728,12 @@ HRMS y se adaptan solo textos/datos). Se hace por pasos, con el HRMS como modelo
   con el HRMS: Cartera tiene pocas cuentas, así que búsqueda/orden/paginación son
   del lado del navegador (el HRMS lo hace en el servidor). Se conserva "Eliminar
   permanentemente" (cuentas ya inactivas).
-- Pendiente (en orden): Accesos — Roles, Historial, Fechas de entrega y
-  Sincronización; luego las pantallas de Baía Kristal y Oliv.
+- **Paso 4b — Accesos: Roles (hecho):** lista, detalle y creación con el diseño del
+  HRMS (banner de detalle, tarjetas por sección, modal de borrado, árbol de
+  permisos con `PermisosPorModulo.module.css`). Backend: `GET /roles` ahora trae
+  `total_usuarios` y `es_admin`; nuevo `DELETE /roles/:id` (solo roles
+  personalizados sin cuentas). A diferencia del HRMS, los nombres de rol NO se
+  fuerzan a mayúsculas (los roles reales de Cartera están en título: "Cartera",
+  "Administrador").
+- Pendiente (en orden): Accesos — Historial, Fechas de entrega y Sincronización;
+  luego las pantallas de Baía Kristal y Oliv.

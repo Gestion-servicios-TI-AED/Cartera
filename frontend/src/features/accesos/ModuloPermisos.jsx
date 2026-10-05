@@ -1,43 +1,41 @@
-// Copiado del patrón real de Solicitudes-Indirectos (Contratación AED)
-// -- frontend/src/features/configuracion/RolDetallePage.jsx#ModuloPermisos
-// -- pedido explícito del usuario: la matriz de permisos de un rol se ve
-// pixel a pixel igual (árbol padre/hijos), con el padre = proyecto (Baía
-// Kristal/Alegra) e hijos = los módulos de ese proyecto (en vez de
-// nav-section/ver-crear, que es lo que separa en hijos en Contratación).
-// El checkbox del padre es solo un atajo para marcar/desmarcar todos sus
-// hijos de una (si ya hay alguno marcado, los desmarca todos; si no hay
-// ninguno, los marca todos) -- no existe un permiso propio "acceso total a
-// Baía Kristal" en la base, el acceso real depende únicamente de qué
-// módulos tenga marcados.
+// Árbol de permisos por módulo, con el diseño del HRMS (PermisosPorModulo): un
+// grupo por proyecto (Baía Kristal / Oliv / Configuración) y un checkbox por
+// módulo. El checkbox del grupo marca/desmarca todos sus módulos de una; el
+// acceso real depende únicamente de qué módulos tenga marcados -- no existe un
+// permiso propio "acceso total a Baía Kristal". Compartido entre RolFormPage y
+// RolDetallePage. Las etiquetas salen de config/modulosPorProyecto.js.
 import { Checkbox } from '../../components/ui/Checkbox.jsx';
-import styles from './Roles.module.css';
+import { MODULOS_POR_PROYECTO } from '../../config/modulosPorProyecto.js';
+import styles from './PermisosPorModulo.module.css';
 
-export function ModuloPermisos({ titulo, items, permisos, onChange }) {
-  if (items.length === 0) return null;
-  const algunoMarcado = items.some((item) => permisos.has(item.key));
-
-  function toggleTodos() {
-    const nuevos = new Set(permisos);
-    if (algunoMarcado) items.forEach((item) => nuevos.delete(item.key));
-    else items.forEach((item) => nuevos.add(item.key));
-    onChange(nuevos);
+export function ModuloPermisos({ value, onChange }) {
+  function toggleGrupo(claves) {
+    const todosMarcados = claves.every((clave) => value.includes(clave));
+    onChange(todosMarcados ? value.filter((clave) => !claves.includes(clave)) : [...new Set([...value, ...claves])]);
   }
 
-  function toggleUno(key) {
-    const nuevos = new Set(permisos);
-    if (nuevos.has(key)) nuevos.delete(key);
-    else nuevos.add(key);
-    onChange(nuevos);
+  function toggleUno(clave) {
+    onChange(value.includes(clave) ? value.filter((item) => item !== clave) : [...value, clave]);
   }
 
   return (
-    <div>
-      <Checkbox label={titulo} checked={algunoMarcado} onChange={toggleTodos} />
-      <div className={styles.moduloItems}>
-        {items.map((item) => (
-          <Checkbox key={item.key} label={item.label} checked={permisos.has(item.key)} onChange={() => toggleUno(item.key)} />
-        ))}
-      </div>
+    <div className={styles.tree} role="tree" aria-label="Permisos por módulo">
+      {MODULOS_POR_PROYECTO.map(({ proyecto, items }) => {
+        const claves = items.map((item) => item.key);
+        // El grupo se ve marcado en cuanto hay UN módulo marcado: refleja la
+        // misma condición que usa el sidebar para mostrar la categoría.
+        const algunoMarcado = claves.some((clave) => value.includes(clave));
+        return (
+          <div key={proyecto} className={styles.group} role="treeitem" aria-expanded="true">
+            <Checkbox label={proyecto} checked={algunoMarcado} onChange={() => (algunoMarcado ? onChange(value.filter((c) => !claves.includes(c))) : toggleGrupo(claves))} />
+            <div className={styles.children} role="group">
+              {items.map((item) => (
+                <Checkbox key={item.key} className={styles.child} label={item.label} checked={value.includes(item.key)} onChange={() => toggleUno(item.key)} />
+              ))}
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 }
