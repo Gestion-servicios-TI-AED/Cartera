@@ -120,7 +120,7 @@ export async function exportarEstadoCuentaOliv(negocio) {
   const pageWidth = doc.internal.pageSize.getWidth();
   const pageHeight = doc.internal.pageSize.getHeight();
 
-  const logoDataUrl = await cargarImagenComoDataUrl('/aed-logo.png').catch(() => null);
+  const logoDataUrl = await cargarImagenComoDataUrl(`${import.meta.env.BASE_URL}aed-logo.png`).catch(() => null);
   const yInicio = drawEncabezadoEstadoCuenta(doc, pageWidth, logoDataUrl);
 
   const hoy = new Date().toLocaleDateString('es-CO', { day: '2-digit', month: '2-digit', year: 'numeric' });

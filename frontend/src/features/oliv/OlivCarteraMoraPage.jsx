@@ -33,6 +33,7 @@ import { StatTile } from '../dashboard/StatTile.jsx';
 import { CeldaDoble, ChipDias, BarraMora, ValorVencido } from '../cartera-mora/CarteraCeldas.jsx';
 import dashStyles from '../dashboard/Dashboard.module.css';
 import styles from '../cartera-mora/CarteraMoraPage.module.css';
+import { rutaApp } from '../../utils/rutas.js';
 
 // Misma paleta que dashboard/OlivDashboardPage.jsx#COLOR_EXCEL -- mismo
 // lenguaje visual para cualquier .xlsx que exporte este dashboard, Cartera
@@ -458,21 +459,21 @@ export function OlivCarteraMoraPage() {
         <div className={styles.contextMenu} style={{ top: menuContextual.y, left: menuContextual.x }} onClick={(e) => e.stopPropagation()}>
           <button
             className={styles.contextMenuItem}
-            onClick={() => { window.open(`/oliv/negocios/${menuContextual.fila.id}`, '_blank'); setMenuContextual(null); }}
+            onClick={() => { window.open(rutaApp(`/oliv/negocios/${menuContextual.fila.id}`), '_blank'); setMenuContextual(null); }}
           >
             <Briefcase size={13} /> Ver negocio
           </button>
           <button
             className={styles.contextMenuItem}
             disabled={!menuContextual.fila.inmuebleId}
-            onClick={() => { window.open(`/oliv/inmuebles/${menuContextual.fila.inmuebleId}`, '_blank'); setMenuContextual(null); }}
+            onClick={() => { window.open(rutaApp(`/oliv/inmuebles/${menuContextual.fila.inmuebleId}`), '_blank'); setMenuContextual(null); }}
           >
             <Warehouse size={13} /> Ver inmueble
           </button>
           <button
             className={styles.contextMenuItem}
             disabled={!menuContextual.fila.oportunidadId}
-            onClick={() => { window.open(`/oliv/oportunidades/${menuContextual.fila.oportunidadId}`, '_blank'); setMenuContextual(null); }}
+            onClick={() => { window.open(rutaApp(`/oliv/oportunidades/${menuContextual.fila.oportunidadId}`), '_blank'); setMenuContextual(null); }}
           >
             <ExternalLink size={13} /> Ver oportunidad
           </button>

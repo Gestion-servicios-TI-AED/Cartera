@@ -35,6 +35,7 @@ import { Checkbox } from '../../components/ui/Checkbox.jsx';
 import { StatTile } from './StatTile.jsx';
 import dashStyles from './Dashboard.module.css';
 import styles from './DashboardPage.module.css';
+import { rutaApp } from '../../utils/rutas.js';
 
 function claveFila(fila) {
   return fila.nomenclatura || `${fila.etapa}-${fila.frente}-${fila.torre}`;
@@ -599,17 +600,17 @@ export function DashboardPage() {
           <button
             className={styles.contextMenuItem}
             disabled={!menuContextual.fila.negocioId}
-            onClick={() => { window.open(`/negocios/${menuContextual.fila.negocioId}`, '_blank'); setMenuContextual(null); }}
+            onClick={() => { window.open(rutaApp(`/negocios/${menuContextual.fila.negocioId}`), '_blank'); setMenuContextual(null); }}
           >
             <Briefcase size={13} /> Ver negocio
           </button>
-          <button className={styles.contextMenuItem} onClick={() => { window.open(`/inventario/${menuContextual.fila.id}`, '_blank'); setMenuContextual(null); }}>
+          <button className={styles.contextMenuItem} onClick={() => { window.open(rutaApp(`/inventario/${menuContextual.fila.id}`), '_blank'); setMenuContextual(null); }}>
             <Warehouse size={13} /> Ver inmueble
           </button>
           <button
             className={styles.contextMenuItem}
             disabled={!menuContextual.fila.opportunityId}
-            onClick={() => { window.open(`/oportunidades/${menuContextual.fila.opportunityId}`, '_blank'); setMenuContextual(null); }}
+            onClick={() => { window.open(rutaApp(`/oportunidades/${menuContextual.fila.opportunityId}`), '_blank'); setMenuContextual(null); }}
           >
             <ExternalLink size={13} /> Ver oportunidad
           </button>

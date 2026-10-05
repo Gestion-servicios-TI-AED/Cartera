@@ -1,14 +1,58 @@
+# ── Dependencias ──────────────────────────────────────────────
 node_modules/
-.env
-dist/
-*.log
 
-# OS
+# ── Variables de entorno: NUNCA versionar secretos ────────────
+# (.env.example SÍ se versiona: documenta las variables sin valores)
+.env
+.env.*
+!.env.example
+
+# ── Builds y artefactos generados ─────────────────────────────
+dist/
+build/
+coverage/
+*.tsbuildinfo
+.vite/
+.cache/
+
+# ── Logs ──────────────────────────────────────────────────────
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ── Datos y archivos locales del backend ──────────────────────
+backend/uploads/
+backend/secrets/
+*.bundle
+
+# ── Temporales ────────────────────────────────────────────────
+tmp/
+temp/
+*.tmp
+*.bak
+*.swp
+
+# ── Sistema operativo ─────────────────────────────────────────
 .DS_Store
 Thumbs.db
+desktop.ini
+# Archivo basura de Windows (redirección a "nul")
+nul
 
-# Claude Code / herramientas locales
+# ── Editores / IDE ────────────────────────────────────────────
+.vscode/
+.idea/
+*.code-workspace
+
+# ── Herramientas locales de IA / pruebas (no son parte del producto) ──
 .claude/
 .superpowers/
 .playwright-mcp/
-nul
+.impeccable/
+playwright-report/
+test-results/
+
+# ── Otros proyectos de la familia vinculados como carpeta hermana ──
+plantilla-arquitectura/

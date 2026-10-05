@@ -150,7 +150,7 @@ export function AppShell() {
     <div className={styles.shell}>
       <aside className={styles.sidebar}>
         <div className={styles.brand}>
-          <img className={styles.brandLogo} src="/aed-logo.png" alt="aed" />
+          <img className={styles.brandLogo} src={`${import.meta.env.BASE_URL}aed-logo.png`} alt="aed" />
           <span className={styles.brandDivider} aria-hidden="true" />
           <span className={styles.brandName}>Cartera</span>
         </div>

@@ -975,6 +975,23 @@ HRMS y se adaptan solo textos/datos). Se hace por pasos, con el HRMS como modelo
   - **Decidido NO hacer:** columnas fijas (sticky) en la tabla ancha de Cartera de Baía Kristal --
     los anchos de columna son variables y el desfase entre columnas fijas rompería el hover y el menú
     contextual; el scroll horizontal se mantiene.
+- **Despliegue con Docker (mismo patrón que el HRMS), verificado con la imagen real (2026-10-05):**
+  `Dockerfile` (3 etapas: build Vite, deps de producción del backend, imagen final; `PORT=3000`),
+  `entrypoint.sh` (solo `sequelize-cli db:migrate` + `node src/server.js`; **nunca** `db:seed`),
+  `.dockerignore`, `.gitattributes` (fuerza LF en `*.sh`/`Dockerfile`: un `entrypoint.sh` con CRLF
+  falla en el contenedor) y `README.md` con build-args, variables y primer despliegue.
+  `backend/src/app.js` ahora **sirve el build del frontend** (`frontend/dist`) con fallback a
+  `index.html` para todo lo que no sea `/api/*`, y `CORS_ORIGIN` acepta varios orígenes separados por
+  coma. `sequelize-cli` pasó de devDependency a dependency (el contenedor instala con `--omit=dev` y
+  lo necesita para migrar). Frontend: `vite.config.js` toma `base` de `VITE_BASE_PATH`,
+  `BrowserRouter basename={import.meta.env.BASE_URL}`, y los `window.open('/negocios/..')` pasan por
+  `utils/rutas.js#rutaApp` para respetar el subpath (también el logo del shell y el del PDF de Oliv).
+  Compatible con el gateway de "0. PLATAFORMA AED" (que quita el prefijo): build-args
+  `VITE_API_BASE_URL=/cartera/api` y `VITE_BASE_PATH=/cartera/` (verificado el build con esos valores).
+  Prueba real: imagen construida, contenedor contra la BD de desarrollo, `/api/health` 200, SPA con
+  refresh directo, login + Inicio + Negocios sin errores de JS ni de red, precalentado en 25 s.
+  `.gitignore` reescrito (secretos `.env*` salvo `.env.example`, builds, logs, uploads, SO, editores,
+  herramientas locales); `.impeccable/` pasó a ignorarse (igual que el HRMS) y se destrackeó.
 - Pendiente: Panel de Alertas con más tipos y filas clicables en Cartera/Otrosíes (ver brechas
   conocidas arriba).
   Cartera ya heredó los estilos de tarjetas/KPIs de `Dashboard.module.css`.

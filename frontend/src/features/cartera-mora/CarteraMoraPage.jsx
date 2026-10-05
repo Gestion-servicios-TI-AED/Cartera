@@ -28,6 +28,7 @@ import { StatTile } from '../dashboard/StatTile.jsx';
 import { CeldaDoble, ChipDias, BarraMora, ValorVencido } from './CarteraCeldas.jsx';
 import dashStyles from '../dashboard/Dashboard.module.css';
 import styles from './CarteraMoraPage.module.css';
+import { rutaApp } from '../../utils/rutas.js';
 
 // Misma paleta que dashboard/DashboardPage.jsx#COLOR_EXCEL -- mismo lenguaje
 // visual para cualquier .xlsx que exporte este dashboard, Cartera incluida.
@@ -570,17 +571,17 @@ export function CarteraMoraPage() {
           <button
             className={styles.contextMenuItem}
             disabled={!menuContextual.fila.negocioId}
-            onClick={() => { window.open(`/negocios/${menuContextual.fila.negocioId}`, '_blank'); setMenuContextual(null); }}
+            onClick={() => { window.open(rutaApp(`/negocios/${menuContextual.fila.negocioId}`), '_blank'); setMenuContextual(null); }}
           >
             <Briefcase size={13} /> Ver negocio
           </button>
-          <button className={styles.contextMenuItem} onClick={() => { window.open(`/inventario/${menuContextual.fila.id}`, '_blank'); setMenuContextual(null); }}>
+          <button className={styles.contextMenuItem} onClick={() => { window.open(rutaApp(`/inventario/${menuContextual.fila.id}`), '_blank'); setMenuContextual(null); }}>
             <Warehouse size={13} /> Ver inmueble
           </button>
           <button
             className={styles.contextMenuItem}
             disabled={!menuContextual.fila.opportunityId}
-            onClick={() => { window.open(`/oportunidades/${menuContextual.fila.opportunityId}`, '_blank'); setMenuContextual(null); }}
+            onClick={() => { window.open(rutaApp(`/oportunidades/${menuContextual.fila.opportunityId}`), '_blank'); setMenuContextual(null); }}
           >
             <ExternalLink size={13} /> Ver oportunidad
           </button>
