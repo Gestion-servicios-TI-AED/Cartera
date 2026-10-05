@@ -28,7 +28,14 @@ import { StageBadge } from '../../components/ui/StageBadge.jsx';
 import { Accordion } from '../../components/ui/Accordion.jsx';
 import { getOportunidadOliv, listPropiedadesMetadataOliv } from '../../api/oliv.js';
 import { formatCOP, formatDate, formatDateTime } from '../../utils/format.js';
+import layoutStyles from '../../components/layout/WizardLayout.module.css';
 import styles from '../oportunidades/OportunidadDetallePage.module.css';
+
+function iniciales(texto = '') {
+  const partes = String(texto).replace(/^(Baia Kristal|Oliv)\s*-\s*/i, '').trim().split(/\s+/).filter(Boolean);
+  return `${partes[0]?.[0] ?? ''}${partes.length > 1 ? partes[1][0] : ''}`.toUpperCase() || '?';
+}
+
 
 // Elegidas a mano revisando qué propiedades de HubSpot vienen pobladas de
 // verdad en los negocios reales de Oliv (no solo definidas) -- el resto de
@@ -122,11 +129,18 @@ export function OlivOportunidadDetallePage() {
     <div className={styles.page}>
       <BackLink to="/oliv/oportunidades">Oportunidades</BackLink>
 
-      <div className={styles.header}>
-        <h1 className={styles.title}>{op.nombreContacto || op.dealName}</h1>
-        <StageBadge stage={op.stage} />
-        <span className={styles.syncInfo}>Sync {formatDateTime(op.ultimoSyncEn)}</span>
-      </div>
+      <section className={layoutStyles.hero}>
+        <div className={layoutStyles.heroAvatar}>{iniciales(op.nombreContacto || op.dealName)}</div>
+        <div className={layoutStyles.heroInfo}>
+          <h1 className={layoutStyles.heroName}>{op.nombreContacto || op.dealName}</h1>
+          <p className={layoutStyles.heroRole}>{op.proyecto || op.dealName || 'Oportunidad'}</p>
+          <p className={layoutStyles.heroMeta}>Última sincronización: {formatDateTime(op.ultimoSyncEn)}</p>
+        </div>
+        <div className={layoutStyles.heroSide}>
+          <StageBadge stage={op.stage} />
+          {op.referenciaRecaudo && <span className={styles.refBadge}>Ref. {op.referenciaRecaudo}</span>}
+        </div>
+      </section>
 
       <div className={styles.body}>
         {/* Izquierda: info general + preferencias del inmueble (equivalente a Contacto/Inmueble en Baía Kristal) */}

@@ -14,7 +14,14 @@ import { Accordion } from '../../components/ui/Accordion.jsx';
 import { getOportunidad, getSubformsOportunidad, getCamposMetadata } from '../../api/oportunidades.js';
 import { formatCOP, formatDate, formatDateTime } from '../../utils/format.js';
 import { addFechaEstimada } from '../../utils/planDePagos.js';
+import layoutStyles from '../../components/layout/WizardLayout.module.css';
 import styles from './OportunidadDetallePage.module.css';
+
+function iniciales(texto = '') {
+  const partes = String(texto).replace(/^(Baia Kristal|Oliv)\s*-\s*/i, '').trim().split(/\s+/).filter(Boolean);
+  return `${partes[0]?.[0] ?? ''}${partes.length > 1 ? partes[1][0] : ''}`.toUpperCase() || '?';
+}
+
 
 function InfoRow({ label, children }) {
   return (
@@ -163,11 +170,18 @@ export function OportunidadDetallePage() {
     <div className={styles.page}>
       <BackLink to="/oportunidades">Oportunidades</BackLink>
 
-      <div className={styles.header}>
-        <h1 className={styles.title}>{op.dealName}</h1>
-        <StageBadge stage={op.stage} />
-        <span className={styles.syncInfo}>Sync {formatDateTime(op.ultimoSyncEn)}</span>
-      </div>
+      <section className={layoutStyles.hero}>
+        <div className={layoutStyles.heroAvatar}>{iniciales(op.contactName || op.dealName)}</div>
+        <div className={layoutStyles.heroInfo}>
+          <h1 className={layoutStyles.heroName}>{op.dealName}</h1>
+          <p className={layoutStyles.heroRole}>{[op.contactName, op.accountName].filter(Boolean).join(' · ') || 'Oportunidad'}</p>
+          <p className={layoutStyles.heroMeta}>Última sincronización: {formatDateTime(op.ultimoSyncEn)}</p>
+        </div>
+        <div className={layoutStyles.heroSide}>
+          <StageBadge stage={op.stage} />
+          {op.referenciaRecaudo && <span className={styles.refBadge}>Ref. {op.referenciaRecaudo}</span>}
+        </div>
+      </section>
 
       <div className={styles.body}>
         {/* Izquierda: info general + inmueble */}

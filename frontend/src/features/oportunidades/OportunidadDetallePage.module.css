@@ -1,109 +1,92 @@
+/* Detalle de Oportunidad (Baía Kristal y Oliv comparten este módulo). Mismo
+   diseño que las fichas del HRMS (migración de diseño 2026-10-05): banner de
+   detalle arriba (viene de WizardLayout.module.css) y cada bloque de
+   información como una tarjeta de sección. */
+
 .page {
   display: flex;
   flex-direction: column;
-  gap: var(--space-md);
+  gap: var(--space-lg);
+  width: 100%;
 }
 
-.cargando,
-.error {
-  padding: var(--space-md) 0;
-  font-size: var(--text-data-size);
+.cargando {
+  padding: var(--space-xl);
+  text-align: center;
   color: var(--color-ink-muted);
-  margin: 0;
 }
 
 .error {
+  padding: var(--space-md) var(--space-lg);
+  border-radius: var(--radius-md);
+  background: var(--color-danger-surface);
   color: var(--color-danger-ink);
 }
 
-.header {
-  display: flex;
-  align-items: center;
-  gap: var(--space-sm);
-  flex-wrap: wrap;
-}
-
-.title {
-  flex: 1;
-  min-width: 0;
-  font-family: var(--font-display);
-  font-size: var(--text-headline-size);
-  font-weight: var(--text-headline-weight);
-  color: var(--color-ink);
-  margin: 0;
-  overflow-wrap: break-word;
-}
-
-.syncInfo {
-  font-size: var(--text-label-size);
-  color: var(--color-ink-muted);
-}
-
-/* ── Body en 2 columnas (izq: info/inmueble -- der: financiero) ─────────── */
-
 .body {
   display: grid;
-  grid-template-columns: minmax(0, 320px) minmax(0, 1fr);
-  gap: var(--space-md);
+  grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+  gap: var(--space-lg);
   align-items: start;
-}
-
-@media (max-width: 900px) {
-  .body {
-    grid-template-columns: 1fr;
-  }
 }
 
 .columna {
   display: flex;
   flex-direction: column;
-  gap: var(--space-md);
+  gap: var(--space-lg);
   min-width: 0;
 }
 
+/* Tarjeta de sección */
 .card {
   display: flex;
   flex-direction: column;
   gap: var(--space-md);
-  background: var(--color-surface);
+  padding: 24px 28px;
+  background: #fff;
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  padding: var(--space-md);
+  border-radius: var(--radius-lg);
 }
 
 .subtitulo {
-  font-size: var(--text-label-size);
-  font-weight: var(--text-label-weight);
-  letter-spacing: var(--text-label-tracking);
-  text-transform: uppercase;
-  color: var(--color-ink-muted);
   margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-title-size);
+  font-weight: 600;
+  color: var(--color-ink);
 }
 
-.miniLabel {
-  font-size: var(--text-label-size);
-  font-weight: var(--text-label-weight);
-  letter-spacing: var(--text-label-tracking);
-  text-transform: uppercase;
-  color: var(--color-ink-muted);
+.seccionBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  padding: var(--space-md) 28px 24px;
 }
 
+/* Filas de información (etiqueta arriba, valor abajo) */
 .infoRow {
   display: flex;
   flex-direction: column;
   gap: 2px;
 }
 
+.miniLabel {
+  font-size: var(--text-label-size);
+  font-weight: 600;
+  color: var(--color-ink-muted);
+}
+
 .infoValor {
   font-size: var(--text-body-size);
-  font-weight: 500;
   color: var(--color-ink);
-  overflow-wrap: break-word;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .link {
   color: var(--color-primary);
   text-decoration: none;
+  font-weight: 500;
 }
 
 .link:hover {
@@ -112,19 +95,20 @@
 
 .refBadge {
   display: inline-block;
-  font-family: monospace;
+  padding: 2px 10px;
+  border-radius: var(--radius-full);
+  background: var(--color-info-surface);
+  color: var(--color-primary);
   font-size: var(--text-label-size);
-  background: var(--color-warning-surface);
-  color: var(--color-warning-ink);
-  border: 1px solid color-mix(in srgb, var(--color-warning-ink) 25%, transparent);
-  padding: 2px 8px;
-  border-radius: var(--radius-sm);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
 }
 
+/* Cuadrícula de campos (dos columnas) */
 .fieldGrid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-sm) var(--space-md);
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--space-md) var(--space-lg);
 }
 
 .fieldCell {
@@ -135,22 +119,45 @@
 }
 
 .fieldValor {
-  font-size: var(--text-data-size);
-  color: var(--color-ink-secondary);
-  overflow-wrap: break-word;
+  font-size: var(--text-body-size);
+  color: var(--color-ink);
+  overflow-wrap: anywhere;
 }
 
 .sinDatos {
-  font-size: var(--text-data-size);
-  color: var(--color-ink-muted);
-  font-style: italic;
   margin: 0;
+  color: var(--color-ink-muted);
+  font-size: var(--text-data-size);
 }
 
-/* ── Tablas (financiero, subforms) ───────────────────────────────────── */
+.aviso {
+  margin: var(--space-sm) 0 0;
+  font-size: var(--text-label-size);
+  color: var(--color-ink-muted);
+}
 
+.montoGrande {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.75rem;
+  font-weight: 600;
+  line-height: 1.1;
+  color: var(--color-ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.montoFuerte {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.right {
+  text-align: right;
+}
+
+/* Tablas dentro de una tarjeta */
 .tableWrap {
-  overflow-x: auto;
+  overflow: auto;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
 }
@@ -158,25 +165,31 @@
 .table {
   width: 100%;
   border-collapse: collapse;
-  font-size: var(--text-data-size);
 }
 
-.table th,
-.table td {
-  padding: var(--space-sm) var(--space-md);
+.table thead th {
   text-align: left;
-  border-bottom: 1px solid var(--color-border);
-  white-space: nowrap;
-}
-
-.table th {
-  background: var(--color-surface-sunken);
   font-size: var(--text-label-size);
   font-weight: var(--text-label-weight);
   letter-spacing: var(--text-label-tracking);
   text-transform: uppercase;
   color: var(--color-ink-muted);
-  border-bottom: 2px solid var(--color-primary);
+  background: var(--color-surface);
+  padding: 10px var(--space-md);
+  border-bottom: 1px solid var(--color-border);
+  white-space: nowrap;
+}
+
+.table thead th.right {
+  text-align: right;
+}
+
+.table tbody td {
+  padding: 10px var(--space-md);
+  font-size: var(--text-data-size);
+  color: var(--color-ink);
+  border-bottom: 1px solid var(--color-border);
+  vertical-align: middle;
 }
 
 .table tbody tr:last-child td {
@@ -184,44 +197,11 @@
 }
 
 .table tbody tr:hover {
-  background: var(--color-info-surface);
+  background: var(--color-surface-sunken);
 }
 
-.right {
-  text-align: right;
-}
-
-.montoFuerte {
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-  color: var(--color-ink);
-  font-family: monospace;
-}
-
-/* Callout de monto grande (Oliv) -- Oportunidad/Baía Kristal nunca necesitó
-   esto, ahí el monto vive dentro de la tabla "Plan de Pagos"; Oliv no tiene
-   ese desglose, solo el `amount` del Deal, así que se destaca solo. */
-.montoGrande {
-  font-family: var(--font-display);
-  font-size: var(--text-title-size);
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-  color: var(--color-ink);
-  margin: 0;
-}
-
-/* ── Subforms (dentro del Accordion) ────────────────────────────────────── */
-
-.seccionBody {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-lg);
-  padding: var(--space-md);
-}
-
-.aviso {
-  font-size: var(--text-label-size);
-  font-style: italic;
-  color: var(--color-ink-muted);
-  margin: var(--space-sm) 0 0;
+@media (max-width: 900px) {
+  .body {
+    grid-template-columns: 1fr;
+  }
 }

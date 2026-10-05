@@ -742,6 +742,14 @@ HRMS y se adaptan solo textos/datos). Se hace por pasos, con el HRMS como modelo
   `accesos/Usuarios.module.css` (se eliminó su CSS propio) y
   `Accesos.module.css` quedó solo con lo propio de Sincronización (progreso,
   estados, lista de torres). Con esto **Accesos queda completo**.
-- Pendiente (en orden): pantallas de Baía Kristal y Oliv (Inicio, Dashboard,
-  Negocios, Inmuebles, Encargos, Movimientos, Resumen, Cartera, Otrosíes,
-  Oportunidades).
+- **Paso 5 — Oportunidades de Baía Kristal y Oliv (hecho):** las dos listas comparten
+  `oportunidades/OportunidadesListPage.module.css` y los dos detalles
+  `OportunidadDetallePage.module.css` (se reescribieron). Lista: encabezado con
+  título + total + estado de sync y botón "Sincronizar ahora" (`<Button>`), filtros
+  con etiqueta y "Limpiar filtros", tabla en tarjeta con paginación adentro (Oliv
+  ahora muestra la etapa con `StageBadge`). Detalle: banner (hero de
+  `WizardLayout.module.css`) con iniciales, contacto/proyecto, última sync, etapa y
+  referencia de recaudo; cada bloque es una tarjeta de sección; el `Accordion`
+  pasa a tarjeta redonda con más aire. No cambió ninguna lógica ni endpoint.
+- Pendiente (en orden): Inicio, Dashboard, Negocios, Inmuebles, Encargos,
+  Movimientos, Resumen, Cartera y Otrosíes (de Baía Kristal y Oliv).

@@ -1,39 +1,44 @@
+/* Lista de Oportunidades (Baía Kristal y Oliv comparten este módulo). Mismo
+   diseño que las listas del HRMS (migración de diseño 2026-10-05): encabezado
+   con título + acciones, filtros con etiqueta y "Limpiar filtros", tabla en
+   tarjeta con encabezado discreto, hover suave y paginación dentro de la tarjeta. */
+
 .page {
   display: flex;
   flex-direction: column;
-  gap: var(--space-md);
+  gap: var(--space-lg);
+  width: 100%;
 }
 
 .header {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-md);
 }
 
 .title {
+  margin: 0;
   font-family: var(--font-display);
   font-size: var(--text-headline-size);
   font-weight: var(--text-headline-weight);
   color: var(--color-ink);
-  margin: 0;
 }
 
 .subtitle {
-  font-size: var(--text-data-size);
+  margin: 2px 0 0;
   color: var(--color-ink-muted);
+  font-size: var(--text-data-size);
 }
 
-/* ── Barra de sincronización ─────────────────────────────────────────── */
+/* --- estado de la sincronización --- */
 
 .syncBar {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  flex-wrap: wrap;
   gap: var(--space-md);
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  padding: var(--space-md) var(--space-lg);
 }
 
 .syncEstado {
@@ -41,24 +46,35 @@
   color: var(--color-ink-muted);
 }
 
+.syncEstado strong {
+  color: var(--color-ink);
+  font-weight: 600;
+}
+
 .syncCorriendo {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   color: var(--color-primary);
+  font-weight: 600;
 }
 
 .syncDot {
-  width: 7px;
-  height: 7px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   background: var(--color-primary);
-  animation: pulse 1.4s ease-in-out infinite;
+  animation: oportunidades-pulso 1.2s ease-in-out infinite;
 }
 
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.35; }
+@keyframes oportunidades-pulso {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
 }
 
 .syncOk {
@@ -69,252 +85,142 @@
   color: var(--color-danger-ink);
 }
 
-.botonSync {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 16px;
-  border-radius: var(--radius-sm);
-  border: none;
-  background: var(--color-primary);
-  color: var(--color-primary-ink-on);
-  font-size: var(--text-data-size);
-  font-weight: 600;
-  cursor: pointer;
-  flex-shrink: 0;
-  transition: background-color var(--duration-fast) var(--ease-standard);
-}
-
-.botonSync:hover:not(:disabled) {
-  background: var(--color-primary-hover);
-}
-
-.botonSync:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
 .spin {
-  animation: spin 1s linear infinite;
+  animation: oportunidades-giro 1s linear infinite;
 }
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
+@keyframes oportunidades-giro {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
-/* ── KPIs ────────────────────────────────────────────────────────────── */
-
-.kpiGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: var(--space-md);
-}
-
-.kpiCard {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  padding: var(--space-md);
-}
-
-.kpiHeader {
-  display: flex;
-  align-items: center;
-  gap: var(--space-sm);
-}
-
-.kpiIcon {
-  width: 32px;
-  height: 32px;
-  border-radius: var(--radius-sm);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.kpiLabel {
+.botonSyncInterior {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  font-size: var(--text-data-size);
-  font-weight: 500;
-  color: var(--color-ink-muted);
+  gap: 8px;
 }
 
-.kpiValue {
-  font-family: var(--font-display);
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--color-ink);
-  line-height: 1.2;
+/* --- filtros --- */
+
+.row {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--space-md);
+  align-items: end;
 }
 
-.kpiSub {
-  font-size: var(--text-data-size);
-  color: var(--color-ink-muted);
+.fieldMd,
+.fieldLg,
+.fieldSm {
+  min-width: 0;
+}
+
+/* La búsqueda (fieldMd) es el filtro principal: ocupa el doble de ancho. */
+.fieldMd {
+  grid-column: span 2;
 }
 
 .labelConIcono {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  /* Defensa contra un label+ícono+tooltip que no entre en el ancho del
-     campo (ver `.fieldSm`/`.fieldMd`/`.fieldLg` abajo) -- nunca se corta,
-     en el peor caso baja a una segunda línea. */
-  flex-wrap: wrap;
+  gap: 6px;
 }
 
-.row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  gap: var(--space-md);
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
+.limpiar {
+  min-height: 44px;
+  border: 1px dashed var(--color-border-strong);
   border-radius: var(--radius-md);
-  padding: var(--space-lg);
+  background: transparent;
+  color: var(--color-ink-secondary);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
 }
 
-/* `min-width`, no `width` fijo (regla "ancho fluido, nunca se corta" de
-   ARQUITECTURA-FRONTEND.md): un `<select>` nativo ya se autoajusta al
-   contenido de sus opciones cuando no se le fuerza un ancho -- estas clases
-   solo ponen un piso para que campos de valores cortos (Frente, Torre) no
-   queden angostos e inconsistentes entre sí. */
-.fieldSm {
-  min-width: 200px;
+.limpiar:hover {
+  background: var(--color-surface-sunken);
+  color: var(--color-ink);
 }
 
-.fieldMd {
-  /* El buscador es un <input>, que NO se autoajusta a su placeholder como
-     un <select> -- acá el ancho generoso es obligatorio, no un piso. */
-  min-width: 320px;
-}
+/* --- tabla --- */
 
-/* Reservado para el <select> de "Etapa CRM": los valores reales de
-   Zoho llegan a medir 60 caracteres (ej. "11BC CARGUE DOCUMENTOS A PORTAL
-   BANCOLOMBIA SALA DE VENTAS") -- dejarlo autoajustarse sin tope desbalancea
-   toda la fila de filtros. Ancho generoso + elipsis para esos casos extremos,
-   en vez de un corte seco sin aviso. */
-.fieldLg {
-  min-width: 340px;
-  max-width: 420px;
-}
-
-.fieldLg select {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.tableWrap {
+  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: auto;
 }
 
 .table {
   width: 100%;
   border-collapse: collapse;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  overflow: hidden;
 }
 
-.table th,
-.table td {
-  padding: var(--space-sm) var(--space-md);
+.table thead th {
   text-align: left;
-  font-size: var(--text-data-size);
+  font-family: var(--font-body);
+  font-size: var(--text-label-size);
+  font-weight: var(--text-label-weight);
+  letter-spacing: var(--text-label-tracking);
+  text-transform: uppercase;
+  color: var(--color-ink-muted);
+  background: var(--color-surface);
+  padding: 12px var(--space-md);
   border-bottom: 1px solid var(--color-border);
+  white-space: nowrap;
 }
 
-.table th {
-  background: var(--color-surface-sunken);
-  border-bottom: 2px solid var(--color-primary);
+.table tbody td {
+  padding: 12px var(--space-md);
+  font-size: var(--text-data-size);
+  color: var(--color-ink);
+  border-bottom: 1px solid var(--color-border);
+  vertical-align: middle;
 }
 
 .table tbody tr:last-child td {
   border-bottom: none;
 }
 
-.table a {
-  color: var(--color-primary);
-  text-decoration: none;
-  font-weight: 500;
-}
-
-.table a:hover {
-  text-decoration: underline;
-}
-
-.cargando {
-  color: var(--color-ink-muted);
-  font-size: var(--text-data-size);
-}
-
-.sinResultados {
-  text-align: center;
-  padding: var(--space-lg);
-  color: var(--color-ink-muted);
+.table tbody tr:hover {
+  background: var(--color-surface-sunken);
 }
 
 .filaClicable {
   cursor: pointer;
-  transition: background-color var(--duration-fast) var(--ease-standard);
-}
-
-.filaClicable:hover {
-  background: var(--color-info-surface);
 }
 
 .nombreOportunidad {
-  font-weight: 500;
-  color: var(--color-ink);
+  font-weight: 600;
+}
+
+.refBadge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: var(--radius-full);
+  background: var(--color-info-surface);
+  color: var(--color-primary);
+  font-size: var(--text-label-size);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
 }
 
 .mono {
-  font-variant-numeric: tabular-nums;
-  color: var(--color-ink-secondary);
+  font-family: var(--font-mono);
 }
 
 .muted {
   color: var(--color-ink-muted);
-  font-size: var(--text-label-size);
 }
 
-.refBadge {
-  font-family: monospace;
-  font-size: var(--text-label-size);
-  background: var(--color-warning-surface);
-  color: var(--color-warning-ink);
-  border: 1px solid color-mix(in srgb, var(--color-warning-ink) 25%, transparent);
-  padding: 2px 8px;
-  border-radius: var(--radius-sm);
-}
-
-.pagination {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-md);
-  font-size: var(--text-data-size);
+.sinResultados,
+.cargando {
+  padding: var(--space-xl) var(--space-lg);
+  text-align: center;
   color: var(--color-ink-muted);
-}
-
-.botonPaginacion {
-  padding: 6px 14px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--color-border);
-  background: var(--color-surface);
-  color: var(--color-ink-secondary);
-  font-size: var(--text-data-size);
-  cursor: pointer;
-}
-
-.botonPaginacion:hover:not(:disabled) {
-  background: var(--color-surface-sunken);
-}
-
-.botonPaginacion:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
+  font-size: var(--text-body-size);
 }

@@ -11,6 +11,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, ListFilter, RefreshCw, Layers, MapPin, Building } from 'lucide-react';
+import { Button } from '../../components/ui/Button.jsx';
 import { StageBadge } from '../../components/ui/StageBadge.jsx';
 import { Field, TextInput, Select } from '../../components/ui/Field.jsx';
 import { InfoTooltip } from '../../components/ui/InfoTooltip.jsx';
@@ -67,10 +68,12 @@ function SyncStatusBar() {
           <span className={styles.syncError}>Error en sync: {status.errorMsg?.slice(0, 50)}</span>
         )}
       </div>
-      <button type="button" className={styles.botonSync} onClick={handleSync} disabled={corriendo}>
-        <RefreshCw size={13} className={corriendo ? styles.spin : ''} />
-        {corriendo ? 'Sincronizando…' : 'Sincronizar ahora'}
-      </button>
+      <Button variant="secondary" onClick={handleSync} disabled={corriendo}>
+        <span className={styles.botonSyncInterior}>
+          <RefreshCw size={14} className={corriendo ? styles.spin : ''} aria-hidden="true" />
+          {corriendo ? 'Sincronizando…' : 'Sincronizar ahora'}
+        </span>
+      </Button>
     </div>
   );
 }
@@ -177,15 +180,23 @@ export function OportunidadesListPage() {
     : [];
 
   const meta = resultado ?? {};
+  const hayFiltros = Object.values(filtros).some((valor) => valor !== '');
+  const limpiarFiltros = () => {
+    setFiltros({ search: '', stage: '', etapa: '', frente: '', torre: '' });
+    setPagina(1);
+  };
 
   return (
     <div className={styles.page}>
       <div className={styles.header}>
-        <h1 className={styles.title}>Oportunidades</h1>
-        <span className={styles.subtitle}>CRM Zoho</span>
+        <div>
+          <h1 className={styles.title}>Oportunidades</h1>
+          <p className={styles.subtitle}>
+            CRM Zoho{meta.pagination ? ` · ${meta.pagination.total.toLocaleString('es-CO')} oportunidades` : ''}
+          </p>
+        </div>
+        <SyncStatusBar />
       </div>
-
-      <SyncStatusBar />
 
       <div className={styles.row}>
         <Field
@@ -274,12 +285,18 @@ export function OportunidadesListPage() {
             )}
           </Field>
         )}
+        {hayFiltros && (
+          <button type="button" className={styles.limpiar} onClick={limpiarFiltros}>
+            Limpiar filtros
+          </button>
+        )}
       </div>
 
-      {cargando ? (
-        <p className={styles.cargando}>Cargando…</p>
-      ) : (
-        <>
+      <div className={styles.tableWrap}>
+        {cargando ? (
+          <p className={styles.cargando}>Cargando…</p>
+        ) : (
+          <>
           <table className={styles.table}>
             <thead>
               <tr>
@@ -318,8 +335,9 @@ export function OportunidadesListPage() {
           {meta.pagination && (
             <Pagination page={pagina} pageSize={meta.pagination.limit} total={meta.pagination.total} onPageChange={setPagina} />
           )}
-        </>
-      )}
+          </>
+        )}
+      </div>
     </div>
   );
 }

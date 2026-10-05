@@ -26,6 +26,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { RefreshCw, Search, ListFilter, Building } from 'lucide-react';
+import { Button } from '../../components/ui/Button.jsx';
+import { StageBadge } from '../../components/ui/StageBadge.jsx';
 import { Field, TextInput, Select } from '../../components/ui/Field.jsx';
 import { Pagination } from '../../components/ui/Pagination.jsx';
 import { SortHeader } from '../../components/ui/SortHeader.jsx';
@@ -89,10 +91,12 @@ function SyncStatusBar() {
           <span className={styles.syncError}>Error en sync: {status.errorMsg?.slice(0, 80)}</span>
         )}
       </div>
-      <button type="button" className={styles.botonSync} onClick={handleSync} disabled={corriendo || !hubspotConfigurado}>
-        <RefreshCw size={13} className={corriendo ? styles.spin : ''} />
-        {corriendo ? 'Sincronizando…' : 'Sincronizar ahora'}
-      </button>
+      <Button variant="secondary" onClick={handleSync} disabled={corriendo || !hubspotConfigurado}>
+        <span className={styles.botonSyncInterior}>
+          <RefreshCw size={14} className={corriendo ? styles.spin : ''} aria-hidden="true" />
+          {corriendo ? 'Sincronizando…' : 'Sincronizar ahora'}
+        </span>
+      </Button>
     </div>
   );
 }
@@ -154,15 +158,23 @@ export function OlivOportunidadesPage() {
   }
 
   const meta = resultado ?? {};
+  const hayFiltros = Object.values(filtros).some((valor) => valor !== '');
+  const limpiarFiltros = () => {
+    setFiltros({ search: '', stage: '', torre: '', estadoInmueble: '' });
+    setPagina(1);
+  };
 
   return (
     <div className={styles.page}>
       <div className={styles.header}>
-        <h1 className={styles.title}>Oportunidades</h1>
-        <span className={styles.subtitle}>Oliv · CRM HubSpot</span>
+        <div>
+          <h1 className={styles.title}>Oportunidades</h1>
+          <p className={styles.subtitle}>
+            Oliv · CRM HubSpot{meta.pagination ? ` · ${meta.pagination.total.toLocaleString('es-CO')} oportunidades` : ''}
+          </p>
+        </div>
+        <SyncStatusBar />
       </div>
-
-      <SyncStatusBar />
 
       <div className={styles.row}>
         <Field
@@ -228,12 +240,18 @@ export function OlivOportunidadesPage() {
             )}
           </Field>
         )}
+        {hayFiltros && (
+          <button type="button" className={styles.limpiar} onClick={limpiarFiltros}>
+            Limpiar filtros
+          </button>
+        )}
       </div>
 
-      {cargando ? (
-        <p className={styles.cargando}>Cargando…</p>
-      ) : (
-        <>
+      <div className={styles.tableWrap}>
+        {cargando ? (
+          <p className={styles.cargando}>Cargando…</p>
+        ) : (
+          <>
           <table className={styles.table}>
             <thead>
               <tr>
@@ -264,7 +282,7 @@ export function OlivOportunidadesPage() {
                   <tr key={op.id} className={styles.filaClicable} onClick={() => navigate(`/oliv/oportunidades/${op.id}`)}>
                     <td className={styles.nombreOportunidad}>{op.dealName}</td>
                     <td>{op.nombreContacto ?? '—'}</td>
-                    <td>{op.stage ?? '—'}</td>
+                    <td><StageBadge stage={op.stage} /></td>
                     <td>{op.referenciaRecaudo ? <span className={styles.refBadge}>{op.referenciaRecaudo}</span> : '—'}</td>
                     <td>{op.inmueble?.label || 'Sin inmueble'}</td>
                   </tr>
@@ -276,8 +294,9 @@ export function OlivOportunidadesPage() {
           {meta.pagination && (
             <Pagination page={pagina} pageSize={meta.pagination.limit} total={meta.pagination.total} onPageChange={setPagina} />
           )}
-        </>
-      )}
+          </>
+        )}
+      </div>
     </div>
   );
 }
