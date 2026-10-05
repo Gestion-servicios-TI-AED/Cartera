@@ -6,6 +6,14 @@
 
 .header {
   display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+}
+
+.headerText {
+  display: flex;
   flex-direction: column;
   gap: 2px;
 }
@@ -30,10 +38,10 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--space-md);
-  background: var(--color-surface);
+  background: #fff;
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  padding: var(--space-md) var(--space-lg);
+  border-radius: var(--radius-lg);
+  padding: 10px 16px;
 }
 
 .syncEstado {
@@ -107,60 +115,75 @@
   align-items: center;
   gap: 5px;
   /* Defensa contra un label+ícono+tooltip que no entre en el ancho del
-     campo (ver `.fieldSm`/`.fieldMd`/`.fieldLg` abajo) -- nunca se corta,
+     campo -- nunca se corta,
      en el peor caso baja a una segunda línea. */
   flex-wrap: wrap;
 }
 
-.row {
+.toolbarCard {
   display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
+  flex-direction: column;
   gap: var(--space-md);
-  background: var(--color-surface);
+  padding: 20px 24px;
+  background: #fff;
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  padding: var(--space-lg);
+  border-radius: var(--radius-lg);
 }
 
-/* `min-width`, no `width` fijo (regla "ancho fluido, nunca se corta" de
-   ARQUITECTURA-FRONTEND.md): un `<select>` nativo ya se autoajusta al
-   contenido de sus opciones cuando no se le fuerza un ancho -- estas clases
-   solo ponen un piso para que campos de valores cortos (Frente, Torre, Otro
-   sí requerido) no queden angostos e inconsistentes entre sí. */
-.fieldSm {
-  min-width: 200px;
+.filtrosGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: var(--space-md);
+  align-items: end;
 }
 
-.fieldMd {
-  /* El buscador es un <input>, que NO se autoajusta a su placeholder como
-     un <select> -- acá el ancho generoso es obligatorio, no un piso. */
-  min-width: 320px;
+.campoBusqueda {
+  grid-column: span 2;
+  min-width: 0;
 }
 
-/* Reservado para el <select> de "Etapa CRM": los valores reales de
-   Zoho llegan a medir 60 caracteres (ej. "11BC CARGUE DOCUMENTOS A PORTAL
-   BANCOLOMBIA SALA DE VENTAS") -- dejarlo autoajustarse sin tope desbalancea
-   toda la fila de filtros. Ancho generoso + elipsis para esos casos extremos,
-   en vez de un corte seco sin aviso. */
-.fieldLg {
-  min-width: 340px;
-  max-width: 420px;
+.campoFiltro {
+  min-width: 0;
 }
 
-.fieldLg select {
+.campoFiltro select {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
+.limpiarFiltros {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: none;
+  background: none;
+  color: var(--color-primary);
+  font-size: var(--text-data-size);
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.limpiarFiltros:hover {
+  text-decoration: underline;
+}
+
+
+.card {
+  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.tableScroll {
+  overflow-x: auto;
+}
+
 .table {
   width: 100%;
   border-collapse: collapse;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  overflow: hidden;
 }
 
 .table th,
@@ -172,8 +195,12 @@
 }
 
 .table th {
-  background: var(--color-surface-sunken);
-  border-bottom: 2px solid var(--color-primary);
+  background: var(--color-surface);
+  color: var(--color-ink-muted);
+  font-size: var(--text-label-size);
+  font-weight: var(--text-label-weight);
+  letter-spacing: var(--text-label-tracking);
+  text-transform: uppercase;
 }
 
 .table tbody tr:last-child td {
@@ -251,4 +278,13 @@
   background: var(--color-success-surface);
   border-color: color-mix(in srgb, var(--color-success-ink) 25%, transparent);
   color: var(--color-success-ink);
+}
+/* Columnas de acción: nunca parten su texto en dos líneas */
+.botonVerificado,
+.linkPdf {
+  white-space: nowrap;
+}
+
+.table td {
+  vertical-align: middle;
 }

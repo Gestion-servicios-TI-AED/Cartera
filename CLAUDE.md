@@ -841,5 +841,10 @@ HRMS y se adaptan solo textos/datos). Se hace por pasos, con el HRMS como modelo
   tabla en tarjeta con paginación dentro. Estilos en `cartera-mora/CarteraMoraPage.module.css`
   (compartido con Oliv). Lógica, exportación y menú contextual sin cambios. Limitación
   conocida: la tabla de Baía Kristal (10 columnas) scrollea en horizontal a 1440px.
-- Pendiente (en orden): Inicio y Otrosíes (de Baía Kristal y Oliv) --
+- **Paso 13 — Otrosíes (hecho):** encabezado con la barra de sincronización en
+  tarjeta a la derecha, filtros en tarjeta (grilla con etiquetas + "Limpiar filtros"),
+  tabla en tarjeta con encabezado discreto y paginación dentro, columnas de acción
+  (PDF, Verificado) sin partir el texto. Lógica sin cambios (sigue sin persistir filtros
+  entre visitas, a pedido). Estilos en `otrosies/OtrosiesPage.module.css`.
+- Pendiente (en orden): Inicio (de Baía Kristal y Oliv) --
   Cartera ya heredó los estilos de tarjetas/KPIs de `Dashboard.module.css`.

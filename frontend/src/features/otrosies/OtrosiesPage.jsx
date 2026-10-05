@@ -15,7 +15,7 @@
 // (`otro_si_requerido`, `otroSiRequerido` en la API) por si se necesita
 // después -- solo se dejó de mostrar y de ofrecer como filtro acá.
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Search, ListFilter, RefreshCw, Layers, MapPin, Building, CheckCircle2, Circle } from 'lucide-react';
+import { Search, ListFilter, RefreshCw, Layers, MapPin, Building, CheckCircle2, Circle, X } from 'lucide-react';
 import { StageBadge } from '../../components/ui/StageBadge.jsx';
 import { Field, TextInput, Select } from '../../components/ui/Field.jsx';
 import { InfoTooltip } from '../../components/ui/InfoTooltip.jsx';
@@ -252,6 +252,12 @@ export function OtrosiesPage() {
     }
   }
 
+  const hayFiltros = Object.values(filtros).some(Boolean);
+  function limpiarFiltros() {
+    setFiltros({ search: '', stage: '', etapa: '', frente: '', torre: '', verificado: '' });
+    setPagina(1);
+  }
+
   const frenteOptions = filtros.etapa
     ? (opciones.frentesPorEtapa?.[filtros.etapa] || [])
     : (opciones.frentesDisponibles ?? []);
@@ -264,15 +270,17 @@ export function OtrosiesPage() {
   return (
     <div className={styles.page}>
       <div className={styles.header}>
-        <h1 className={styles.title}>Otrosíes</h1>
-        <span className={styles.subtitle}>Baía Kristal · Contrato de Fiducia · Solo lectura</span>
+        <div className={styles.headerText}>
+          <h1 className={styles.title}>Otrosíes</h1>
+          <span className={styles.subtitle}>Baía Kristal · Contrato de Fiducia · Solo lectura</span>
+        </div>
+        <SyncStatusBar />
       </div>
 
-      <SyncStatusBar />
-
-      <div className={styles.row}>
+      <div className={styles.toolbarCard}>
+      <div className={styles.filtrosGrid}>
         <Field
-          className={styles.fieldMd}
+          className={styles.campoBusqueda}
           label={
             <span className={styles.labelConIcono}>
               <Search size={13} />
@@ -284,7 +292,7 @@ export function OtrosiesPage() {
           {(p) => <TextInput {...p} value={filtros.search} onChange={(e) => actualizarFiltro('search', e.target.value)} placeholder="Nombre del negocio…" />}
         </Field>
         <Field
-          className={styles.fieldLg}
+          className={styles.campoFiltro}
           label={
             <span className={styles.labelConIcono}>
               <ListFilter size={13} />
@@ -302,7 +310,7 @@ export function OtrosiesPage() {
         </Field>
         {opciones.etapasDisponibles.length > 0 && (
           <Field
-            className={styles.fieldSm}
+            className={styles.campoFiltro}
             label={
               <span className={styles.labelConIcono}>
                 <Layers size={13} />
@@ -321,7 +329,7 @@ export function OtrosiesPage() {
         )}
         {frenteOptions.length > 0 && (
           <Field
-            className={styles.fieldSm}
+            className={styles.campoFiltro}
             label={
               <span className={styles.labelConIcono}>
                 <MapPin size={13} />
@@ -340,7 +348,7 @@ export function OtrosiesPage() {
         )}
         {filtros.frente && torreOptions.length > 0 && (
           <Field
-            className={styles.fieldSm}
+            className={styles.campoFiltro}
             label={
               <span className={styles.labelConIcono}>
                 <Building size={13} />
@@ -358,7 +366,7 @@ export function OtrosiesPage() {
           </Field>
         )}
         <Field
-          className={styles.fieldSm}
+          className={styles.campoFiltro}
           label={
             <span className={styles.labelConIcono}>
               <CheckCircle2 size={13} />
@@ -374,11 +382,17 @@ export function OtrosiesPage() {
           )}
         </Field>
       </div>
+      {hayFiltros && (
+        <button type="button" className={styles.limpiarFiltros} onClick={limpiarFiltros}><X size={13} /> Limpiar filtros</button>
+      )}
+      </div>
 
       {cargando ? (
         <p className={styles.cargando}>Cargando…</p>
       ) : (
         <>
+          <div className={styles.card}>
+          <div className={styles.tableScroll}>
           <table className={styles.table}>
             <thead>
               <tr>
@@ -433,10 +447,12 @@ export function OtrosiesPage() {
               )}
             </tbody>
           </table>
+          </div>
 
           {meta.pagination && (
             <Pagination page={pagina} pageSize={meta.pagination.limit} total={meta.pagination.total} onPageChange={setPagina} />
           )}
+          </div>
         </>
       )}
     </div>
