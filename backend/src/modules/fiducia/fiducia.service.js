@@ -90,10 +90,18 @@ async function removeEncargo(id) {
   await encargo.destroy();
 }
 
-const ALLOWED_SORT = { propietario: 'propietario', hoja: 'nombre_hoja', createdAt: 'creado_en' };
+const ALLOWED_SORT = { propietario: 'propietario', hoja: 'nombre_hoja', createdAt: 'creado_en', fechaContable: 'fecha_contable', valor: 'valor', tipo: 'tipo_movimiento' };
 
-// Filtro por fecha en el campo JSON 'Fecha Contable' (formato DD/MM/YYYY) --
-// requiere SQL crudo porque no es una columna propia. Bind parameters
+// Columnas de texto donde busca `search` en las líneas de movimiento (forma A). Antes la búsqueda recorría
+// `datos::text` completo (incluidos los NOMBRES de las claves, así que buscar "valor" devolvía todo); ahora
+// busca solo en los VALORES. Las filas que no son forma A (estado por unidad, formas desconocidas) siguen
+// buscándose en su `datos` jsonb, que es donde viven.
+const COLUMNAS_BUSQUEDA_TEXTO = ['propietario', 'tipo_movimiento', 'estado', 'propietario_1', 'nro_id_propietario_1', 'cuenta_bancaria',
+  'comentarios', 'razones_justificaciones', 'observaciones', 'inventario', 'nomenclatura', 'referencia', 'fideicomiso', 'tipo_inmueble', 'categoria'];
+const COLUMNAS_BUSQUEDA_NUMERICAS = ['concepto', 'id_interno', 'valor', 'area'];
+
+// Filtro por fecha sobre la columna `fecha_contable` (date; antes se leía del JSON 'Fecha Contable' esperando
+// DD/MM/YYYY, pero los datos reales son seriales de Excel y ese filtro nunca devolvía filas). Bind parameters
 // posicionales ($1, $2...), no `replacements` con nombre -- ver la regla en
 // CLAUDE.md (bug real encontrado migrando Oportunidades).
 async function listMovimientosPorFecha({ encargId, hoja, propietario, search, fechaDesde, fechaHasta, limit, skip }) {
@@ -114,16 +122,18 @@ async function listMovimientosPorFecha({ encargId, hoja, propietario, search, fe
     params.push(`%${propietario}%`);
   }
   if (search) {
-    conds.push(`(m.propietario ILIKE $${idx} OR m.datos::text ILIKE $${idx + 1})`);
-    params.push(`%${search}%`, `%${search}%`);
-    idx += 2;
+    const textos = COLUMNAS_BUSQUEDA_TEXTO.map((c) => `m.${c} ILIKE $${idx}`);
+    const numericas = COLUMNAS_BUSQUEDA_NUMERICAS.map((c) => `m.${c}::text ILIKE $${idx}`);
+    conds.push(`(${[...textos, ...numericas].join(' OR ')} OR (m.forma IS DISTINCT FROM 'A' AND m.datos::text ILIKE $${idx}))`);
+    params.push(`%${search}%`);
+    idx += 1;
   }
   if (fechaDesde) {
-    conds.push(`(m.datos->>'Fecha Contable' ~ '^[0-9]{2}/[0-9]{2}/[0-9]{4}$' AND to_date(m.datos->>'Fecha Contable', 'DD/MM/YYYY') >= $${idx++}::date)`);
+    conds.push(`m.fecha_contable >= $${idx++}::date`);
     params.push(fechaDesde);
   }
   if (fechaHasta) {
-    conds.push(`(m.datos->>'Fecha Contable' ~ '^[0-9]{2}/[0-9]{2}/[0-9]{4}$' AND to_date(m.datos->>'Fecha Contable', 'DD/MM/YYYY') <= $${idx++}::date)`);
+    conds.push(`m.fecha_contable <= $${idx++}::date`);
     params.push(fechaHasta);
   }
 
@@ -134,7 +144,7 @@ async function listMovimientosPorFecha({ encargId, hoja, propietario, search, fe
   const [countRows, rows] = await Promise.all([
     sequelize.query(`SELECT COUNT(*)::int AS count FROM movimientos_fiduciarios m ${whereSQL}`, { bind: params, type: QueryTypes.SELECT }),
     sequelize.query(
-      `SELECT m.id, m.encarg_id, m.hoja_id, m.nombre_hoja, m.propietario, m.datos, m.creado_en,
+      `SELECT m.id, m.encarg_id, m.hoja_id, m.nombre_hoja, m.propietario, mf_datos(m) AS datos, m.creado_en,
               e.nombre AS encargo_nombre, e.codigo AS encargo_codigo, e.archivo_nombre AS encargo_archivo
        FROM movimientos_fiduciarios m
        LEFT JOIN encargos_fiduciarios e ON m.encarg_id = e.id
@@ -188,11 +198,17 @@ async function listMovimientos({ encargId: rawEncargId, codigo, propietario, hoj
     if (propietario) where.propietario = { [Op.iLike]: `%${propietario}%` };
     if (search) {
       const like = `%${String(search).replace(/[\\%_]/g, (c) => `\\${c}`)}%`;
-      where[Op.or] = [{ propietario: { [Op.iLike]: like } }, sequelize.where(sequelize.cast(sequelize.col('MovimientoFiduciario.datos'), 'text'), { [Op.iLike]: like })];
+      where[Op.or] = [
+        ...COLUMNAS_BUSQUEDA_TEXTO.map((c) => ({ [c]: { [Op.iLike]: like } })),
+        ...COLUMNAS_BUSQUEDA_NUMERICAS.map((c) => sequelize.where(sequelize.cast(sequelize.col(`MovimientoFiduciario.${c}`), 'text'), { [Op.iLike]: like })),
+        { [Op.and]: [{ [Op.or]: [{ forma: null }, { forma: { [Op.ne]: 'A' } }] }, sequelize.where(sequelize.cast(sequelize.col('MovimientoFiduciario.datos'), 'text'), { [Op.iLike]: like })] },
+      ];
     }
 
     const { rows, count } = await MovimientoFiduciario.findAndCountAll({
       where,
+      // `datos` se reconstruye desde las columnas normalizadas (mismo objeto que antes).
+      attributes: ['id', 'encarg_id', 'hoja_id', 'nombre_hoja', 'propietario', 'creado_en', [sequelize.literal('mf_datos("MovimientoFiduciario")'), 'datos']],
       offset: skip,
       limit: limitNum,
       order: [[resolvedSort, resolvedDir]],

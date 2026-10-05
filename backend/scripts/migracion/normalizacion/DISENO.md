@@ -82,3 +82,11 @@ Un **disparador** (`BEFORE INSERT OR UPDATE OF datos`) llena las columnas desde 
 ## Resultado esperado
 
 Tabla de movimientos de **3.039 MB → ~2.000 MB**; base completa **3.245 MB → ~2.200 MB**.
+
+## Resultados del ensayo y notas (2026-10-05)
+
+* **Paso 3-5 en el ensayo local:** 0 diferencias al reconstruir `datos` en las 3.089.180 filas; sumas por tipo y por hoja idénticas; suma total de Valor y rango de fechas idénticos a producción.
+* **Paso 6 (código):** prueba A/B del servicio viejo contra el nuevo sobre los mismos datos: 9 de 10 consultas devuelven contenido y total **idénticos**. Las diferencias son las buscadas: la búsqueda de una palabra que solo coincidía con el *nombre* de una clave (p. ej. "valor") ya no devuelve todas las filas, y el filtro por fechas ahora funciona (antes 0 filas).
+* **Escritor (subida de Excel):** no cambia; el disparador convierte al insertar. Una fila con valores no convertibles guarda el valor original en `datos_extra`; una forma desconocida se queda en `datos`.
+* **Diferencia menor conocida:** si una fila tipo A llegara sin alguna de las 22 claves (en los datos reales todas están siempre), `mf_datos` la reconstruye con ese campo en `null` en vez de ausente. Inofensivo para la interfaz.
+* **Paso 8 (versión final):** en lugar de quitar la columna `datos`, se **vacía solo en las filas tipo A** (el disparador pone `datos = NULL` tras llenar las columnas; la columna pasa a admitir NULL). Las filas tipo B y las formas desconocidas conservan su `datos`. Así no se pierde nada si aparece una forma nueva.
