@@ -9,8 +9,9 @@
 // estilizada (ExcelJS -- xlsx/SheetJS no permite estilos en su build libre),
 // con el color de marca de Cartera en vez del teal de Baía Kristal.
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Search, X, ChevronRight, Download } from 'lucide-react';
+import { Search, ChevronRight, Download } from 'lucide-react';
 import ExcelJS from 'exceljs';
+import { Button } from '../../components/ui/Button.jsx';
 import { ConceptoHint } from '../../components/ui/ConceptoHint.jsx';
 import { Field, TextInput, Select } from '../../components/ui/Field.jsx';
 import { Pagination } from '../../components/ui/Pagination.jsx';
@@ -18,6 +19,7 @@ import { listMovimientosNegocios, exportMovimientosNegocios } from '../../api/ne
 import { formatExcelDate } from '../../utils/format.js';
 import { filtrarKeysMovimiento } from '../../utils/columnasExcluidas.js';
 import { descripcionProyecto, obtenerProyecto } from '../../utils/proyectos.js';
+import base from '../negocios/NegociosPage.module.css';
 import styles from './MovimientosPage.module.css';
 
 function useDebounce(value, delay = 350) {
@@ -70,6 +72,11 @@ const PRESETS = [
   { label: 'Último año', months: 12 },
 ];
 
+function iniciales(nombre = '') {
+  const partes = nombre.trim().split(/\s+/).filter(Boolean);
+  return `${partes[0]?.[0] ?? ''}${partes.length > 1 ? partes[partes.length - 1][0] : ''}`.toUpperCase() || '?';
+}
+
 function MovimientoRow({ mov }) {
   const [expanded, setExpanded] = useState(false);
   const datos = mov.datos || {};
@@ -82,45 +89,60 @@ function MovimientoRow({ mov }) {
   const compradorPrincipal = cleanNombre(neg?.compradores?.[0]?.nombre);
   const extraCompradores = (neg?.compradores?.length ?? 0) - 1;
   const allFields = filtrarKeysMovimiento(Object.keys(datos));
+  const proyecto = neg?.fideicomiso ? shortFideicomiso(neg.fideicomiso) : null;
 
   return (
     <>
-      <tr className={styles.filaClicable} onClick={() => setExpanded((e) => !e)}>
-        <td className={styles.colChevron}>
-          <ChevronRight size={12} strokeWidth={2.5} className={`${styles.chevronRow} ${expanded ? styles.chevronRowOpen : ''}`} />
+      <tr className={base.filaClicable} onClick={() => setExpanded((e) => !e)}>
+        <td className={styles.chevronCol}>
+          <ChevronRight size={14} strokeWidth={2.25} className={`${styles.chevron} ${expanded ? styles.chevronAbierto : ''}`} aria-hidden="true" />
         </td>
-        <td className={styles.mono}>{mov.referencia}</td>
-        <td className={styles.truncSm}>{neg?.fideicomiso ? shortFideicomiso(neg.fideicomiso) : <span className={styles.vacio}>—</span>}</td>
-        <td className={styles.nowrap}>{neg?.nomenclatura ?? <span className={styles.vacio}>—</span>}</td>
-        <td className={styles.truncMd}>
+        <td style={{ whiteSpace: 'nowrap' }}>{fecha ?? <span className={base.muted}>—</span>}</td>
+        <td>
+          <div className={base.celdaTitulo}>
+            <span className={base.nombre}>{neg?.nomenclatura ?? '—'}</span>
+            {proyecto && <span className={base.detalleSec}>{proyecto}</span>}
+          </div>
+        </td>
+        <td>
           {compradorPrincipal ? (
-            <>
-              {compradorPrincipal}
-              {extraCompradores > 0 && <span className={styles.extra}> +{extraCompradores}</span>}
-            </>
-          ) : <span className={styles.vacio}>—</span>}
+            <div className={base.persona}>
+              <span className={base.avatar}>{iniciales(compradorPrincipal)}</span>
+              <div className={base.celdaTitulo}>
+                <span className={styles.nombreLargo}>
+                  {compradorPrincipal}
+                  {extraCompradores > 0 && <span className={styles.extra}>+{extraCompradores}</span>}
+                </span>
+                <span className={styles.referencia}>{mov.referencia}</span>
+              </div>
+            </div>
+          ) : (
+            <span className={styles.referencia}>{mov.referencia}</span>
+          )}
         </td>
-        <td className={styles.nowrap}>{fecha ?? <span className={styles.vacio}>—</span>}</td>
-        <td className={styles.truncMd}>{tipo ?? <span className={styles.vacio}>—</span>}</td>
-        <td className={`${styles.nowrap} ${styles.right} ${styles.strong}`}>{valor ?? <span className={styles.vacio}>—</span>}</td>
+        <td>{tipo ? <span className={styles.tipo} title={tipo}>{tipo}</span> : <span className={base.muted}>—</span>}</td>
+        <td className={base.derecha}><span className={styles.valor}>{valor ?? '—'}</span></td>
       </tr>
       {expanded && (
         <tr className={styles.filaExpandida}>
-          <td colSpan={8}>
-            <div className={styles.gridExpandido}>
-              {allFields.map((col) => {
-                const v = datos[col];
-                const display = v != null && v !== '' ? (formatCell(col, v) ?? String(v)) : null;
-                return (
-                  <div key={col}>
-                    <p className={styles.miniLabel}>
-                      {col}
-                      <ConceptoHint columna={col} hoja="movimiento" />
-                    </p>
-                    <p className={styles.miniValor}>{display ?? <span className={styles.vacio}>—</span>}</p>
-                  </div>
-                );
-              })}
+          <td colSpan={6}>
+            <div className={styles.detalle}>
+              <p className={styles.detalleTitulo}>Detalle del movimiento</p>
+              <div className={styles.gridExpandido}>
+                {allFields.map((col) => {
+                  const v = datos[col];
+                  const display = v != null && v !== '' ? (formatCell(col, v) ?? String(v)) : null;
+                  return (
+                    <div key={col}>
+                      <p className={styles.miniLabel}>
+                        {col}
+                        <ConceptoHint columna={col} hoja="movimiento" />
+                      </p>
+                      <p className={styles.miniValor}>{display ?? <span className={styles.sinDato}>—</span>}</p>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </td>
         </tr>
@@ -257,134 +279,133 @@ export function MovimientosPage() {
   const tiposMov = resultado?.tiposMovimiento || [];
 
   return (
-    <div className={styles.page}>
-      <div className={styles.header}>
-        <h1 className={styles.title}>Movimientos Fiduciarios</h1>
-        {pagination && <span className={styles.contador}>{pagination.total.toLocaleString('es-CO')} movimientos</span>}
-        <button type="button" className={styles.botonExportar} onClick={handleExport} disabled={exportando || !pagination || pagination.total === 0}>
-          <Download size={14} />
-          {exportando ? 'Exportando…' : 'Exportar'}
-        </button>
+    <div className={base.page}>
+      <div className={base.header}>
+        <div>
+          <h1 className={base.title}>Movimientos fiduciarios</h1>
+          <p className={base.subtitle}>
+            Todos los movimientos de los encargos de Baía Kristal{pagination ? ` · ${pagination.total.toLocaleString('es-CO')} resultados` : ''}
+          </p>
+        </div>
+        <div className={base.acciones}>
+          <Button variant="secondary" onClick={handleExport} disabled={exportando || !pagination || pagination.total === 0}>
+            <span className={base.botonInterior}>
+              <Download size={14} aria-hidden="true" />
+              {exportando ? 'Exportando…' : 'Exportar a Excel'}
+            </span>
+          </Button>
+        </div>
       </div>
 
-      <div className={styles.filtrosCard}>
-        <div className={styles.filtrosFila}>
+      <div className={base.filtros}>
+        <div className={base.filtroBusqueda}>
           <Field
-            className={styles.fieldBuscar}
             label={
-              <span className={styles.labelConIcono}>
+              <span className={base.labelConIcono}>
                 <Search size={13} />
                 Buscar
               </span>
             }
           >
-            {(p) => <TextInput {...p} value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Referencia, comprador, cédula, ID movimiento o nomenclatura…" />}
+            {(p) => <TextInput {...p} value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Referencia, comprador, cédula, ID o nomenclatura…" />}
           </Field>
-          {fideicomisos.length > 0 && (
-            <Field className={styles.fieldMd} label="Proyecto / Fideicomiso">
-              {(p) => (
-                <Select {...p} value={fideicomisoFilter} onChange={(e) => setFideicomisoFilter(e.target.value)}>
-                  <option value="">Todos los proyectos</option>
-                  {fideicomisos.map((f) => {
-                    const match = String(f).match(/^(\d{4,6})/);
-                    const desc = match ? descripcionProyecto(match[1]) : null;
-                    return <option key={f} value={f}>{desc || shortFideicomiso(f)}</option>;
-                  })}
-                </Select>
-              )}
-            </Field>
-          )}
-          {estados.length > 0 && (
-            <Field className={styles.fieldSm} label="Estado negocio">
-              {(p) => (
-                <Select {...p} value={estadoFilter} onChange={(e) => setEstadoFilter(e.target.value)}>
-                  <option value="">Todos los estados</option>
-                  {estados.map((e) => <option key={e} value={e}>{e}</option>)}
-                </Select>
-              )}
-            </Field>
-          )}
         </div>
-
-        {tiposMov.length > 0 && (
-          <div className={styles.filtrosFila}>
-            <Field className={styles.fieldMd} label="Tipo movimiento">
-              {(p) => (
-                <Select {...p} value={tipoMovFilter} onChange={(e) => setTipoMovFilter(e.target.value)}>
-                  <option value="">Todos los tipos</option>
-                  {tiposMov.map((t) => <option key={t} value={t}>{t}</option>)}
-                </Select>
-              )}
-            </Field>
-          </div>
+        {fideicomisos.length > 0 && (
+          <Field label="Proyecto / Fideicomiso">
+            {(p) => (
+              <Select {...p} value={fideicomisoFilter} onChange={(e) => setFideicomisoFilter(e.target.value)}>
+                <option value="">Todos los proyectos</option>
+                {fideicomisos.map((f) => {
+                  const match = String(f).match(/^(\d{4,6})/);
+                  const desc = match ? descripcionProyecto(match[1]) : null;
+                  return <option key={f} value={f}>{desc || shortFideicomiso(f)}</option>;
+                })}
+              </Select>
+            )}
+          </Field>
         )}
-
-        <div className={styles.filtrosFila}>
-          <Field className={styles.fieldFecha} label="Fecha contable desde">
-            {(p) => <TextInput {...p} type="date" value={fechaDesde} onChange={(e) => { setFechaDesde(e.target.value); setDatePreset(''); }} />}
+        {estados.length > 0 && (
+          <Field label="Estado del negocio">
+            {(p) => (
+              <Select {...p} value={estadoFilter} onChange={(e) => setEstadoFilter(e.target.value)}>
+                <option value="">Todos los estados</option>
+                {estados.map((e) => <option key={e} value={e}>{e}</option>)}
+              </Select>
+            )}
           </Field>
-          <Field className={styles.fieldFecha} label="Fecha contable hasta">
-            {(p) => <TextInput {...p} type="date" value={fechaHasta} onChange={(e) => { setFechaHasta(e.target.value); setDatePreset(''); }} />}
+        )}
+        {tiposMov.length > 0 && (
+          <Field label="Tipo de movimiento">
+            {(p) => (
+              <Select {...p} value={tipoMovFilter} onChange={(e) => setTipoMovFilter(e.target.value)}>
+                <option value="">Todos los tipos</option>
+                {tiposMov.map((t) => <option key={t} value={t}>{t}</option>)}
+              </Select>
+            )}
           </Field>
-          <div className={styles.presets}>
-            {PRESETS.map(({ label, months }) => (
-              <button
-                key={months}
-                type="button"
-                className={`${styles.presetBoton} ${datePreset === String(months) ? styles.presetActivo : ''}`}
-                onClick={() => {
-                  const now = new Date();
-                  const hasta = now.toISOString().slice(0, 10);
-                  const desde = new Date(now.getFullYear(), now.getMonth() - months, now.getDate()).toISOString().slice(0, 10);
-                  setFechaDesde(desde);
-                  setFechaHasta(hasta);
-                  setDatePreset(String(months));
-                }}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-          {hasFilters && (
-            <button type="button" className={styles.limpiar} onClick={clearAll}>
-              <X size={13} /> Limpiar filtros
+        )}
+        <Field label="Fecha contable desde">
+          {(p) => <TextInput {...p} type="date" value={fechaDesde} onChange={(e) => { setFechaDesde(e.target.value); setDatePreset(''); }} />}
+        </Field>
+        <Field label="Fecha contable hasta">
+          {(p) => <TextInput {...p} type="date" value={fechaHasta} onChange={(e) => { setFechaHasta(e.target.value); setDatePreset(''); }} />}
+        </Field>
+        <div className={styles.presets}>
+          <span className={styles.presetsTitulo}>Rango rápido</span>
+          {PRESETS.map(({ label, months }) => (
+            <button
+              key={months}
+              type="button"
+              className={`${base.chip} ${datePreset === String(months) ? base.chipActivo : ''}`}
+              onClick={() => {
+                const now = new Date();
+                const hasta = now.toISOString().slice(0, 10);
+                const desde = new Date(now.getFullYear(), now.getMonth() - months, now.getDate()).toISOString().slice(0, 10);
+                setFechaDesde(desde);
+                setFechaHasta(hasta);
+                setDatePreset(String(months));
+              }}
+            >
+              {label}
             </button>
-          )}
+          ))}
         </div>
+        {hasFilters && (
+          <button type="button" className={base.limpiar} onClick={clearAll}>
+            Limpiar filtros
+          </button>
+        )}
       </div>
 
-      {cargando && !resultado ? (
-        <p className={styles.cargando}>Cargando…</p>
-      ) : movimientos.length === 0 ? (
-        <div className={styles.vacioEstado}>
-          <p className={styles.vacioTitulo}>Sin movimientos</p>
-          <p className={styles.vacioTexto}>{hasFilters ? 'Ajusta los filtros para ver resultados.' : 'Sincroniza los datos desde el módulo Negocios.'}</p>
-        </div>
-      ) : (
-        <div className={styles.tableWrap}>
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th className={styles.colChevron} />
-                <th><span className={styles.thConcepto}>Referencia<ConceptoHint columna="Referencia" hoja="movimiento" /></span></th>
-                <th><span className={styles.thConcepto}>Proyecto<ConceptoHint columna="Fideicomiso" hoja="movimiento" /></span></th>
-                <th><span className={styles.thConcepto}>Nomenclatura<ConceptoHint columna="Nomenclatura" hoja="movimiento" /></span></th>
-                <th><span className={styles.thConcepto}>Comprador<ConceptoHint columna="Propietario" hoja="movimiento" /></span></th>
-                <th><span className={styles.thConcepto}>Fecha contable<ConceptoHint columna="Fecha Contable" hoja="movimiento" /></span></th>
-                <th><span className={styles.thConcepto}>Tipo movimiento<ConceptoHint columna="Tipo Movimiento" hoja="movimiento" /></span></th>
-                <th className={styles.right}><span className={styles.thConcepto}>Valor<ConceptoHint columna="Valor" hoja="movimiento" /></span></th>
-              </tr>
-            </thead>
-            <tbody>
-              {movimientos.map((mov) => <MovimientoRow key={mov.id} mov={mov} />)}
-            </tbody>
-          </table>
-
-          {pagination && (
-            <Pagination page={pagina} pageSize={pagination.limit} total={pagination.total} onPageChange={cargar} />
-          )}
-        </div>
-      )}
+      <div className={base.tableWrap}>
+        {cargando && !resultado ? (
+          <p className={base.mensaje}>Cargando…</p>
+        ) : movimientos.length === 0 ? (
+          <div className={base.vacio}>
+            <p className={base.vacioTitulo}>Sin movimientos</p>
+            <p className={base.vacioTexto}>{hasFilters ? 'Ajusta los filtros para ver resultados.' : 'Sincroniza los datos desde el módulo Negocios.'}</p>
+          </div>
+        ) : (
+          <>
+            <table className={base.table}>
+              <thead>
+                <tr>
+                  <th className={styles.chevronCol} />
+                  <th><span>Fecha<ConceptoHint columna="Fecha Contable" hoja="movimiento" /></span></th>
+                  <th><span>Unidad<ConceptoHint columna="Nomenclatura" hoja="movimiento" /></span></th>
+                  <th><span>Comprador<ConceptoHint columna="Propietario" hoja="movimiento" /></span></th>
+                  <th><span>Tipo de movimiento<ConceptoHint columna="Tipo Movimiento" hoja="movimiento" /></span></th>
+                  <th className={base.derecha}><span>Valor<ConceptoHint columna="Valor" hoja="movimiento" /></span></th>
+                </tr>
+              </thead>
+              <tbody>
+                {movimientos.map((mov) => <MovimientoRow key={mov.id} mov={mov} />)}
+              </tbody>
+            </table>
+            {pagination && <Pagination page={pagina} pageSize={pagination.limit} total={pagination.total} onPageChange={cargar} />}
+          </>
+        )}
+      </div>
     </div>
   );
 }

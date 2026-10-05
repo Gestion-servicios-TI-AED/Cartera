@@ -789,5 +789,16 @@ HRMS y se adaptan solo textos/datos). Se hace por pasos, con el HRMS como modelo
   (Resumen / Financiero / Movimientos). Estilos propios en
   `fiducia/Encargos.module.css`; la estructura de página sale de
   `negocios/NegociosPage.module.css`. Se eliminaron 4 CSS viejos de fiducia.
-- Pendiente (en orden): Inicio, Dashboard, Movimientos, Resumen, Cartera y Otrosíes
-  (de Baía Kristal y Oliv).
+- **Paso 9 — Movimientos de Baía Kristal y Oliv (hecho, rediseño estructural):** encabezado con
+  total y acción (Exportar a Excel en BK); filtros en una sola grilla etiquetada
+  (BK: búsqueda, proyecto, estado, tipo, fechas) con **chips de rango rápido**
+  (último mes / 3 / 6 meses / año); la tabla se simplifica de 7–8 columnas (que
+  cortaban el valor a 1440px) a 5–6: fecha, **unidad** (nomenclatura + proyecto),
+  **comprador con avatar** y referencia, **tipo como etiqueta** y valor
+  destacado a la derecha (Oliv: propietario enlazado al negocio con el encargo,
+  concepto, valor, inmueble). La fila expandida muestra el detalle del
+  movimiento en una tarjeta con la cuadrícula de campos crudos. Estilos en
+  `fiducia/MovimientosPage.module.css` (extras) sobre
+  `negocios/NegociosPage.module.css`; el export y toda la lógica no cambian.
+- Pendiente (en orden): Inicio, Dashboard, Resumen, Cartera y Otrosíes (de Baía
+  Kristal y Oliv).

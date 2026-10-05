@@ -18,12 +18,13 @@
 // utils/formatCelda.js) -- antes se mostraban sin ningún formato.
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, X, ChevronRight } from 'lucide-react';
+import { Search, ChevronRight } from 'lucide-react';
 import { Field, TextInput, Select } from '../../components/ui/Field.jsx';
 import { Pagination } from '../../components/ui/Pagination.jsx';
 import { listMovimientosOliv } from '../../api/oliv.js';
 import { formatCOP, formatDate } from '../../utils/format.js';
 import { formatCelda } from '../../utils/formatCelda.js';
+import base from '../negocios/NegociosPage.module.css';
 import styles from '../fiducia/MovimientosPage.module.css';
 
 function useDebounce(value, delay = 350) {
@@ -35,6 +36,11 @@ function useDebounce(value, delay = 350) {
   return debounced;
 }
 
+function iniciales(nombre = '') {
+  const partes = nombre.trim().split(/\s+/).filter(Boolean);
+  return `${partes[0]?.[0] ?? ''}${partes.length > 1 ? partes[partes.length - 1][0] : ''}`.toUpperCase() || '?';
+}
+
 function MovimientoRow({ mov }) {
   const [expanded, setExpanded] = useState(false);
   const datos = mov.datos || {};
@@ -42,53 +48,61 @@ function MovimientoRow({ mov }) {
 
   return (
     <>
-      <tr className={styles.filaClicable} onClick={() => setExpanded((e) => !e)}>
-        <td className={styles.colChevron}>
-          <ChevronRight size={12} strokeWidth={2.5} className={`${styles.chevronRow} ${expanded ? styles.chevronRowOpen : ''}`} />
+      <tr className={base.filaClicable} onClick={() => setExpanded((e) => !e)}>
+        <td className={styles.chevronCol}>
+          <ChevronRight size={14} strokeWidth={2.25} className={`${styles.chevron} ${expanded ? styles.chevronAbierto : ''}`} aria-hidden="true" />
         </td>
-        <td className={styles.nowrap}>{mov.fecha ? formatDate(mov.fecha) : <span className={styles.vacio}>—</span>}</td>
-        <td className={styles.truncMd}>
+        <td style={{ whiteSpace: 'nowrap' }}>{mov.fecha ? formatDate(mov.fecha) : <span className={base.muted}>—</span>}</td>
+        <td>
           {mov.propietario ? (
-            mov.negocioId ? (
-              <Link to={`/oliv/negocios/${mov.negocioId}`} onClick={(e) => e.stopPropagation()}>{mov.propietario}</Link>
-            ) : (
-              mov.propietario
-            )
+            <div className={base.persona}>
+              <span className={base.avatar}>{iniciales(mov.propietario)}</span>
+              <div className={base.celdaTitulo}>
+                {mov.negocioId ? (
+                  <Link to={`/oliv/negocios/${mov.negocioId}`} className={`${styles.enlaceTabla} ${styles.nombreLargo}`} onClick={(e) => e.stopPropagation()}>{mov.propietario}</Link>
+                ) : (
+                  <span className={styles.nombreLargo}>{mov.propietario}</span>
+                )}
+                {mov.referencia && <span className={styles.referencia}>Encargo {mov.referencia}</span>}
+              </div>
+            </div>
           ) : (
-            <span className={styles.vacio}>—</span>
+            <span className={styles.referencia}>{mov.referencia ?? '—'}</span>
           )}
         </td>
-        <td className={styles.nowrap}>{mov.referencia ?? <span className={styles.vacio}>—</span>}</td>
-        <td className={styles.truncSm}>{mov.concepto ?? <span className={styles.vacio}>—</span>}</td>
-        <td className={`${styles.nowrap} ${styles.right} ${styles.strong}`}>{mov.valor != null ? formatCOP(mov.valor) : <span className={styles.vacio}>—</span>}</td>
-        <td className={styles.nowrap}>
+        <td>{mov.concepto ? <span className={styles.tipo} title={mov.concepto}>{mov.concepto}</span> : <span className={base.muted}>—</span>}</td>
+        <td className={base.derecha}><span className={styles.valor}>{mov.valor != null ? formatCOP(mov.valor) : '—'}</span></td>
+        <td style={{ whiteSpace: 'nowrap' }}>
           {mov.inmueble ? (
-            <Link to={`/oliv/negocios/${mov.negocioId}`} onClick={(e) => e.stopPropagation()}>
+            <Link to={`/oliv/negocios/${mov.negocioId}`} className={styles.enlaceTabla} onClick={(e) => e.stopPropagation()}>
               {mov.inmueble.codigoUnidad ?? mov.inmueble.torre ?? 'Ver negocio'}
             </Link>
           ) : (
-            <span className={styles.vacio}>—</span>
+            <span className={base.muted}>—</span>
           )}
         </td>
       </tr>
       {expanded && (
         <tr className={styles.filaExpandida}>
-          <td colSpan={7}>
-            {campos.length === 0 ? (
-              <p className={styles.vacio}>Esta fila no trae ningún dato.</p>
-            ) : (
-              <div className={styles.gridExpandido}>
-                {campos.map((col) => {
-                  const display = formatCelda(col, datos[col]);
-                  return (
-                    <div key={col}>
-                      <p className={styles.miniLabel}>{col}</p>
-                      <p className={styles.miniValor}>{display ?? <span className={styles.vacio}>—</span>}</p>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
+          <td colSpan={6}>
+            <div className={styles.detalle}>
+              <p className={styles.detalleTitulo}>Detalle del movimiento</p>
+              {campos.length === 0 ? (
+                <p className={base.muted}>Esta fila no trae ningún dato.</p>
+              ) : (
+                <div className={styles.gridExpandido}>
+                  {campos.map((col) => {
+                    const display = formatCelda(col, datos[col]);
+                    return (
+                      <div key={col}>
+                        <p className={styles.miniLabel}>{col}</p>
+                        <p className={styles.miniValor}>{display ?? <span className={styles.sinDato}>—</span>}</p>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
           </td>
         </tr>
       )}
@@ -129,18 +143,21 @@ export function OlivMovimientosPage() {
   const hojas = resultado?.hojas || [];
 
   return (
-    <div className={styles.page}>
-      <div className={styles.header}>
-        <h1 className={styles.title}>Movimientos de Oliv</h1>
-        {pagination && <span className={styles.contador}>{pagination.total.toLocaleString('es-CO')} movimientos</span>}
+    <div className={base.page}>
+      <div className={base.header}>
+        <div>
+          <h1 className={base.title}>Movimientos de Oliv</h1>
+          <p className={base.subtitle}>
+            Movimientos importados de los Excel de Encargos{pagination ? ` · ${pagination.total.toLocaleString('es-CO')} resultados` : ''}
+          </p>
+        </div>
       </div>
 
-      <div className={styles.filtrosCard}>
-        <div className={styles.filtrosFila}>
+      <div className={base.filtros}>
+        <div className={base.filtroBusqueda}>
           <Field
-            className={styles.fieldBuscar}
             label={
-              <span className={styles.labelConIcono}>
+              <span className={base.labelConIcono}>
                 <Search size={13} />
                 Buscar
               </span>
@@ -148,55 +165,53 @@ export function OlivMovimientosPage() {
           >
             {(p) => <TextInput {...p} value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Propietario o cualquier dato de la fila…" />}
           </Field>
-          {hojas.length > 0 && (
-            <Field className={styles.fieldMd} label="Hoja">
-              {(p) => (
-                <Select {...p} value={hojaFilter} onChange={(e) => setHojaFilter(e.target.value)}>
-                  <option value="">Todas las hojas</option>
-                  {hojas.map((h) => <option key={h} value={h}>{h}</option>)}
-                </Select>
-              )}
-            </Field>
-          )}
-          {hasFilters && (
-            <button type="button" className={styles.limpiar} onClick={clearAll}>
-              <X size={13} /> Limpiar filtros
-            </button>
-          )}
         </div>
+        {hojas.length > 0 && (
+          <Field label="Hoja">
+            {(p) => (
+              <Select {...p} value={hojaFilter} onChange={(e) => setHojaFilter(e.target.value)}>
+                <option value="">Todas las hojas</option>
+                {hojas.map((h) => <option key={h} value={h}>{h}</option>)}
+              </Select>
+            )}
+          </Field>
+        )}
+        {hasFilters && (
+          <button type="button" className={base.limpiar} onClick={clearAll}>
+            Limpiar filtros
+          </button>
+        )}
       </div>
 
-      {cargando && !resultado ? (
-        <p className={styles.cargando}>Cargando…</p>
-      ) : movimientos.length === 0 ? (
-        <div className={styles.vacioEstado}>
-          <p className={styles.vacioTitulo}>Sin movimientos</p>
-          <p className={styles.vacioTexto}>{hasFilters ? 'Ajusta los filtros para ver resultados.' : 'Sube un Excel en Encargos para importar movimientos.'}</p>
-        </div>
-      ) : (
-        <div className={styles.tableWrap}>
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th className={styles.colChevron} />
-                <th>Fecha</th>
-                <th>Propietario</th>
-                <th>Encargo</th>
-                <th>Concepto</th>
-                <th className={styles.right}>Valor</th>
-                <th>Inmueble</th>
-              </tr>
-            </thead>
-            <tbody>
-              {movimientos.map((mov) => <MovimientoRow key={mov.id} mov={mov} />)}
-            </tbody>
-          </table>
-
-          {pagination && (
-            <Pagination page={pagina} pageSize={pagination.limit} total={pagination.total} onPageChange={cargar} />
-          )}
-        </div>
-      )}
+      <div className={base.tableWrap}>
+        {cargando && !resultado ? (
+          <p className={base.mensaje}>Cargando…</p>
+        ) : movimientos.length === 0 ? (
+          <div className={base.vacio}>
+            <p className={base.vacioTitulo}>Sin movimientos</p>
+            <p className={base.vacioTexto}>{hasFilters ? 'Ajusta los filtros para ver resultados.' : 'Sube un Excel en Encargos para importar movimientos.'}</p>
+          </div>
+        ) : (
+          <>
+            <table className={base.table}>
+              <thead>
+                <tr>
+                  <th className={styles.chevronCol} />
+                  <th>Fecha</th>
+                  <th>Propietario</th>
+                  <th>Concepto</th>
+                  <th className={base.derecha}>Valor</th>
+                  <th>Inmueble</th>
+                </tr>
+              </thead>
+              <tbody>
+                {movimientos.map((mov) => <MovimientoRow key={mov.id} mov={mov} />)}
+              </tbody>
+            </table>
+            {pagination && <Pagination page={pagina} pageSize={pagination.limit} total={pagination.total} onPageChange={cargar} />}
+          </>
+        )}
+      </div>
     </div>
   );
 }
