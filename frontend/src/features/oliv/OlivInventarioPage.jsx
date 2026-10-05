@@ -1,75 +1,280 @@
-// Layout maestro-detalle de Inmuebles de Oliv -- calcado de
-// inventario/InventarioPage.jsx (Baía Kristal/Zoho): sidebar con filtros +
-// lista a la izquierda, detalle completo del seleccionado a la derecha.
-// Selección en la URL (`/oliv/inmuebles/:id`), igual criterio que
-// InventarioPage.jsx.
-import { useCallback, useRef, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { Warehouse } from 'lucide-react';
-import { iniciarSyncInmueblesOliv, getSyncStatusInmueblesOliv } from '../../api/oliv.js';
-import { useAlturaDisponible } from '../../hooks/useAlturaDisponible.js';
-import { OlivInventarioSidebar } from './OlivInventarioSidebar.jsx';
+// Inmuebles de Oliv (objeto Unidades de HubSpot). Mismo rediseño que Baía Kristal
+// (ver inventario/InventarioPage.jsx):
+//   - `/oliv/inmuebles`      -> página de lista a ancho completo (chips de estado,
+//                               filtros y tabla);
+//   - `/oliv/inmuebles/:id`  -> detalle como ruta propia.
+// Sin jerarquía Etapa->Frente->Torre: el objeto Unidades de HubSpot ya trae
+// `torre` como propiedad plana, así que los filtros son directos (Torre,
+// Categoría, Estado, más búsqueda). Conserva "Exportar a Excel" (respeta los
+// filtros aplicados).
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { Search, RefreshCw, Building, Download } from 'lucide-react';
+import { BackLink } from '../../components/ui/BackLink.jsx';
+import { Button } from '../../components/ui/Button.jsx';
+import { EstadoInventarioBadge } from '../../components/ui/EstadoInventarioBadge.jsx';
+import { Field, TextInput, Select } from '../../components/ui/Field.jsx';
+import { Pagination } from '../../components/ui/Pagination.jsx';
+import { usePersistentState } from '../../hooks/usePersistentState.js';
+import { listInmueblesOliv, iniciarSyncInmueblesOliv, getSyncStatusInmueblesOliv } from '../../api/oliv.js';
+import { formatCOP } from '../../utils/format.js';
+import { exportarInmueblesOliv } from './exportarInmueblesOliv.js';
 import { OlivInventarioDetalleContenido } from './OlivInventarioDetalleContenido.jsx';
-import styles from '../inventario/InventarioPage.module.css';
+import styles from '../negocios/NegociosPage.module.css';
 
-function SinInventarioPanel({ onSync, syncing, error }) {
+const PAGE_SIZE = 50;
+const FILTROS_VACIOS = { search: '', torre: '', categoria: '', estado: '' };
+
+function useDebounce(value, delay = 350) {
+  const [debounced, setDebounced] = useState(value);
+  useEffect(() => {
+    const t = setTimeout(() => setDebounced(value), delay);
+    return () => clearTimeout(t);
+  }, [value, delay]);
+  return debounced;
+}
+
+function OlivInventarioLista() {
+  const navigate = useNavigate();
+  const [filtros, setFiltros] = usePersistentState('oliv-inventario-list:filtros', FILTROS_VACIOS);
+  const [pagina, setPagina] = usePersistentState('oliv-inventario-list:pagina', 1);
+  const [resultado, setResultado] = useState(null);
+  const [cargando, setCargando] = useState(true);
+  const [sincronizando, setSincronizando] = useState(false);
+  const [syncError, setSyncError] = useState(null);
+  const [exportando, setExportando] = useState(false);
+  const [searchInput, setSearchInput] = useState(filtros.search);
+  const debouncedSearch = useDebounce(searchInput);
+  const pollRef = useRef(null);
+  const [opciones, setOpciones] = useState({ torres: [], categorias: [], estados: [] });
+
+  useEffect(() => {
+    if (debouncedSearch === filtros.search) return;
+    setFiltros((prev) => ({ ...prev, search: debouncedSearch }));
+    setPagina(1);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedSearch]);
+
+  const cargar = useCallback(async () => {
+    setCargando(true);
+    try {
+      const res = await listInmueblesOliv({ ...filtros, page: pagina, limit: PAGE_SIZE });
+      setResultado(res.data);
+      setOpciones((prev) => ({
+        torres: res.data.torres ?? prev.torres,
+        categorias: res.data.categorias ?? prev.categorias,
+        estados: res.data.estados ?? prev.estados,
+      }));
+    } finally {
+      setCargando(false);
+    }
+  }, [filtros, pagina]);
+
+  useEffect(() => {
+    cargar();
+  }, [cargar]);
+
+  useEffect(() => () => clearInterval(pollRef.current), []);
+
+  function actualizarFiltro(campo, valor) {
+    setFiltros((prev) => ({ ...prev, [campo]: valor }));
+    setPagina(1);
+  }
+
+  function handleSync() {
+    setSincronizando(true);
+    setSyncError(null);
+    iniciarSyncInmueblesOliv().catch(() => {});
+    let attempts = 0;
+    pollRef.current = setInterval(async () => {
+      attempts += 1;
+      try {
+        const res = await getSyncStatusInmueblesOliv();
+        if (!res.data.running) {
+          clearInterval(pollRef.current);
+          setSincronizando(false);
+          if (res.data.result?.ok) cargar();
+          else setSyncError(res.data.result?.error || 'La sincronización no terminó correctamente. Intenta de nuevo.');
+        }
+      } catch {
+        // seguir intentando
+      }
+      if (attempts > 120) {
+        clearInterval(pollRef.current);
+        setSincronizando(false);
+        setSyncError('La sincronización tardó demasiado y se canceló. Intenta de nuevo.');
+      }
+    }, 2000);
+  }
+
+  async function handleExportar() {
+    setExportando(true);
+    try {
+      await exportarInmueblesOliv(filtros);
+    } catch (err) {
+      window.alert(`No se pudo exportar: ${err.message}`);
+    } finally {
+      setExportando(false);
+    }
+  }
+
+  function limpiarFiltros() {
+    setSearchInput('');
+    setFiltros(FILTROS_VACIOS);
+    setPagina(1);
+  }
+
+  const meta = resultado ?? {};
+  const filas = meta.data ?? [];
+  const total = meta.pagination?.total;
+  const hayFiltros = Object.values(filtros).some((valor) => valor !== '');
+  const sinInventario = !cargando && total === 0 && !hayFiltros;
+
   return (
-    <div className={styles.centrado}>
-      <div className={styles.emptyIcono}><Warehouse size={24} /></div>
-      <p className={styles.emptyTitulo}>Sin inmuebles cargados</p>
-      <p className={styles.emptyTexto}>Haz clic en Sincronizar para traer todas las unidades desde HubSpot.</p>
-      <button type="button" className={styles.botonSync} onClick={onSync} disabled={syncing}>
-        {syncing ? 'Sincronizando…' : 'Sincronizar inmuebles'}
-      </button>
-      {error && <p className={styles.emptyError}>{error}</p>}
+    <div className={styles.page}>
+      <div className={styles.header}>
+        <div>
+          <h1 className={styles.title}>Inmuebles</h1>
+          <p className={styles.subtitle}>Unidades de Oliv (HubSpot){total !== undefined && !sinInventario ? ` · ${total.toLocaleString('es-CO')} resultados` : ''}</p>
+        </div>
+        <div className={styles.acciones}>
+          <Button variant="secondary" onClick={handleExportar} disabled={exportando}>
+            <span className={styles.botonInterior}>
+              <Download size={14} aria-hidden="true" />
+              {exportando ? 'Exportando…' : 'Exportar a Excel'}
+            </span>
+          </Button>
+          <Button variant="secondary" onClick={handleSync} disabled={sincronizando}>
+            <span className={styles.botonInterior}>
+              <RefreshCw size={14} className={sincronizando ? styles.spin : ''} aria-hidden="true" />
+              {sincronizando ? 'Sincronizando…' : 'Sincronizar desde HubSpot'}
+            </span>
+          </Button>
+        </div>
+      </div>
+
+      {syncError && <p className={styles.syncError}>{syncError}</p>}
+
+      {opciones.estados.length > 0 && (
+        <div className={styles.chips} role="group" aria-label="Filtrar por estado">
+          <button type="button" className={`${styles.chip} ${filtros.estado === '' ? styles.chipActivo : ''}`} onClick={() => actualizarFiltro('estado', '')}>
+            Todos
+          </button>
+          {opciones.estados.map((estado) => (
+            <button
+              key={estado}
+              type="button"
+              className={`${styles.chip} ${filtros.estado === estado ? styles.chipActivo : ''}`}
+              onClick={() => actualizarFiltro('estado', filtros.estado === estado ? '' : estado)}
+            >
+              {estado}
+            </button>
+          ))}
+        </div>
+      )}
+
+      <div className={styles.filtros}>
+        <div className={styles.filtroBusqueda}>
+          <Field
+            label={
+              <span className={styles.labelConIcono}>
+                <Search size={13} />
+                Buscar
+              </span>
+            }
+          >
+            {(p) => <TextInput {...p} value={searchInput} onChange={(e) => setSearchInput(e.target.value)} placeholder="Código de unidad o torre…" />}
+          </Field>
+        </div>
+        {opciones.torres.length > 0 && (
+          <Field
+            label={
+              <span className={styles.labelConIcono}>
+                <Building size={13} />
+                Torre
+              </span>
+            }
+          >
+            {(p) => (
+              <Select {...p} value={filtros.torre} onChange={(e) => actualizarFiltro('torre', e.target.value)}>
+                <option value="">Todas las torres</option>
+                {opciones.torres.map((t) => <option key={t} value={t}>Torre {t}</option>)}
+              </Select>
+            )}
+          </Field>
+        )}
+        {opciones.categorias.length > 0 && (
+          <Field label="Categoría">
+            {(p) => (
+              <Select {...p} value={filtros.categoria} onChange={(e) => actualizarFiltro('categoria', e.target.value)}>
+                <option value="">Todas las categorías</option>
+                {opciones.categorias.map((c) => <option key={c} value={c}>{c}</option>)}
+              </Select>
+            )}
+          </Field>
+        )}
+        {hayFiltros && (
+          <button type="button" className={styles.limpiar} onClick={limpiarFiltros}>
+            Limpiar filtros
+          </button>
+        )}
+      </div>
+
+      <div className={styles.tableWrap}>
+        {sinInventario ? (
+          <div className={styles.vacio}>
+            <p className={styles.vacioTitulo}>Sin inmuebles cargados</p>
+            <p className={styles.vacioTexto}>Usa "Sincronizar desde HubSpot" para traer todas las unidades.</p>
+          </div>
+        ) : (
+          <>
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th>Unidad</th>
+                  <th>Torre</th>
+                  <th>Categoría</th>
+                  <th>Estado</th>
+                  <th className={styles.derecha}>Valor comercial</th>
+                </tr>
+              </thead>
+              <tbody>
+                {cargando ? (
+                  <tr>
+                    <td colSpan={5} className={styles.mensaje}>Cargando…</td>
+                  </tr>
+                ) : filas.length === 0 ? (
+                  <tr>
+                    <td colSpan={5} className={styles.mensaje}>Sin resultados para los filtros aplicados.</td>
+                  </tr>
+                ) : (
+                  filas.map((item) => (
+                    <tr key={item.id} className={styles.filaClicable} onClick={() => navigate(`/oliv/inmuebles/${item.id}`)}>
+                      <td><span className={styles.nombre}>{item.codigoUnidad || '(sin código)'}</span></td>
+                      <td>{item.torre ? `Torre ${item.torre}` : <span className={styles.muted}>—</span>}</td>
+                      <td>{item.categoria || <span className={styles.muted}>—</span>}</td>
+                      <td><EstadoInventarioBadge estado={item.estado} /></td>
+                      <td className={`${styles.derecha} ${styles.saldo}`}>{item.valorComercial != null ? formatCOP(item.valorComercial) : <span className={styles.muted}>—</span>}</td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+            {!cargando && total > 0 && <Pagination page={pagina} pageSize={PAGE_SIZE} total={total} onPageChange={setPagina} />}
+          </>
+        )}
+      </div>
     </div>
   );
 }
 
 export function OlivInventarioPage() {
   const { id } = useParams();
-  const [isEmpty, setIsEmpty] = useState(false);
-  const [syncing, setSyncing] = useState(false);
-  const [syncError, setSyncError] = useState(null);
-  const layoutRef = useRef(null);
-  const altura = useAlturaDisponible(layoutRef);
-
-  const handleSidebarData = useCallback(({ isEmpty: vacio }) => {
-    setIsEmpty(vacio);
-  }, []);
-
-  function handleSync() {
-    setSyncing(true);
-    setSyncError(null);
-    iniciarSyncInmueblesOliv().catch(() => {});
-    const interval = setInterval(async () => {
-      const res = await getSyncStatusInmueblesOliv();
-      if (!res.data.running) {
-        clearInterval(interval);
-        setSyncing(false);
-        if (res.data.result?.ok) {
-          window.location.reload();
-        } else {
-          setSyncError(res.data.result?.error || 'La sincronización no terminó correctamente. Intenta de nuevo.');
-        }
-      }
-    }, 2000);
-  }
-
+  if (!id) return <OlivInventarioLista />;
   return (
-    <div className={styles.layout} ref={layoutRef} style={altura ? { height: `${altura}px` } : undefined}>
-      <OlivInventarioSidebar selectedId={id ?? null} onDatosCargados={handleSidebarData} />
-      <div className={styles.panel} data-lenis-prevent>
-        {id ? (
-          <OlivInventarioDetalleContenido key={id} id={id} />
-        ) : isEmpty ? (
-          <SinInventarioPanel onSync={handleSync} syncing={syncing} error={syncError} />
-        ) : (
-          <div className={styles.centrado}>
-            <p className={styles.placeholder}>Selecciona un ítem de la lista para ver todas sus variables.</p>
-          </div>
-        )}
-      </div>
+    <div className={styles.page}>
+      <BackLink to="/oliv/inmuebles">Inmuebles</BackLink>
+      <OlivInventarioDetalleContenido key={id} id={id} />
     </div>
   );
 }

@@ -1,83 +1,334 @@
-// Segundo módulo de negocio migrado. Layout maestro-detalle: sidebar a la
-// izquierda con todos los inmuebles (filtros + lista + paginación, ver
-// InventarioSidebar.jsx), panel derecho con el detalle completo del
-// seleccionado (ver InventarioDetalleContenido.jsx) -- o, sin selección, un
-// placeholder simple (a diferencia de Negocios, el legado no muestra
-// estadísticas acá). Mismo layout que
-// zoho-payment-tracker/frontend/src/pages/Inventario.jsx, con la misma
-// diferencia deliberada que Negocios: la selección vive en la URL
-// (`/inventario/:id`, con `/inventario` sin selección) en vez de un query
-// param, para que otras pantallas puedan enlazar directo sin conocer este
-// componente.
-import { useCallback, useRef, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { Warehouse } from 'lucide-react';
-import { iniciarSyncInventario, getSyncStatusInventario } from '../../api/inventario.js';
-import { useAlturaDisponible } from '../../hooks/useAlturaDisponible.js';
-import { InventarioSidebar } from './InventarioSidebar.jsx';
+// Inmuebles de Baía Kristal (Products de Zoho). Rediseño 2026-10-05, mismo
+// esquema que Negocios (ver negocios/NegociosPage.jsx):
+//   - `/inventario`      -> página de lista a ancho completo: chips de estado,
+//                            filtros con etiqueta y una tabla paginada;
+//   - `/inventario/:id`  -> detalle como ruta propia (banner, cifras clave y
+//                            variables con buscador).
+// Una sola ruta decide cuál mostrar según haya `:id`, para que otras pantallas
+// sigan enlazando directo a `/inventario/${id}`. Reusa los estilos de lista de
+// Negocios (negocios/NegociosPage.module.css).
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { Search, RefreshCw, Layers, MapPin, Building } from 'lucide-react';
+import { BackLink } from '../../components/ui/BackLink.jsx';
+import { Button } from '../../components/ui/Button.jsx';
+import { EstadoInventarioBadge } from '../../components/ui/EstadoInventarioBadge.jsx';
+import { Field, TextInput, Select } from '../../components/ui/Field.jsx';
+import { Pagination } from '../../components/ui/Pagination.jsx';
+import { usePersistentState } from '../../hooks/usePersistentState.js';
+import { listInventario, iniciarSyncInventario, getSyncStatusInventario } from '../../api/inventario.js';
+import { etiquetaEtapa } from '../../utils/etapas.js';
 import { InventarioDetalleContenido } from './InventarioDetalleContenido.jsx';
-import styles from './InventarioPage.module.css';
+import styles from '../negocios/NegociosPage.module.css';
 
-function SinInventarioPanel({ onSync, syncing, error }) {
+const PAGE_SIZE = 50;
+const FILTROS_VACIOS = { search: '', categoria: '', estado: '', etapa: '', frente: '', torre: '' };
+
+// El campo `torre` de Zoho ya trae el proyecto ('Isla Laguna - Torre 1'): no repetirlo.
+function proyectoTorre(item) {
+  return item.torre && item.proyecto && item.torre.startsWith(item.proyecto) ? item.torre : [item.proyecto, item.torre].filter(Boolean).join(' · ');
+}
+
+function useDebounce(value, delay = 350) {
+  const [debounced, setDebounced] = useState(value);
+  useEffect(() => {
+    const t = setTimeout(() => setDebounced(value), delay);
+    return () => clearTimeout(t);
+  }, [value, delay]);
+  return debounced;
+}
+
+function InventarioLista() {
+  const navigate = useNavigate();
+  const [filtros, setFiltros] = usePersistentState('inventario-list:filtros', FILTROS_VACIOS);
+  const [pagina, setPagina] = usePersistentState('inventario-list:pagina', 1);
+  const [resultado, setResultado] = useState(null);
+  const [cargando, setCargando] = useState(true);
+  const [sincronizando, setSincronizando] = useState(false);
+  const [syncError, setSyncError] = useState(null);
+  const [searchInput, setSearchInput] = useState(filtros.search);
+  const debouncedSearch = useDebounce(searchInput);
+  const pollRef = useRef(null);
+
+  const [opciones, setOpciones] = useState({
+    categorias: [], estados: [], etapasDisponibles: [], frentesDisponibles: [], frentesPorEtapa: {}, torresPorFrente: {}, torresPorEtapaFrente: {},
+  });
+
+  useEffect(() => {
+    if (debouncedSearch === filtros.search) return;
+    setFiltros((prev) => ({ ...prev, search: debouncedSearch }));
+    setPagina(1);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedSearch]);
+
+  const cargar = useCallback(async () => {
+    setCargando(true);
+    try {
+      const res = await listInventario({ ...filtros, page: pagina, limit: PAGE_SIZE });
+      setResultado(res.data);
+      setOpciones((prev) => ({
+        categorias: res.data.categorias ?? prev.categorias,
+        estados: res.data.estados ?? prev.estados,
+        etapasDisponibles: res.data.etapasDisponibles ?? prev.etapasDisponibles,
+        frentesDisponibles: res.data.frentesDisponibles ?? prev.frentesDisponibles,
+        frentesPorEtapa: res.data.frentesPorEtapa ?? prev.frentesPorEtapa,
+        torresPorFrente: res.data.torresPorFrente ?? prev.torresPorFrente,
+        torresPorEtapaFrente: res.data.torresPorEtapaFrente ?? prev.torresPorEtapaFrente,
+      }));
+    } finally {
+      setCargando(false);
+    }
+  }, [filtros, pagina]);
+
+  useEffect(() => {
+    cargar();
+  }, [cargar]);
+
+  useEffect(() => () => clearInterval(pollRef.current), []);
+
+  function actualizarFiltro(campo, valor) {
+    setFiltros((prev) => ({ ...prev, [campo]: valor }));
+    setPagina(1);
+  }
+
+  function handleEtapaChange(value) {
+    setFiltros((prev) => {
+      const { frentesPorEtapa, torresPorEtapaFrente } = opciones;
+      let { frente, torre } = prev;
+      if (value && frente && !(frentesPorEtapa[value] || []).includes(frente)) {
+        frente = '';
+        torre = '';
+      } else if (value && frente && torre && !(torresPorEtapaFrente[`${value}||${frente}`] || []).includes(torre)) {
+        torre = '';
+      }
+      return { ...prev, etapa: value, frente, torre };
+    });
+    setPagina(1);
+  }
+
+  function handleFrenteChange(value) {
+    setFiltros((prev) => ({ ...prev, frente: value, torre: '' }));
+    setPagina(1);
+  }
+
+  function handleSync() {
+    setSincronizando(true);
+    setSyncError(null);
+    iniciarSyncInventario().catch(() => {});
+    let attempts = 0;
+    pollRef.current = setInterval(async () => {
+      attempts += 1;
+      try {
+        const res = await getSyncStatusInventario();
+        if (!res.data.running) {
+          clearInterval(pollRef.current);
+          setSincronizando(false);
+          if (res.data.result?.ok) cargar();
+          else setSyncError(res.data.result?.error || 'La sincronización no terminó correctamente. Intenta de nuevo.');
+        }
+      } catch {
+        // seguir intentando
+      }
+      if (attempts > 120) {
+        clearInterval(pollRef.current);
+        setSincronizando(false);
+        setSyncError('La sincronización tardó demasiado y se canceló. Intenta de nuevo.');
+      }
+    }, 2000);
+  }
+
+  function limpiarFiltros() {
+    setSearchInput('');
+    setFiltros(FILTROS_VACIOS);
+    setPagina(1);
+  }
+
+  const meta = resultado ?? {};
+  const filas = meta.data ?? [];
+  const total = meta.pagination?.total;
+  const hayFiltros = Object.values(filtros).some((valor) => valor !== '');
+  const sinInventario = !cargando && total === 0 && !hayFiltros;
+  const frenteOptions = filtros.etapa ? (opciones.frentesPorEtapa?.[filtros.etapa] || []) : (opciones.frentesDisponibles ?? []);
+  const torreOptions = filtros.frente
+    ? (filtros.etapa ? (opciones.torresPorEtapaFrente?.[`${filtros.etapa}||${filtros.frente}`] || []) : (opciones.torresPorFrente?.[filtros.frente] || []))
+    : [];
+
   return (
-    <div className={styles.centrado}>
-      <div className={styles.emptyIcono}><Warehouse size={24} /></div>
-      <p className={styles.emptyTitulo}>Sin inmuebles cargados</p>
-      <p className={styles.emptyTexto}>Haz clic en Sincronizar para traer todos los inmuebles desde el módulo Products de Zoho.</p>
-      <button type="button" className={styles.botonSync} onClick={onSync} disabled={syncing}>
-        {syncing ? 'Sincronizando…' : 'Sincronizar inmuebles'}
-      </button>
-      {error && <p className={styles.emptyError}>{error}</p>}
+    <div className={styles.page}>
+      <div className={styles.header}>
+        <div>
+          <h1 className={styles.title}>Inmuebles</h1>
+          <p className={styles.subtitle}>Inventario de Baía Kristal (Zoho){total !== undefined && !sinInventario ? ` · ${total.toLocaleString('es-CO')} resultados` : ''}</p>
+        </div>
+        <div className={styles.acciones}>
+          <Button variant="secondary" onClick={handleSync} disabled={sincronizando}>
+            <span className={styles.botonInterior}>
+              <RefreshCw size={14} className={sincronizando ? styles.spin : ''} aria-hidden="true" />
+              {sincronizando ? 'Sincronizando…' : 'Sincronizar desde Zoho'}
+            </span>
+          </Button>
+        </div>
+      </div>
+
+      {syncError && <p className={styles.syncError}>{syncError}</p>}
+
+      {opciones.estados.length > 0 && (
+        <div className={styles.chips} role="group" aria-label="Filtrar por estado">
+          <button type="button" className={`${styles.chip} ${filtros.estado === '' ? styles.chipActivo : ''}`} onClick={() => actualizarFiltro('estado', '')}>
+            Todos
+          </button>
+          {opciones.estados.map((estado) => (
+            <button
+              key={estado}
+              type="button"
+              className={`${styles.chip} ${filtros.estado === estado ? styles.chipActivo : ''}`}
+              onClick={() => actualizarFiltro('estado', filtros.estado === estado ? '' : estado)}
+            >
+              {estado}
+            </button>
+          ))}
+        </div>
+      )}
+
+      <div className={styles.filtros}>
+        <div className={styles.filtroBusqueda}>
+          <Field
+            label={
+              <span className={styles.labelConIcono}>
+                <Search size={13} />
+                Buscar
+              </span>
+            }
+          >
+            {(p) => <TextInput {...p} value={searchInput} onChange={(e) => setSearchInput(e.target.value)} placeholder="Nombre, torre o referencia…" />}
+          </Field>
+        </div>
+        {opciones.etapasDisponibles.length > 0 && (
+          <Field
+            label={
+              <span className={styles.labelConIcono}>
+                <Layers size={13} />
+                Etapa
+              </span>
+            }
+          >
+            {(p) => (
+              <Select {...p} value={filtros.etapa} onChange={(e) => handleEtapaChange(e.target.value)}>
+                <option value="">Todas las etapas</option>
+                {opciones.etapasDisponibles.map((et) => <option key={et} value={et}>{etiquetaEtapa(et)}</option>)}
+              </Select>
+            )}
+          </Field>
+        )}
+        {frenteOptions.length > 0 && (
+          <Field
+            label={
+              <span className={styles.labelConIcono}>
+                <MapPin size={13} />
+                Frente
+              </span>
+            }
+          >
+            {(p) => (
+              <Select {...p} value={filtros.frente} onChange={(e) => handleFrenteChange(e.target.value)}>
+                <option value="">Todos los frentes</option>
+                {frenteOptions.map((fr) => <option key={fr} value={fr}>{fr}</option>)}
+              </Select>
+            )}
+          </Field>
+        )}
+        {filtros.frente && torreOptions.length > 0 && (
+          <Field
+            label={
+              <span className={styles.labelConIcono}>
+                <Building size={13} />
+                Torre
+              </span>
+            }
+          >
+            {(p) => (
+              <Select {...p} value={filtros.torre} onChange={(e) => actualizarFiltro('torre', e.target.value)}>
+                <option value="">Todas las torres</option>
+                {torreOptions.map((tr) => <option key={tr} value={tr}>Torre {tr}</option>)}
+              </Select>
+            )}
+          </Field>
+        )}
+        {opciones.categorias.length > 0 && (
+          <Field label="Categoría">
+            {(p) => (
+              <Select {...p} value={filtros.categoria} onChange={(e) => actualizarFiltro('categoria', e.target.value)}>
+                <option value="">Todas las categorías</option>
+                {opciones.categorias.map((c) => <option key={c} value={c}>{c}</option>)}
+              </Select>
+            )}
+          </Field>
+        )}
+        {hayFiltros && (
+          <button type="button" className={styles.limpiar} onClick={limpiarFiltros}>
+            Limpiar filtros
+          </button>
+        )}
+      </div>
+
+      <div className={styles.tableWrap}>
+        {sinInventario ? (
+          <div className={styles.vacio}>
+            <p className={styles.vacioTitulo}>Sin inmuebles cargados</p>
+            <p className={styles.vacioTexto}>Usa "Sincronizar desde Zoho" para traer todos los inmuebles desde el módulo Products de Zoho.</p>
+          </div>
+        ) : (
+          <>
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th>Inmueble</th>
+                  <th>Proyecto · Torre</th>
+                  <th>Categoría</th>
+                  <th>Estado</th>
+                </tr>
+              </thead>
+              <tbody>
+                {cargando ? (
+                  <tr>
+                    <td colSpan={4} className={styles.mensaje}>Cargando…</td>
+                  </tr>
+                ) : filas.length === 0 ? (
+                  <tr>
+                    <td colSpan={4} className={styles.mensaje}>Sin resultados para los filtros aplicados.</td>
+                  </tr>
+                ) : (
+                  filas.map((item) => (
+                    <tr key={item.id} className={styles.filaClicable} onClick={() => navigate(`/inventario/${item.id}`)}>
+                      <td>
+                        <div className={styles.celdaTitulo}>
+                          <span className={styles.nombre}>{item.nombre || '(sin nombre)'}</span>
+                          {item.piso && <span className={styles.detalleSec}>{item.piso}</span>}
+                        </div>
+                      </td>
+                      <td>{proyectoTorre(item) || <span className={styles.muted}>—</span>}</td>
+                      <td>{item.categoria || <span className={styles.muted}>—</span>}</td>
+                      <td><EstadoInventarioBadge estado={item.estado} /></td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+            {!cargando && total > 0 && <Pagination page={pagina} pageSize={PAGE_SIZE} total={total} onPageChange={setPagina} />}
+          </>
+        )}
+      </div>
     </div>
   );
 }
 
 export function InventarioPage() {
   const { id } = useParams();
-  const [isEmpty, setIsEmpty] = useState(false);
-  const [syncing, setSyncing] = useState(false);
-  const [syncError, setSyncError] = useState(null);
-  const layoutRef = useRef(null);
-  const altura = useAlturaDisponible(layoutRef);
-
-  const handleSidebarData = useCallback(({ isEmpty: vacio }) => {
-    setIsEmpty(vacio);
-  }, []);
-
-  function handleSync() {
-    setSyncing(true);
-    setSyncError(null);
-    iniciarSyncInventario().catch(() => {});
-    const interval = setInterval(async () => {
-      const res = await getSyncStatusInventario();
-      if (!res.data.running) {
-        clearInterval(interval);
-        setSyncing(false);
-        if (res.data.result?.ok) {
-          window.location.reload();
-        } else {
-          setSyncError(res.data.result?.error || 'La sincronización no terminó correctamente. Intenta de nuevo.');
-        }
-      }
-    }, 2000);
-  }
-
+  if (!id) return <InventarioLista />;
   return (
-    <div className={styles.layout} ref={layoutRef} style={altura ? { height: `${altura}px` } : undefined}>
-      <InventarioSidebar selectedId={id ?? null} onDatosCargados={handleSidebarData} />
-      {/* data-lenis-prevent: ver el mismo comentario en NegociosPage.jsx --
-          este panel scrollea independiente del .scrollArea del AppShell. */}
-      <div className={styles.panel} data-lenis-prevent>
-        {id ? (
-          <InventarioDetalleContenido key={id} id={id} />
-        ) : isEmpty ? (
-          <SinInventarioPanel onSync={handleSync} syncing={syncing} error={syncError} />
-        ) : (
-          <div className={styles.centrado}>
-            <p className={styles.placeholder}>Selecciona un ítem de la lista para ver todas sus variables.</p>
-          </div>
-        )}
-      </div>
+    <div className={styles.page}>
+      <BackLink to="/inventario">Inmuebles</BackLink>
+      <InventarioDetalleContenido key={id} id={id} />
     </div>
   );
 }

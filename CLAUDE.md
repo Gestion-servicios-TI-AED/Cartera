@@ -767,5 +767,14 @@ HRMS y se adaptan solo textos/datos). Se hace por pasos, con el HRMS como modelo
   nuevas: `components/ui/Tabs.jsx` y `Accordion collapsible={false}` (tarjeta de
   sección fija). Se eliminaron `NegociosSidebar`, su CSS y `OlivNegociosSidebar`.
   Oliv no tiene KPIs/exportar (no hay endpoint de stats ni sincronización propia).
-- Pendiente (en orden): Inicio, Dashboard, Inmuebles, Encargos, Movimientos,
-  Resumen, Cartera y Otrosíes (de Baía Kristal y Oliv).
+- **Paso 7 — Inmuebles de Baía Kristal y Oliv (hecho, rediseño estructural):** misma
+  receta que Negocios. `/inventario` y `/oliv/inmuebles` pasan a **página de lista a
+  ancho completo**: chips de estado como filtro rápido, filtros con etiqueta,
+  tabla paginada (BK: inmueble, proyecto·torre, categoría, estado; Oliv: unidad,
+  torre, categoría, estado, valor comercial) y las acciones en el encabezado
+  (sincronizar; Oliv además exportar a Excel). `/inventario/:id` es un **detalle como
+  ruta propia**: banner, cifras clave y "Todas las variables" con **buscador**.
+  Reusa los estilos de lista de `negocios/NegociosPage.module.css` (chips y
+  `syncError` se agregaron ahí). Se eliminaron los sidebars de inventario y su CSS.
+- Pendiente (en orden): Inicio, Dashboard, Encargos, Movimientos, Resumen, Cartera
+  y Otrosíes (de Baía Kristal y Oliv).
