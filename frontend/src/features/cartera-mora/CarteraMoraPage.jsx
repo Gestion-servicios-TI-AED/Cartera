@@ -121,6 +121,10 @@ function fmtPct(v) {
 }
 
 const LIMIT = 50;
+// El orden principal de Cartera es por Etapa; es también al que se vuelve cuando el
+// ciclo asc -> desc de cualquier columna se cierra (nunca queda "sin orden", que
+// mostraba la lista por días de atraso).
+const ORDEN_POR_DEFECTO = { key: 'etapa', direction: 'asc' };
 const OPCIONES_TRAMITE = [
   { value: '', label: 'Todos' },
   { value: 'en_tramite', label: 'En trámite' },
@@ -173,7 +177,7 @@ function TopCarteraInicial({ filas }) {
 export function CarteraMoraPage() {
   const [filtros, setFiltros] = usePersistentState('cartera-mora:filtros', { search: '', etapa: '', frente: '', torre: '', tramite: '', vista: 'inicial', rango: '' });
   const [pagina, setPagina] = usePersistentState('cartera-mora:pagina', 1);
-  const [sort, setSort] = usePersistentState('cartera-mora:sort-v2', { key: 'etapa', direction: 'asc' });
+  const [sort, setSort] = usePersistentState('cartera-mora:sort-v3', ORDEN_POR_DEFECTO);
   const [resultado, setResultado] = useState(null);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
@@ -284,7 +288,7 @@ export function CarteraMoraPage() {
     setSort((prev) => {
       if (prev.key !== key) return { key, direction: 'asc' };
       if (prev.direction === 'asc') return { key, direction: 'desc' };
-      return { key: null, direction: null };
+      return ORDEN_POR_DEFECTO;
     });
   }
 
