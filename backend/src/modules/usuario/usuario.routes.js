@@ -3,7 +3,7 @@ const express = require('express');
 const validate = require('../../middlewares/validate');
 const { requireAuth, requireModulo } = require('../../middlewares/auth');
 const controller = require('./usuario.controller');
-const { createSchema, updateSchema } = require('./usuario.schema');
+const { createSchema, updateSchema, masivoSchema } = require('./usuario.schema');
 
 const router = express.Router();
 
@@ -18,12 +18,15 @@ router.get('/me', requireAuth, controller.getMe);
 // AccesosLayout.jsx), no una seccion propia.
 router.get('/auditoria/historial', requireAuth, requireModulo('accesos-usuarios'), controller.historial);
 
+router.post('/masivo', requireAuth, requireModulo('accesos-usuarios'), validate(masivoSchema, 'body'), controller.accionMasiva);
+
 router.get('/', requireAuth, requireModulo('accesos-usuarios'), controller.list);
 router.post('/', requireAuth, requireModulo('accesos-usuarios'), validate(createSchema, 'body'), controller.create);
 
 router.get('/:id', requireAuth, requireModulo('accesos-usuarios'), controller.getById);
 router.put('/:id', requireAuth, requireModulo('accesos-usuarios'), validate(updateSchema, 'body'), controller.update);
 router.delete('/:id', requireAuth, requireModulo('accesos-usuarios'), controller.remove);
+router.post('/:id/generar-password', requireAuth, requireModulo('accesos-usuarios'), controller.regenerarPassword);
 // Eliminacion fisica real, distinta del soft delete de arriba -- solo
 // permitida si el usuario ya esta desactivado (ver
 // usuario.service.js#removeDefinitivo). Segmento literal despues de ":id",

@@ -5,7 +5,7 @@
 const { Op } = require('sequelize');
 const ApiError = require('../../utils/ApiError');
 const { hashPassword } = require('../../utils/security');
-const { validatePassword } = require('../../utils/passwordRules');
+const { validatePassword, generateRandomPassword } = require('../../utils/passwordRules');
 const { getRolesPermisos } = require('../../utils/permisos');
 const Usuario = require('./usuario.model');
 const AuditoriaUsuario = require('./auditoriaUsuario.model');
@@ -21,6 +21,7 @@ function _enrich(usuario) {
     activo: data.activo,
     debe_cambiar_password: data.debe_cambiar_password,
     creado_en: data.creado_en,
+    ultimo_acceso: data.ultimo_acceso,
   };
 }
 
@@ -184,4 +185,49 @@ async function historialAuditoria(limit = 100) {
   });
 }
 
-module.exports = { getMe, list, create, getById, update, remove, removeDefinitivo, historialAuditoria };
+// Genera y guarda una contrasena temporal nueva y fuerza el cambio en el proximo
+// login. Devuelve el texto plano UNA sola vez: no se guarda ni se loguea.
+async function regenerarPassword(id, actorId) {
+  const usuario = await Usuario.findByPk(id);
+  if (!usuario) throw new ApiError(404, 'Usuario no encontrado');
+  const password = generateRandomPassword();
+  await usuario.update({ hashed_password: await hashPassword(password), debe_cambiar_password: true });
+  await _registrarAuditoria(actorId, id, 'editar', { passwordReseteada: true });
+  return { password };
+}
+
+// Acciones masivas sobre varias cuentas. La cuenta de quien ejecuta nunca se toca.
+// Para 'generar-password' devuelve ademas las contrasenas temporales (una sola vez).
+async function accionMasiva({ ids, accion }, actorId) {
+  const unicos = [...new Set(ids)];
+  const usuarios = await Usuario.findAll({ where: { id: unicos } });
+  const encontrados = new Map(usuarios.map((u) => [u.id, u]));
+  const omitidos = [];
+  const objetivo = [];
+  for (const id of unicos) {
+    const usuario = encontrados.get(id);
+    if (!usuario) omitidos.push({ id, motivo: 'No existe' });
+    else if (id === actorId) omitidos.push({ id, email: usuario.email, motivo: 'Es tu propia cuenta' });
+    else objetivo.push(usuario);
+  }
+
+  if (accion === 'generar-password') {
+    const resultados = [];
+    for (const usuario of objetivo) {
+      const password = generateRandomPassword();
+      await usuario.update({ hashed_password: await hashPassword(password), debe_cambiar_password: true });
+      await _registrarAuditoria(actorId, usuario.id, 'editar', { passwordReseteada: true });
+      resultados.push({ id: usuario.id, nombre: usuario.nombre, email: usuario.email, password });
+    }
+    return { procesados: resultados.length, omitidos, resultados };
+  }
+
+  const activo = accion === 'activar';
+  for (const usuario of objetivo) {
+    await usuario.update({ activo });
+    await _registrarAuditoria(actorId, usuario.id, activo ? 'editar' : 'desactivar', activo ? { activo: true } : null);
+  }
+  return { procesados: objetivo.length, omitidos };
+}
+
+module.exports = { getMe, list, create, getById, update, remove, removeDefinitivo, historialAuditoria, regenerarPassword, accionMasiva };

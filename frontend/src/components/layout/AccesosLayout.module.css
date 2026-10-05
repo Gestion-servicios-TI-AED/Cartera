@@ -1,77 +1,139 @@
-/* Mismos valores exactos que WizardLayout.module.css del HRMS (.body/.nav/
-   .navItem/.navItemActive/.content) -- ver el comentario de cabecera de
-   AccesosLayout.jsx sobre por qué viven acá directo en vez de en un
-   WizardLayout que Cartera no tiene. */
-
+/* `.body` propio (no el de WizardLayout.module.css) -- mismas propiedades de
+   layout que ahi (flex, gap), pero align-items vuelve a `flex-start`: los
+   intentos anteriores (padding-top a ojo, luego `align-items: baseline`
+   para alinear texto contra texto) resultaron innecesarios una vez que
+   ninguno de los dos lados tiene margen/padding extra ANTES de su primer
+   elemento -- `.nav` (WizardLayout.module.css) no tiene padding-top propio
+   (solo cada `.navItem` conserva su padding interno de siempre, 9px 12px,
+   que es el area de click, no espacio vacio previo al primer item), y
+   `.header`/`.title` tampoco. Con los dos arrancando en flex-start y sin
+   espacio extra antes de su contenido, sus bordes superiores ya coinciden
+   -- pedido explicito del usuario (2026-09-05): "que empiece justo arriba
+   del contenedor, sin margen superior extra... pero sin quitar el padding
+   interno de cada item". El gap es exactamente 32px (`--space-xl`) --
+   ancho del sidebar fijo (`.nav` width:224px), el contenido gana el resto
+   del ancho disponible (`.content` flex:1) a partir de ese gap.*/
 .body {
   display: flex;
   align-items: flex-start;
   gap: var(--space-xl);
 }
 
+/* Menu lateral propio (ya no reutiliza el .nav del perfil del empleado):
+   tarjeta fija a la izquierda con titulo, grupos y un item por seccion con
+   icono, nombre y una linea de descripcion. */
 .nav {
   display: flex;
   flex-direction: column;
-  gap: var(--space-xs);
-  width: 224px;
+  gap: var(--space-md);
+  width: 248px;
   flex-shrink: 0;
   position: sticky;
-  top: var(--space-lg);
+  top: 0;
+  align-self: flex-start;
+  padding: 16px 12px;
+  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  max-height: calc(100dvh - 120px);
+  overflow-y: auto;
 }
 
-.navItem {
-  font-family: var(--font-body);
-  font-weight: 500;
-  font-size: var(--text-body-size);
+.navHeading {
+  margin: 0;
+  padding: 0 8px 12px;
+  border-bottom: 1px solid var(--color-border);
+  font-family: var(--font-display);
+  font-size: var(--text-title-size);
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+.navGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.navGroupTitle {
+  padding: 4px 8px 6px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-ink-muted);
+}
+
+.navLink {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 10px;
+  border-radius: var(--radius-md);
   color: var(--color-ink-secondary);
   text-decoration: none;
-  padding: 9px 12px;
-  border-radius: var(--radius-sm);
   transition: background-color var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);
 }
 
-.navItem:hover {
+.navLink:hover {
   background: var(--color-surface-sunken);
   color: var(--color-ink);
 }
 
-.navItem:focus-visible {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 2px;
-}
-
-.navItemActive,
-.navItemActive:hover {
-  background: var(--color-surface-sunken);
+.navLinkActive,
+.navLinkActive:hover {
+  background: var(--color-info-surface);
   color: var(--color-primary);
-  font-weight: 600;
 }
 
-.content {
-  flex: 1;
+.navIcon {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border-radius: var(--radius-md);
+  background: var(--color-surface-sunken);
+}
+
+.navLinkActive .navIcon {
+  background: #fff;
+}
+
+.navText {
+  display: flex;
+  flex-direction: column;
   min-width: 0;
 }
 
-@media (max-width: 900px) {
-  .body {
-    flex-direction: column;
-    gap: var(--space-md);
-  }
-
-  .nav {
-    width: 100%;
-    position: static;
-    padding-bottom: var(--space-sm);
-    border-bottom: 1px solid var(--color-border);
-  }
-
-  .content {
-    width: 100%;
-  }
+.navLabel {
+  font-weight: 600;
+  font-size: var(--text-body-size);
+  line-height: 1.25;
 }
 
-/* Item de nav sin pantalla real todavía -- mismo lugar en el árbol que el
-   link real ocuparía, pero sin interacción. */
+.navHint {
+  font-size: var(--text-label-size);
+  font-weight: 400;
+  color: var(--color-ink-muted);
+  line-height: 1.3;
+}
+
+/* `.content` en WizardLayout.module.css (compartido con el perfil del
+   empleado) es un bloque simple -- ahi siempre envuelve un solo `.card`, asi
+   que nunca necesito espaciado entre hijos. Aca cada pantalla de Accesos
+   mete varios hermanos directos (toolbar, banner de error, tabla/card), asi
+   que este wrapper local les da el mismo espaciado vertical que cualquier
+   `.page` del resto del producto, sin tocar el CSS compartido del perfil. */
+.contentInner {
+  display: flex;
+  flex-direction: column;
+  gap: var(--accesos-content-gap, var(--space-lg));
+}
+
+/* Item de nav sin pantalla real todavia -- mismo lugar en el arbol que el
+   link real ocuparia, pero sin interaccion (no es boton ni link a ningun
+   lado). Mismo patron que .navItemDisabled en AppShell.module.css. */
 .navItemDisabled {
   display: flex;
   align-items: center;
@@ -85,14 +147,8 @@
   cursor: default;
 }
 
-/* `.content` de arriba no trae espaciado propio (en el HRMS eso vive en
-   WizardLayout.module.css, compartido con el perfil del empleado, que
-   siempre envuelve un solo `.card`) -- acá cada pantalla de Accesos mete
-   varios hermanos directos (toolbar, banner de error, tabla/card), así que
-   este wrapper local les da el mismo espaciado vertical que cualquier
-   `.page` del resto del producto. */
-.contentInner {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-lg);
+/* Sin esto, una tabla ancha empuja el contenido mas alla del ancho disponible
+   (un hijo flex no se encoge por debajo de su contenido minimo). */
+.content {
+  min-width: 0;
 }

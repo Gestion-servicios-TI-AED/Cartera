@@ -31,3 +31,13 @@ export function removeUsuarioDefinitivo(id) {
 export function historialAuditoriaUsuarios() {
   return client.get('/usuarios/auditoria/historial');
 }
+
+// Genera y GUARDA una contraseña temporal nueva (se muestra una sola vez).
+export function generarPasswordUsuario(id) {
+  return client.post(`/usuarios/${id}/generar-password`);
+}
+
+// Acciones sobre varias cuentas a la vez: 'generar-password' | 'activar' | 'inactivar'.
+export function accionMasivaUsuarios(ids, accion) {
+  return client.post('/usuarios/masivo', { ids, accion });
+}

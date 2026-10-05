@@ -1,51 +1,58 @@
-// Adaptado 1:1 de Human-Resource-Management-System-AED/frontend/src/features/
-// usuarios/UsuarioFormPage.jsx -- misma estructura/CSS exacta (BackLink,
-// header propio arriba de AccesosLayout, .card con .form/.section/.row).
-// Cambia el contenido de negocio: el HRMS vincula el usuario a un
-// `empleado` (rol rrhh/empleado); acá se eligen roles dinámicos (ver
-// ARQUITECTURA-BACKEND.md, "Roles y permisos dinámicos" -- reemplaza el
-// anterior par esAdmin/modulosPermitidos, migrado por completo). A
-// diferencia del HRMS (que excluye su reservado EMPLEADO de la lista, esas
-// cuentas se crean solas), acá ADMIN SÍ es un rol asignable normal más
-// desde este formulario -- Cartera no tiene un segundo tipo de cuenta de
-// autoservicio. Tampoco existe "Generar contraseña aleatoria" -- el backend
-// de Cartera no tiene ese endpoint, el reset de contraseña es siempre
-// manual.
-import { useEffect, useState } from 'react';
+// Mismo diseño que el formulario de usuario del HRMS (migración de diseño
+// 2026-10-05): banner de detalle (Detail Hero) al editar, secciones en tarjetas
+// (Cuenta / Roles y acceso / Contraseña) y barra de acciones. Cartera no tiene
+// cuentas de empleado: los roles son siempre de staff y ADMIN es un rol
+// asignable más. Se conserva "Eliminar permanentemente" (solo cuentas ya
+// desactivadas), que el HRMS no tiene.
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { BackLink } from '../../components/ui/BackLink.jsx';
 import { Button } from '../../components/ui/Button.jsx';
-import { CheckboxGroup } from '../../components/ui/CheckboxGroup.jsx';
 import { Field, TextInput } from '../../components/ui/Field.jsx';
-import { createUsuario, getUsuario, updateUsuario, removeUsuarioDefinitivo } from '../../api/usuarios.js';
+import { Badge } from '../../components/ui/Badge.jsx';
+import { Checkbox } from '../../components/ui/Checkbox.jsx';
+import { CheckboxGroup } from '../../components/ui/CheckboxGroup.jsx';
+import { createUsuario, generarPasswordUsuario, getUsuario, removeUsuarioDefinitivo, updateUsuario } from '../../api/usuarios.js';
 import { listRoles } from '../../api/roles.js';
+import { useAuth } from '../../auth/AuthContext.jsx';
+import { MODULOS_POR_PROYECTO } from '../../config/modulosPorProyecto.js';
 import { AccesosLayout } from '../../components/layout/AccesosLayout.jsx';
+import layoutStyles from '../../components/layout/WizardLayout.module.css';
+import { iniciales, fmtFecha, fmtAcceso } from './usuarioUtils.js';
 import styles from './Usuarios.module.css';
 
 const PASSWORD_HELP = 'Mínimo 8 caracteres, incluye una mayúscula, un número y un carácter especial (!@#$%…).';
 
-const EMPTY_FORM = { nombre: '', email: '', password: '', roles: [] };
+const EMPTY_FORM = { nombre: '', email: '', password: '', roles: [], activo: true };
+
+// slug de módulo -> "Proyecto · Módulo", para mostrar qué otorgan los roles elegidos.
+const ETIQUETAS_MODULOS = Object.fromEntries(
+  MODULOS_POR_PROYECTO.flatMap((grupo) => grupo.items.map((item) => [item.key, `${grupo.proyecto} · ${item.label}`]))
+);
 
 export function UsuarioFormPage({ mode }) {
   const isEdit = mode === 'editar';
   const { id } = useParams();
   const navigate = useNavigate();
+  const { usuario: usuarioActual } = useAuth();
 
   const [form, setForm] = useState(EMPTY_FORM);
-  const [usuarioEditado, setUsuarioEditado] = useState(null); // solo en editar: para el titulo ("Editar NOMBRE")
+  const [usuarioEditado, setUsuarioEditado] = useState(null);
   // Roles asignables vienen en vivo de GET /roles -- un rol creado desde
   // Accesos > Roles queda asignable de inmediato, sin tocar este archivo.
-  const [opcionesRoles, setOpcionesRoles] = useState([]);
+  const [rolesCatalogo, setRolesCatalogo] = useState([]);
   const [loading, setLoading] = useState(isEdit);
   const [saving, setSaving] = useState(false);
   const [eliminando, setEliminando] = useState(false);
   const [error, setError] = useState(null);
   const [fieldErrors, setFieldErrors] = useState({});
   const [requisitosFaltantes, setRequisitosFaltantes] = useState(null);
+  const [generando, setGenerando] = useState(false);
+  const [passwordGenerada, setPasswordGenerada] = useState(null);
 
   useEffect(() => {
     listRoles()
-      .then((res) => setOpcionesRoles(res.data.map((rol) => ({ value: rol.nombre, label: rol.nombre }))))
+      .then((res) => setRolesCatalogo(res.data))
       .catch(() => {
         // Secundario -- si falla, el selector de roles queda vacio.
       });
@@ -54,14 +61,34 @@ export function UsuarioFormPage({ mode }) {
     getUsuario(id)
       .then((res) => {
         setUsuarioEditado(res.data);
-        setForm((prev) => ({ ...prev, nombre: res.data.nombre, email: res.data.email, roles: res.data.roles }));
+        setForm((prev) => ({ ...prev, nombre: res.data.nombre, email: res.data.email, roles: res.data.roles, activo: res.data.activo }));
       })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
   }, [isEdit, id]);
 
+  const opcionesRoles = useMemo(() => rolesCatalogo.map((rol) => ({ value: rol.nombre, label: rol.nombre })), [rolesCatalogo]);
+  const permisosPorRol = useMemo(() => Object.fromEntries(rolesCatalogo.map((rol) => [rol.nombre, rol.permisos ?? []])), [rolesCatalogo]);
+
   function setField(key, value) {
     setForm((prev) => ({ ...prev, [key]: value }));
+  }
+
+  // Genera y GUARDA de una vez una contraseña temporal nueva (no depende de
+  // "Guardar cambios"). Se muestra una sola vez.
+  async function handleGenerarPassword() {
+    setGenerando(true);
+    setError(null);
+    setPasswordGenerada(null);
+    try {
+      const res = await generarPasswordUsuario(id);
+      setPasswordGenerada(res.data.password);
+      setField('password', '');
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setGenerando(false);
+    }
   }
 
   async function handleSubmit(event) {
@@ -73,16 +100,11 @@ export function UsuarioFormPage({ mode }) {
 
     try {
       if (isEdit) {
-        const payload = { nombre: form.nombre, email: form.email, roles: form.roles };
+        const payload = { nombre: form.nombre, roles: form.roles, activo: form.activo };
         if (form.password) payload.password = form.password;
         await updateUsuario(id, payload);
       } else {
-        await createUsuario({
-          nombre: form.nombre,
-          email: form.email,
-          password: form.password,
-          roles: form.roles,
-        });
+        await createUsuario({ nombre: form.nombre, email: form.email, password: form.password, roles: form.roles });
       }
       navigate('/accesos/usuarios');
     } catch (err) {
@@ -93,14 +115,8 @@ export function UsuarioFormPage({ mode }) {
     }
   }
 
-  // Eliminacion fisica real -- solo se renderiza (mas abajo) cuando el
-  // usuario ya esta desactivado, y el backend la rechaza igual si no lo
-  // esta. Irreversible: confirmacion nativa del navegador antes de disparar
-  // el request (este codebase no usa modales para flujos, y esto es un
-  // click destructivo unico, no un flujo).
   async function handleEliminarDefinitivo() {
-    const confirmado = window.confirm(`¿Eliminar a ${usuarioEditado?.nombre ?? 'este usuario'} permanentemente? Esta acción no se puede deshacer.`);
-    if (!confirmado) return;
+    if (!window.confirm(`¿Eliminar permanentemente a ${usuarioEditado?.nombre}? Esta acción no se puede deshacer.`)) return;
     setEliminando(true);
     setError(null);
     try {
@@ -122,80 +138,176 @@ export function UsuarioFormPage({ mode }) {
     );
   }
 
+  const esAdmin = rolesCatalogo.some((rol) => rol.es_admin && form.roles.includes(rol.nombre)) || form.roles.includes('ADMIN');
+  const permisosEfectivos = [...new Set(form.roles.flatMap((rol) => permisosPorRol[rol] ?? []))];
+  const esMismaCuenta = usuarioActual?.id === usuarioEditado?.id;
+
+  const errorBanner = error && (
+    <div className={styles.formError} role="alert">
+      <div>
+        {error}
+        {requisitosFaltantes && (
+          <ul>
+            {requisitosFaltantes.map((req) => (
+              <li key={req}>{req}</li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </div>
+  );
+
   return (
     <div className={styles.page}>
       <AccesosLayout>
-        <div className={styles.header}>
+        <BackLink to="/accesos/usuarios">Usuarios</BackLink>
+
+        {isEdit && usuarioEditado ? (
+          <section className={layoutStyles.hero}>
+            <div className={layoutStyles.heroAvatar}>{iniciales(usuarioEditado.nombre)}</div>
+            <div className={layoutStyles.heroInfo}>
+              <h1 className={layoutStyles.heroName}>{usuarioEditado.nombre}</h1>
+              <p className={layoutStyles.heroRole}>{usuarioEditado.email}</p>
+              <p className={layoutStyles.heroMeta}>
+                Cuenta creada el {fmtFecha(usuarioEditado.creado_en)} · Último acceso: {fmtAcceso(usuarioEditado.ultimo_acceso) ?? 'nunca ha iniciado sesión'}
+              </p>
+            </div>
+            <div className={layoutStyles.heroSide}>
+              <Badge variant={usuarioEditado.activo ? 'success' : 'neutral'} dot={usuarioEditado.activo}>
+                {usuarioEditado.activo ? 'Activo' : 'Inactivo'}
+              </Badge>
+              <Badge variant={usuarioEditado.debe_cambiar_password ? 'warning' : 'success'}>
+                {usuarioEditado.debe_cambiar_password ? 'Primer ingreso pendiente' : 'Primer ingreso completado'}
+              </Badge>
+            </div>
+          </section>
+        ) : (
           <div>
-            <BackLink to="/accesos/usuarios">Usuarios</BackLink>
-            <div className={styles.headerRow}>
-              <div>
-                <h1 className={styles.title}>{isEdit ? `Editar ${usuarioEditado?.nombre ?? 'usuario'}` : 'Crear usuario'}</h1>
-                <p className={styles.subtitle}>{isEdit ? 'Todo se puede cambiar, incluidos el email y los roles.' : 'Da acceso al sistema a una persona.'}</p>
-              </div>
-            </div>
+            <h1 className={styles.title}>Crear usuario</h1>
+            <p className={styles.subtitle}>Da acceso al sistema a una persona y elige los roles que definen a qué módulos entra.</p>
           </div>
-        </div>
+        )}
 
-        <div className={styles.card}>
-          {error && (
-            <div className={styles.formError} role="alert">
-              <div>
-                {error}
-                {requisitosFaltantes && (
-                  <ul>
-                    {requisitosFaltantes.map((req) => <li key={req}>{req}</li>)}
-                  </ul>
-                )}
-              </div>
+        {errorBanner}
+
+        <form className={styles.formStack} onSubmit={handleSubmit}>
+          <section className={styles.sectionCard}>
+            <div>
+              <h2 className={styles.sectionTitle}>Cuenta</h2>
+              <p className={styles.sectionHint}>{isEdit ? 'El correo no se puede cambiar.' : 'Datos con los que la persona inicia sesión.'}</p>
             </div>
-          )}
+            <div className={styles.row}>
+              <Field className={styles.fieldLg} label="Nombre" required error={fieldErrors.nombre?.[0]}>
+                {(fp) => <TextInput {...fp} value={form.nombre} onChange={(e) => setField('nombre', e.target.value)} />}
+              </Field>
 
-          <form className={styles.form} onSubmit={handleSubmit}>
-            <div className={styles.section}>
-              <div className={styles.row}>
-                <Field className={styles.fieldLg} label="Nombre" required error={fieldErrors.nombre?.[0]}>
-                  {(fp) => <TextInput {...fp} value={form.nombre} onChange={(e) => setField('nombre', e.target.value)} />}
+              {isEdit ? (
+                <Field className={styles.fieldLg} label="Correo">
+                  {(fp) => <TextInput {...fp} value={usuarioEditado?.email ?? ''} disabled />}
                 </Field>
-
-                <Field className={styles.fieldLg} label="Email" required error={fieldErrors.email?.[0]}>
+              ) : (
+                <Field className={styles.fieldLg} label="Correo" required error={fieldErrors.email?.[0]}>
                   {(fp) => <TextInput {...fp} type="email" value={form.email} onChange={(e) => setField('email', e.target.value)} />}
                 </Field>
-              </div>
+              )}
+            </div>
+          </section>
 
-              <div className={styles.row}>
-                <Field
-                  className={styles.fieldLg}
-                  label={isEdit ? 'Nueva contraseña' : 'Contraseña'}
-                  required={!isEdit}
-                  error={fieldErrors.password?.[0]}
-                  helper={isEdit ? 'Dejar en blanco para no cambiar la contraseña actual.' : PASSWORD_HELP}
-                >
-                  {(fp) => <TextInput {...fp} type="password" value={form.password} onChange={(e) => setField('password', e.target.value)} />}
-                </Field>
-              </div>
+          <section className={styles.sectionCard}>
+            <div>
+              <h2 className={styles.sectionTitle}>Roles y acceso</h2>
+              <p className={styles.sectionHint}>Los roles definen a qué módulos entra esta cuenta.</p>
+            </div>
+            <CheckboxGroup label="Roles" options={opcionesRoles} value={form.roles} onChange={(roles) => setField('roles', roles)} />
+            {fieldErrors.roles?.[0] && <p className={styles.formError}>{fieldErrors.roles[0]}</p>}
 
-              <div className={styles.row}>
-                <CheckboxGroup label="Roles" options={opcionesRoles} value={form.roles} onChange={(roles) => setField('roles', roles)} />
-              </div>
-              {fieldErrors.roles?.[0] && <p className={styles.formError}>{fieldErrors.roles[0]}</p>}
+            <div>
+              <p className={styles.permisosTitulo}>Módulos que otorgan los roles elegidos</p>
+              {esAdmin ? (
+                <p className={styles.permisosVacio}>Acceso total al sistema (rol de administrador).</p>
+              ) : permisosEfectivos.length > 0 ? (
+                <div className={styles.permisosChips}>
+                  {permisosEfectivos.map((slug) => (
+                    <Badge key={slug} variant="info">
+                      {ETIQUETAS_MODULOS[slug] ?? slug}
+                    </Badge>
+                  ))}
+                </div>
+              ) : (
+                <p className={styles.permisosVacio}>Ningún módulo con los roles actuales.</p>
+              )}
             </div>
 
-            <div className={styles.actions}>
-              <div className={styles.actionsEnd}>
-                <Button type="button" variant="secondary" onClick={() => navigate('/accesos/usuarios')}>Cancelar</Button>
-                {isEdit && usuarioEditado?.activo === false && (
-                  <Button type="button" variant="danger" disabled={eliminando} onClick={handleEliminarDefinitivo}>
-                    {eliminando ? 'Eliminando...' : 'Eliminar permanentemente'}
+            {isEdit && (
+              <Checkbox
+                label="Cuenta activa"
+                checked={form.activo}
+                disabled={esMismaCuenta && form.activo}
+                title={esMismaCuenta && form.activo ? 'No puedes desactivarte a ti mismo' : undefined}
+                onChange={(e) => setField('activo', e.target.checked)}
+              />
+            )}
+          </section>
+
+          <section className={styles.sectionCard}>
+            <div>
+              <h2 className={styles.sectionTitle}>Contraseña</h2>
+              <p className={styles.sectionHint}>
+                {isEdit
+                  ? usuarioEditado?.debe_cambiar_password
+                    ? 'Esta persona aún no ha cambiado su contraseña inicial.'
+                    : 'Deja el campo en blanco para conservar la contraseña actual.'
+                  : PASSWORD_HELP}
+              </p>
+            </div>
+
+            {passwordGenerada && (
+              <div className={styles.passwordBanner} role="status">
+                Contraseña temporal generada: <span className={styles.passwordValue}>{passwordGenerada}</span> — cópiala ahora, no se volverá a
+                mostrar. Se le pedirá cambiarla en el primer inicio de sesión.
+              </div>
+            )}
+
+            <div className={styles.row}>
+              <Field
+                className={styles.fieldLg}
+                label={isEdit ? 'Nueva contraseña' : 'Contraseña'}
+                required={!isEdit}
+                error={fieldErrors.password?.[0]}
+                helper={isEdit ? PASSWORD_HELP : undefined}
+              >
+                {(fp) => <TextInput {...fp} type="password" value={form.password} onChange={(e) => setField('password', e.target.value)} />}
+              </Field>
+
+              {isEdit && (
+                <div className={styles.actionRow}>
+                  <span className={styles.actionRowSpacer} aria-hidden="true">
+                    &nbsp;
+                  </span>
+                  <Button type="button" variant="secondary" onClick={handleGenerarPassword} disabled={generando}>
+                    {generando ? 'Generando...' : 'Generar contraseña aleatoria'}
                   </Button>
-                )}
-              </div>
-              <div className={styles.actionsEnd}>
-                <Button type="submit" variant="primary" disabled={saving}>{saving ? 'Guardando...' : isEdit ? 'Guardar cambios' : 'Crear usuario'}</Button>
-              </div>
+                </div>
+              )}
             </div>
-          </form>
-        </div>
+          </section>
+
+          <div className={styles.actions}>
+            <Button type="button" variant="secondary" onClick={() => navigate('/accesos/usuarios')}>
+              Cancelar
+            </Button>
+            <div className={styles.actionsEnd}>
+              {isEdit && usuarioEditado?.activo === false && (
+                <Button type="button" variant="danger" disabled={eliminando} onClick={handleEliminarDefinitivo}>
+                  {eliminando ? 'Eliminando...' : 'Eliminar permanentemente'}
+                </Button>
+              )}
+              <Button type="submit" variant="primary" disabled={saving}>
+                {saving ? 'Guardando...' : isEdit ? 'Guardar cambios' : 'Crear usuario'}
+              </Button>
+            </div>
+          </div>
+        </form>
       </AccesosLayout>
     </div>
   );

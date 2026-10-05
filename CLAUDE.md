@@ -716,5 +716,17 @@ HRMS y se adaptan solo textos/datos). Se hace por pasos, con el HRMS como modelo
   espaciador invisible que centra bien las columnas con `align="center"`, que el
   HRMS no usa). Se conservan los componentes propios de Cartera (`Accordion`,
   `DatosFinancieros`, `ConceptoHint`, `EstadoInventarioBadge`, `StageBadge`).
-- Pendiente (en orden): Accesos (usuarios/roles), y luego las pantallas de
-  Baía Kristal y Oliv.
+- **Paso 4a — Accesos: layout + Usuarios (hecho):** `components/layout/AccesosLayout`
+  pasa al menú agrupado del HRMS (Accesos: Usuarios/Roles/Historial; Sistema:
+  Fechas de entrega/Sincronización) y `WizardLayout.module.css` se copia del HRMS
+  tal cual (de ahí salen `.hero*` y `.content`, que reutilizarán las pantallas de
+  detalle). Usuarios (lista y ficha) con el diseño del HRMS: KPIs, filtros con
+  etiqueta, acciones masivas (generar contraseñas / activar / inactivar), banner
+  de detalle, tarjetas por sección. Backend nuevo: columna `usuarios.ultimo_acceso`
+  (migración 20261005120000, se estampa en el login), `POST /usuarios/masivo`,
+  `POST /usuarios/:id/generar-password` y `generateRandomPassword()`. Diferencia
+  con el HRMS: Cartera tiene pocas cuentas, así que búsqueda/orden/paginación son
+  del lado del navegador (el HRMS lo hace en el servidor). Se conserva "Eliminar
+  permanentemente" (cuentas ya inactivas).
+- Pendiente (en orden): Accesos — Roles, Historial, Fechas de entrega y
+  Sincronización; luego las pantallas de Baía Kristal y Oliv.

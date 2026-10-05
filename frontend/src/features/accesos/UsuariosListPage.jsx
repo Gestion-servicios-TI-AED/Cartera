@@ -1,126 +1,239 @@
-// Adaptado 1:1 de Human-Resource-Management-System-AED/frontend/src/features/
-// usuarios/UsuariosListPage.jsx -- misma estructura/CSS exacta (tabla con
-// avatar, RowIconButtons.jsx, búsqueda, skeleton, empty state).
-// Único cambio real es de DATOS: el HRMS vincula un usuario a un `empleado`
-// (rol rrhh/empleado); Cartera no tiene ese concepto -- acá la columna
-// "Acceso" muestra Admin o la cantidad de módulos permitidos en su lugar
-// (ver usuario.model.js del backend).
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../../components/ui/Button.jsx';
 import { Badge } from '../../components/ui/Badge.jsx';
-import { EditIconButton, ToggleActivoIconButton } from '../../components/ui/RowIconButtons.jsx';
 import { SortHeader } from '../../components/ui/SortHeader.jsx';
-import { useSortableTable, ariaSort } from '../../hooks/useSortableTable.js';
-import { usePersistentState } from '../../hooks/usePersistentState.js';
-import { useAuth } from '../../auth/AuthContext.jsx';
-import { listUsuarios, updateUsuario, removeUsuario } from '../../api/usuarios.js';
+import { Pagination } from '../../components/ui/Pagination.jsx';
+import { Modal } from '../../components/ui/Modal.jsx';
+import { Checkbox } from '../../components/ui/Checkbox.jsx';
+import { ariaSort, useSortableTable } from '../../hooks/useSortableTable.js';
+import { listUsuarios, accionMasivaUsuarios } from '../../api/usuarios.js';
+import { listRoles } from '../../api/roles.js';
 import { AccesosLayout } from '../../components/layout/AccesosLayout.jsx';
+import { iniciales, fmtAcceso, descargarCsv } from './usuarioUtils.js';
 import styles from './Usuarios.module.css';
 
-function initials(nombre) {
-  return (nombre ?? '')
-    .split(' ')
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((parte) => parte[0])
-    .join('')
-    .toUpperCase();
-}
+const PAGE_SIZE = 20;
+
+const ACCIONES = {
+  'generar-password': {
+    titulo: 'Generar contraseñas temporales',
+    texto: 'Se reemplazará la contraseña de cada cuenta por una temporal nueva y se les pedirá cambiarla al entrar. Las contraseñas se mostrarán una sola vez.',
+    boton: 'Generar contraseñas',
+  },
+  activar: { titulo: 'Activar cuentas', texto: 'Las cuentas seleccionadas podrán iniciar sesión.', boton: 'Activar' },
+  inactivar: { titulo: 'Inactivar cuentas', texto: 'Las cuentas seleccionadas no podrán iniciar sesión hasta que las actives de nuevo.', boton: 'Inactivar' },
+};
+
+// Mismo diseño que la lista de usuarios del HRMS (migración de diseño
+// 2026-10-05): tarjetas de resumen, filtros con etiqueta (rol, estado, primer
+// ingreso), acciones masivas y la tabla con el estilo de Empleados. Cartera
+// tiene pocas cuentas, así que a diferencia del HRMS la búsqueda, el orden y la
+// paginación se resuelven en el navegador sobre `GET /usuarios` completo.
+const VALORES_ORDEN = {
+  nombre: (u) => u.nombre,
+  roles: (u) => (u.roles ?? []).join(', '),
+  ultimo_acceso: (u) => (u.ultimo_acceso ? new Date(u.ultimo_acceso).getTime() : null),
+  estado: (u) => (u.activo ? 0 : 1),
+};
 
 export function UsuariosListPage() {
   const navigate = useNavigate();
-  const { usuario: usuarioActual } = useAuth();
-  const [usuarios, setUsuarios] = useState([]);
+  const [todos, setTodos] = useState([]);
+  const [roles, setRoles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [togglingId, setTogglingId] = useState(null);
-  const [busqueda, setBusqueda] = usePersistentState('usuarios-list:busqueda', '');
+  const [busqueda, setBusqueda] = useState('');
+  const [filtroRol, setFiltroRol] = useState('');
+  const [filtroEstado, setFiltroEstado] = useState('');
+  const [filtroIngreso, setFiltroIngreso] = useState('');
+  const [page, setPage] = useState(1);
+  const [seleccion, setSeleccion] = useState(() => new Set());
+  const [confirmar, setConfirmar] = useState(null); // clave de ACCIONES
+  const [ejecutando, setEjecutando] = useState(false);
+  const [resultado, setResultado] = useState(null); // respuesta de la accion masiva
+  const [avisoMasivo, setAvisoMasivo] = useState(null);
 
-  const fetchUsuarios = useCallback(() => {
+  useEffect(() => {
+    listRoles().then((res) => setRoles(res.data.map((rol) => rol.nombre))).catch(() => {});
+  }, []);
+
+  const cargar = useCallback(() => {
     setLoading(true);
     setError(null);
     listUsuarios()
-      .then((res) => setUsuarios(res.data))
+      .then((res) => {
+        setTodos(res.data);
+        setSeleccion(new Set());
+      })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
   }, []);
 
-  useEffect(fetchUsuarios, [fetchUsuarios]);
+  useEffect(() => {
+    cargar();
+  }, [cargar]);
 
-  const usuariosFiltrados = useMemo(() => {
+  const filtrados = useMemo(() => {
     const q = busqueda.trim().toLowerCase();
-    if (!q) return usuarios;
-    return usuarios.filter((u) => u.nombre.toLowerCase().includes(q) || u.email.toLowerCase().includes(q));
-  }, [usuarios, busqueda]);
+    return todos.filter((u) => {
+      if (q && !`${u.nombre} ${u.email}`.toLowerCase().includes(q)) return false;
+      if (filtroRol && !(u.roles ?? []).includes(filtroRol)) return false;
+      if (filtroEstado && String(u.activo) !== filtroEstado) return false;
+      if (filtroIngreso === 'pendiente' && !u.debe_cambiar_password) return false;
+      if (filtroIngreso === 'completado' && u.debe_cambiar_password) return false;
+      return true;
+    });
+  }, [todos, busqueda, filtroRol, filtroEstado, filtroIngreso]);
 
-  const valueGetters = useMemo(
-    () => ({
-      nombre: (u) => u.nombre,
-      email: (u) => u.email,
-      acceso: (u) => (u.roles.includes('ADMIN') ? -1 : u.roles.length),
-      estado: (u) => (u.activo ? 0 : 1),
-    }),
-    []
-  );
-  const { sortedRows, sort, toggleSort } = useSortableTable(usuariosFiltrados, valueGetters);
+  const { sortedRows, sort, toggleSort } = useSortableTable(filtrados, VALORES_ORDEN);
+  const usuarios = sortedRows.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
-  async function handleToggleEstado(usuarioFila) {
-    setTogglingId(usuarioFila.id);
+  const todasMarcadas = usuarios.length > 0 && usuarios.every((u) => seleccion.has(u.id));
+  const alternar = (id) =>
+    setSeleccion((prev) => {
+      const siguiente = new Set(prev);
+      if (siguiente.has(id)) siguiente.delete(id);
+      else siguiente.add(id);
+      return siguiente;
+    });
+  const alternarTodas = () => setSeleccion(todasMarcadas ? new Set() : new Set(usuarios.map((u) => u.id)));
+
+  async function ejecutarAccion() {
+    setEjecutando(true);
     setError(null);
     try {
-      if (usuarioFila.activo) await removeUsuario(usuarioFila.id);
-      else await updateUsuario(usuarioFila.id, { activo: true });
-      fetchUsuarios();
+      const res = await accionMasivaUsuarios([...seleccion], confirmar);
+      const accion = confirmar;
+      setConfirmar(null);
+      if (accion === 'generar-password') setResultado(res.data);
+      else setAvisoMasivo(`${res.data.procesados} cuenta(s) ${accion === 'activar' ? 'activadas' : 'inactivadas'}.`);
+      cargar();
     } catch (err) {
+      setConfirmar(null);
       setError(err.message);
     } finally {
-      setTogglingId(null);
+      setEjecutando(false);
     }
   }
 
-  const hayFiltro = busqueda.trim().length > 0;
+  const cambiarFiltro = (setter) => (event) => {
+    setter(event.target.value);
+    setPage(1);
+  };
+  const hayFiltros = busqueda !== '' || filtroRol !== '' || filtroEstado !== '' || filtroIngreso !== '';
+  const limpiar = () => {
+    setBusqueda('');
+    setFiltroRol('');
+    setFiltroEstado('');
+    setFiltroIngreso('');
+    setPage(1);
+  };
+
+  const tarjetas = [
+    { valor: todos.length, label: 'Cuentas' },
+    { valor: todos.filter((u) => u.activo).length, label: 'Activas' },
+    { valor: todos.filter((u) => !u.activo).length, label: 'Inactivas' },
+    { valor: todos.filter((u) => u.debe_cambiar_password).length, label: 'Sin primer ingreso' },
+  ];
 
   return (
     <div className={styles.page}>
       <AccesosLayout>
-        <div className={styles.header}>
-          <div className={styles.headerRow}>
-            <div>
-              <h1 className={styles.title}>Usuarios</h1>
-              <p className={styles.subtitle}>{loading ? 'Cargando...' : `${usuarios.length} ${usuarios.length === 1 ? 'cuenta' : 'cuentas'} de acceso`}</p>
-            </div>
-            <div className={styles.headerActions}>
-              <Button variant="primary" onClick={() => navigate('/accesos/usuarios/nuevo')}>Crear usuario</Button>
-            </div>
+        <div className={styles.listHeader}>
+          <div>
+            <h1 className={styles.title}>Usuarios</h1>
+            <p className={styles.subtitle}>Cuentas de acceso al sistema y los roles que definen a qué módulos entra cada una.</p>
           </div>
+          <Button variant="primary" onClick={() => navigate('/accesos/usuarios/nuevo')}>
+            Crear usuario
+          </Button>
         </div>
 
-        <div className={styles.toolbar}>
-          <div className={styles.searchWrap}>
-            <svg className={styles.searchIcon} width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-              <circle cx="7" cy="7" r="5.25" stroke="currentColor" strokeWidth="1.4" />
-              <path d="M11 11L14.5 14.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
-            </svg>
-            <input
-              type="search"
-              className={styles.searchInput}
-              placeholder="Buscar por nombre o email..."
-              value={busqueda}
-              onChange={(event) => setBusqueda(event.target.value)}
-              aria-label="Buscar usuarios"
-            />
+        {!loading && (
+          <div className={styles.kpiRow}>
+            {tarjetas.map((tarjeta) => (
+              <div key={tarjeta.label} className={styles.kpiCard}>
+                <span className={styles.kpiValor}>{tarjeta.valor}</span>
+                <span className={styles.kpiLabel}>{tarjeta.label}</span>
+              </div>
+            ))}
           </div>
-        </div>
+        )}
 
         {error && (
           <div className={styles.errorBanner} role="alert">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-              <circle cx="8" cy="8" r="6.5" stroke="currentColor" strokeWidth="1.4" />
-              <path d="M8 5V8.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
-              <circle cx="8" cy="11" r="0.75" fill="currentColor" />
-            </svg>
-            No se pudo completar la operación: {error}
+            {error}
+          </div>
+        )}
+
+        <div className={styles.filters}>
+          <label className={`${styles.filterField} ${styles.filterSearch}`}>
+            <span>Buscar</span>
+            <input
+              type="text"
+              className={styles.control}
+              placeholder="Nombre o correo..."
+              value={busqueda}
+              onChange={cambiarFiltro(setBusqueda)}
+              aria-label="Buscar usuarios"
+            />
+          </label>
+          <label className={styles.filterField}>
+            <span>Rol</span>
+            <select className={styles.control} value={filtroRol} onChange={cambiarFiltro(setFiltroRol)}>
+              <option value="">Todos</option>
+              {roles.map((nombre) => (
+                <option key={nombre} value={nombre}>
+                  {nombre}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className={styles.filterField}>
+            <span>Estado</span>
+            <select className={styles.control} value={filtroEstado} onChange={cambiarFiltro(setFiltroEstado)}>
+              <option value="">Todos</option>
+              <option value="true">Activos</option>
+              <option value="false">Inactivos</option>
+            </select>
+          </label>
+          <label className={styles.filterField}>
+            <span>Primer ingreso</span>
+            <select className={styles.control} value={filtroIngreso} onChange={cambiarFiltro(setFiltroIngreso)}>
+              <option value="">Todos</option>
+              <option value="pendiente">Pendiente</option>
+              <option value="completado">Completado</option>
+            </select>
+          </label>
+          {hayFiltros && (
+            <button type="button" className={styles.clearBtn} onClick={limpiar}>
+              Limpiar filtros
+            </button>
+          )}
+        </div>
+
+        {avisoMasivo && (
+          <div className={styles.passwordBanner} role="status">
+            {avisoMasivo}
+          </div>
+        )}
+
+        {seleccion.size > 0 && (
+          <div className={styles.bulkBar} role="region" aria-label="Acciones masivas">
+            <span className={styles.bulkCount}>{seleccion.size} seleccionada(s)</span>
+            <Button variant="secondary" onClick={() => setConfirmar('generar-password')}>
+              Generar contraseñas
+            </Button>
+            <Button variant="secondary" onClick={() => setConfirmar('activar')}>
+              Activar
+            </Button>
+            <Button variant="secondary" onClick={() => setConfirmar('inactivar')}>
+              Inactivar
+            </Button>
+            <button type="button" className={styles.bulkClear} onClick={() => setSeleccion(new Set())}>
+              Quitar selección
+            </button>
           </div>
         )}
 
@@ -128,74 +241,153 @@ export function UsuariosListPage() {
           <table className={styles.table}>
             <thead>
               <tr>
-                <th></th>
-                <th aria-sort={ariaSort(sort, 'nombre')}><SortHeader label="Nombre" sortKey="nombre" sort={sort} onSort={toggleSort} /></th>
-                <th aria-sort={ariaSort(sort, 'email')}><SortHeader label="Email" sortKey="email" sort={sort} onSort={toggleSort} /></th>
-                <th aria-sort={ariaSort(sort, 'acceso')}><SortHeader label="Acceso" sortKey="acceso" sort={sort} onSort={toggleSort} /></th>
-                <th aria-sort={ariaSort(sort, 'estado')}><SortHeader label="Estado" sortKey="estado" sort={sort} onSort={toggleSort} /></th>
-                <th></th>
+                <th className={styles.checkCell}>
+                  <Checkbox checked={todasMarcadas} onChange={alternarTodas} aria-label="Seleccionar todas las cuentas de esta página" />
+                </th>
+                <th aria-sort={ariaSort(sort, 'nombre')}>
+                  <SortHeader label="Usuario" sortKey="nombre" sort={sort} onSort={toggleSort} />
+                </th>
+                <th aria-sort={ariaSort(sort, 'roles')}>
+                  <SortHeader label="Roles" sortKey="roles" sort={sort} onSort={toggleSort} />
+                </th>
+                <th aria-sort={ariaSort(sort, 'ultimo_acceso')}>
+                  <SortHeader label="Último acceso" sortKey="ultimo_acceso" sort={sort} onSort={toggleSort} />
+                </th>
+                <th aria-sort={ariaSort(sort, 'estado')}>
+                  <SortHeader label="Estado" sortKey="estado" sort={sort} onSort={toggleSort} />
+                </th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
-                Array.from({ length: 4 }).map((_, index) => (
-                  <tr key={index} className={styles.skeletonRow}>
-                    {Array.from({ length: 6 }).map((__, col) => (
-                      <td key={col}><div className={styles.skeletonBar} style={{ width: col === 0 ? 32 : '100%' }} /></td>
-                    ))}
-                  </tr>
-                ))
-              ) : sortedRows.length === 0 ? (
                 <tr>
-                  <td colSpan={6}>
-                    <div className={styles.emptyState}>
-                      <svg className={styles.emptyIcon} width="40" height="40" viewBox="0 0 40 40" fill="none" aria-hidden="true">
-                        <circle cx="20" cy="14" r="6" stroke="currentColor" strokeWidth="1.6" />
-                        <path d="M8 34c0-6.6 5.4-12 12-12s12 5.4 12 12" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-                      </svg>
-                      <span className={styles.emptyTitle}>{hayFiltro ? 'Sin resultados' : 'Todavía no hay usuarios'}</span>
-                      <span>{hayFiltro ? 'Ningún usuario coincide con la búsqueda.' : 'Crea el primer usuario para dar acceso al sistema.'}</span>
-                      {!hayFiltro && <Button variant="secondary" onClick={() => navigate('/accesos/usuarios/nuevo')}>Crear usuario</Button>}
-                    </div>
+                  <td colSpan={5} className={styles.emptyState}>
+                    Cargando...
+                  </td>
+                </tr>
+              ) : usuarios.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className={styles.emptyState}>
+                    Sin usuarios que coincidan.
                   </td>
                 </tr>
               ) : (
-                sortedRows.map((usuarioFila) => {
-                  const esUsuarioActual = usuarioActual?.id === usuarioFila.id;
-                  return (
-                    <tr key={usuarioFila.id} className={styles.clickableRow} onClick={() => navigate(`/accesos/usuarios/${usuarioFila.id}/editar`)}>
-                      <td><div className={styles.avatar}>{initials(usuarioFila.nombre)}</div></td>
-                      <td><div className={styles.nameCell}><span className={styles.nameText}>{usuarioFila.nombre}</span></div></td>
-                      <td>{usuarioFila.email}</td>
-                      <td>{usuarioFila.roles.join(', ') || '—'}</td>
-                      <td>
-                        <Badge variant={usuarioFila.activo ? 'success' : 'neutral'} dot={usuarioFila.activo}>
-                          {usuarioFila.activo ? 'Activo' : 'Inactivo'}
+                usuarios.map((usuarioFila) => (
+                  <tr key={usuarioFila.id} className={styles.clickableRow} onClick={() => navigate(`/accesos/usuarios/${usuarioFila.id}/editar`)}>
+                    <td className={styles.checkCell} onClick={(event) => event.stopPropagation()}>
+                      <Checkbox checked={seleccion.has(usuarioFila.id)} onChange={() => alternar(usuarioFila.id)} aria-label={`Seleccionar a ${usuarioFila.nombre}`} />
+                    </td>
+                    <td>
+                      <div className={styles.personaCell}>
+                        <span className={styles.avatar}>{iniciales(usuarioFila.nombre)}</span>
+                        <span className={styles.personaTexto}>
+                          <span className={styles.personaNombre}>{usuarioFila.nombre}</span>
+                          <span className={styles.personaDoc}>{usuarioFila.email}</span>
+                        </span>
+                      </div>
+                    </td>
+                    <td>
+                      <div className={styles.rolesCell}>
+                        {(usuarioFila.roles ?? []).map((rol) => (
+                          <Badge key={rol} variant="info">
+                            {rol}
+                          </Badge>
+                        ))}
+                      </div>
+                    </td>
+                    <td className={`${styles.dateCell} ${usuarioFila.ultimo_acceso ? '' : styles.muted}`}>
+                      {fmtAcceso(usuarioFila.ultimo_acceso) ?? 'Nunca'}
+                      {usuarioFila.debe_cambiar_password && <span className={styles.primerIngreso}>Primer ingreso pendiente</span>}
+                    </td>
+                    <td>
+                      {usuarioFila.activo ? (
+                        <Badge variant="success" dot>
+                          Activo
                         </Badge>
-                      </td>
-                      <td>
-                        <div className={styles.actionsCell}>
-                          <EditIconButton
-                            label={`Editar ${usuarioFila.nombre}`}
-                            onClick={(event) => { event.stopPropagation(); navigate(`/accesos/usuarios/${usuarioFila.id}/editar`); }}
-                          />
-                          <ToggleActivoIconButton
-                            activo={usuarioFila.activo}
-                            labelActivar={`Activar ${usuarioFila.nombre}`}
-                            labelInactivar={`Desactivar ${usuarioFila.nombre}`}
-                            disabled={togglingId === usuarioFila.id || (esUsuarioActual && usuarioFila.activo)}
-                            title={esUsuarioActual && usuarioFila.activo ? 'No puedes desactivarte a ti mismo' : undefined}
-                            onClick={(event) => { event.stopPropagation(); handleToggleEstado(usuarioFila); }}
-                          />
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })
+                      ) : (
+                        <Badge variant="neutral" dot>
+                          Inactivo
+                        </Badge>
+                      )}
+                    </td>
+                  </tr>
+                ))
               )}
             </tbody>
           </table>
+
+          {!loading && <Pagination page={page} pageSize={PAGE_SIZE} total={filtrados.length} onPageChange={setPage} />}
         </div>
+
+        <Modal
+          open={!!confirmar}
+          onClose={() => setConfirmar(null)}
+          title={confirmar ? ACCIONES[confirmar].titulo : ''}
+          footer={
+            <>
+              <Button variant="secondary" onClick={() => setConfirmar(null)}>
+                Cancelar
+              </Button>
+              <Button variant={confirmar === 'inactivar' ? 'danger' : 'primary'} onClick={ejecutarAccion} disabled={ejecutando}>
+                {ejecutando ? 'Procesando...' : confirmar ? ACCIONES[confirmar].boton : ''}
+              </Button>
+            </>
+          }
+        >
+          {confirmar && (
+            <p>
+              {ACCIONES[confirmar].texto} <strong>{seleccion.size} cuenta(s)</strong> seleccionada(s). Tu propia cuenta nunca se modifica.
+            </p>
+          )}
+        </Modal>
+
+        <Modal
+          open={!!resultado}
+          onClose={() => setResultado(null)}
+          title="Contraseñas temporales generadas"
+          footer={
+            <>
+              <Button
+                variant="secondary"
+                onClick={() =>
+                  descargarCsv('contrasenas-temporales.csv', [['Nombre', 'Correo', 'Contraseña temporal'], ...(resultado?.resultados ?? []).map((f) => [f.nombre, f.email, f.password])])
+                }
+              >
+                Descargar CSV
+              </Button>
+              <Button variant="primary" onClick={() => setResultado(null)}>
+                Listo
+              </Button>
+            </>
+          }
+        >
+          {resultado && (
+            <div className={styles.resultadoModal}>
+              <p>
+                Cópialas o descárgalas ahora: <strong>no se volverán a mostrar</strong>. A cada persona se le pedirá cambiarla al entrar.
+              </p>
+              <table className={styles.resultadoTabla}>
+                <thead>
+                  <tr>
+                    <th>Nombre</th>
+                    <th>Correo</th>
+                    <th>Contraseña</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {resultado.resultados.map((fila) => (
+                    <tr key={fila.id}>
+                      <td>{fila.nombre}</td>
+                      <td>{fila.email}</td>
+                      <td className={styles.passwordValue}>{fila.password}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              {resultado.omitidos.length > 0 && <p className={styles.sectionHint}>Omitidas: {resultado.omitidos.map((o) => `${o.email ?? '#' + o.id} (${o.motivo})`).join(', ')}.</p>}
+            </div>
+          )}
+        </Modal>
       </AccesosLayout>
     </div>
   );

@@ -16,6 +16,8 @@ async function login(email, password) {
     throw new ApiError(403, 'Tu cuenta está desactivada. Contacta al administrador del sistema.');
   }
 
+  await usuario.update({ ultimo_acceso: new Date() });
+
   return {
     accessToken: createAccessToken(usuario.email),
     refreshToken: createRefreshToken(usuario.email),

@@ -27,6 +27,8 @@ const Usuario = sequelize.define(
     roles: { type: DataTypes.ARRAY(DataTypes.STRING), allowNull: false, defaultValue: [] },
     activo: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: true },
     debe_cambiar_password: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
+    // Se estampa en cada login exitoso (auth.service.js#login). NULL = nunca ha entrado.
+    ultimo_acceso: { type: DataTypes.DATE, allowNull: true },
   },
   { tableName: 'usuarios', underscored: true, createdAt: 'creado_en', updatedAt: 'actualizado_en' }
 );
