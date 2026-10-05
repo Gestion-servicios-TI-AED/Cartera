@@ -821,5 +821,13 @@ HRMS y se adaptan solo textos/datos). Se hace por pasos, con el HRMS como modelo
   **encabezado discreto** (antes una banda azul oscuro) conservando columnas fijas,
   orden, resaltado, menú contextual, pantalla completa y exportación. Estilos en
   `dashboard/DashboardPage.module.css` (compartido con Oliv).
+  **Un solo scroll (mismo día):** el Dashboard tenía doble scroll (la página y la
+  tabla). Ahora la raíz mide exactamente el alto disponible del AppShell
+  (`useAlturaDisponible`, igual que en otras pantallas: `height:100%` no resuelve
+  dentro del `.scrollArea` con Lenis) y **solo scrollea la tabla**, con encabezado
+  sticky y totales/paginación siempre visibles. Para darle espacio a la tabla, los
+  filtros avanzados (fechas, "Ver", "Plan", "Solo con movimientos") se pliegan tras
+  el botón "Más filtros"/"Menos filtros" y las 4 cifras se compactan
+  (`.kpisCompactos`). En pantalla completa (`enfocado`) no se fija altura.
 - Pendiente (en orden): Inicio, Cartera y Otrosíes (de Baía Kristal y Oliv) --
   Cartera ya heredó los estilos de tarjetas/KPIs de `Dashboard.module.css`.

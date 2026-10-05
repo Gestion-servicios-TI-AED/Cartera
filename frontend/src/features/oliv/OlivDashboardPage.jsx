@@ -25,6 +25,7 @@ import { getDashboardRecaudoOliv } from '../../api/olivResumen.js';
 import { formatCOP, formatDate } from '../../utils/format.js';
 import { Checkbox } from '../../components/ui/Checkbox.jsx';
 import { StatTile } from '../dashboard/StatTile.jsx';
+import { useAlturaDisponible } from '../../hooks/useAlturaDisponible.js';
 import dashStyles from '../dashboard/Dashboard.module.css';
 import styles from '../dashboard/DashboardPage.module.css';
 
@@ -384,8 +385,13 @@ export function OlivDashboardPage() {
     }
   }
 
+  // Un solo scroll: la página mide exactamente el alto disponible del AppShell y solo la tabla scrollea.
+  const paginaRef = useRef(null);
+  const altura = useAlturaDisponible(paginaRef);
+  const [filtrosAvanzados, setFiltrosAvanzados] = useState(false);
+
   return (
-    <div className={enfocado ? styles.enfocado : styles.page}>
+    <div className={enfocado ? styles.enfocado : styles.page} ref={paginaRef} style={!enfocado && altura ? { height: `${altura}px` } : undefined}>
       <div className={dashStyles.header}>
         <div className={dashStyles.headerText}>
           <h1 className={dashStyles.title}>Dashboard: Plan de pagos vs. Recaudo</h1>
@@ -434,7 +440,11 @@ export function OlivDashboardPage() {
             )}
           </Field>
         )}
+        <button type="button" className={styles.masFiltros} onClick={() => setFiltrosAvanzados((v) => !v)} aria-expanded={filtrosAvanzados} title="Fechas, vista (ambos, proyectado, recaudado) y plan (30% / 70%)">
+          {filtrosAvanzados ? 'Menos filtros' : 'Más filtros'}
+        </button>
         </div>
+        {filtrosAvanzados && (
         <div className={styles.controlesFila}>
         {meses.length > 0 && (
           <Field className={styles.campoFiltro} label={<span className={styles.labelConIcono}><CalendarRange size={13} />Desde</span>}>
@@ -475,6 +485,7 @@ export function OlivDashboardPage() {
           </button>
         )}
         </div>
+        )}
       </div>
 
       {meses.length > 0 && mesesFiltrados.length === 0 && (
@@ -482,7 +493,7 @@ export function OlivDashboardPage() {
       )}
 
       {meta.totalesColumnasFijas && !cargando && !enfocado && (
-        <div className={dashStyles.statsGrid}>
+        <div className={`${dashStyles.statsGrid} ${styles.kpisCompactos}`}>
           <StatTile label="Valor del portafolio filtrado" value={formatCOP(meta.totalesColumnasFijas.valorInmueble ?? 0)} />
           <StatTile label="Total abonado" value={formatCOP(meta.totalesColumnasFijas.totalAbonado ?? 0)} />
           <StatTile label="Por recaudar" value={formatCOP(meta.totalesColumnasFijas.pendienteRecaudar ?? 0)} />
