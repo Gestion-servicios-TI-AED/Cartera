@@ -481,7 +481,7 @@ export function OlivDashboardPage() {
         <p className={styles.avisoRango}>No hay meses en el rango seleccionado — ajusta Desde/Hasta.</p>
       )}
 
-      {meta.totalesColumnasFijas && !cargando && (
+      {meta.totalesColumnasFijas && !cargando && !enfocado && (
         <div className={dashStyles.statsGrid}>
           <StatTile label="Valor del portafolio filtrado" value={formatCOP(meta.totalesColumnasFijas.valorInmueble ?? 0)} />
           <StatTile label="Total abonado" value={formatCOP(meta.totalesColumnasFijas.totalAbonado ?? 0)} />

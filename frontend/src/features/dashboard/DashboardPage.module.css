@@ -350,3 +350,23 @@
 .controlesFila .campoFiltro {
   width: 170px;
 }
+
+/* En la vista normal la página entera scrollea (ver useAlturaDisponible: un % de alto no
+   se resuelve dentro del AppShell), así que el encabezado fijo y el pie de totales de la
+   tabla solo funcionan si la tabla scrollea por su cuenta: se le acota el alto. En pantalla
+   completa (.enfocado) el contenedor ya tiene alto exacto y la tabla lo llena. */
+.page .tableScroll {
+  max-height: calc(100vh - 260px);
+  min-height: 320px;
+}
+
+/* Pantalla completa: la tabla es lo importante, así que la barra de filtros se compacta. */
+.enfocado .toolbarCard {
+  gap: var(--space-sm);
+  padding: 12px 20px;
+}
+
+.enfocado .controlesFila {
+  padding-top: var(--space-sm);
+  gap: var(--space-sm) var(--space-lg);
+}
