@@ -1,5 +1,13 @@
 import styles from './RowIconButtons.module.css';
 
+// Botones de accion por fila de tabla (Editar / Activar-Inactivar) como
+// icono, nunca como texto -- pedido explicito del usuario (2026-09-04):
+// "los botoncitos [deben ser] como iconos... como en la tabla de empresas",
+// para TODAS las tablas del proyecto. Antes cada tabla que ya los tenia
+// como icono (Empresas, Usuarios, Empleados) copiaba el mismo SVG a mano
+// por separado -- un solo componente compartido para que la regla no se
+// pueda desviar entre tablas (mismo motivo por el que ya hubo que corregir
+// un drift real en .brand y en el reset de body esta misma sesion).
 export function EditIconButton({ label, onClick, disabled, title }) {
   return (
     <button
@@ -19,8 +27,7 @@ export function EditIconButton({ label, onClick, disabled, title }) {
 
 // `activo` decide tanto el icono (circulo+linea = inactivar, circulo+cruz =
 // activar) como el color en hover (rojo solo cuando la accion es
-// destructiva -- inactivar algo que hoy esta activo, verde cuando es
-// "activar" -- puerto de HRMS, 2026-09-18, pedido explicito del usuario).
+// destructiva -- inactivar algo que hoy esta activo).
 export function ToggleActivoIconButton({ activo, labelActivar, labelInactivar, onClick, disabled, title }) {
   return (
     <button

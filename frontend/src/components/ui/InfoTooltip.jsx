@@ -1,5 +1,3 @@
-// PLANTILLA (via HRMS aed) -- copiado tal cual, va en
-// frontend/src/components/ui/InfoTooltip.jsx.
 import { useId } from 'react';
 import styles from './InfoTooltip.module.css';
 

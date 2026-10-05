@@ -709,5 +709,12 @@ HRMS y se adaptan solo textos/datos). Se hace por pasos, con el HRMS como modelo
   migas de pan (grupo > pantalla, derivadas de `NAV_GROUPS`; `/accesos/*` →
   "Configuración") y divisor antes del menú de usuario. No hay campana de
   notificaciones (Cartera no tiene ese módulo) ni badge de pendientes.
-- Pendiente (en orden): componentes base de `components/ui`, Accesos
-  (usuarios/roles), y luego las pantallas de Baía Kristal y Oliv.
+- **Paso 3 — componentes base (hecho):** `Button`, `Badge`, `BackLink`, `Checkbox`,
+  `CheckboxGroup`, `InfoTooltip`, `Pagination`, `RowIconButtons`, `Field` y
+  `SortHeader` (CSS) copiados del HRMS; se agregan `Modal` y `CheckboxListSelect`
+  (no existían acá). `SortHeader.jsx` conserva la versión de Cartera (tiene el
+  espaciador invisible que centra bien las columnas con `align="center"`, que el
+  HRMS no usa). Se conservan los componentes propios de Cartera (`Accordion`,
+  `DatosFinancieros`, `ConceptoHint`, `EstadoInventarioBadge`, `StageBadge`).
+- Pendiente (en orden): Accesos (usuarios/roles), y luego las pantallas de
+  Baía Kristal y Oliv.

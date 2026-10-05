@@ -1,3 +1,7 @@
+// El input nativo real sigue existiendo (visualmente oculto, no
+// display:none) para que el teclado/lector de pantalla lo manejen normal --
+// la caja estilizada es un hermano CSS (`input:checked + .box`), nunca un
+// div que simula un checkbox a mano sin input real detras.
 import styles from './Checkbox.module.css';
 
 export function Checkbox({ label, className = '', ...props }) {

@@ -1,17 +1,3 @@
-// PLANTILLA -- copiado tal cual, va en frontend/src/components/ui/Field.jsx.
-// Este es el componente base de TODO formulario del producto (login
-// incluido) -- si un proyecto nuevo lo reescribe desde cero en vez de
-// copiarlo, la altura/padding/tipografia del input terminan LIGERAMENTE
-// distintos sin que se note a simple vista hasta que se comparan lado a
-// lado (encontrado como problema real: un proyecto copiado a mano perdio
-// el padding exacto y la altura de los inputs quedo distinta). Copiar este
-// archivo tal cual es la unica forma de garantizar 100% de paridad.
-//
-// Patron render-prop, no wrapper de input directo -- `children` es una
-// funcion que recibe { id, aria-invalid, aria-describedby } ya resueltos,
-// asi el mismo Field sirve para TextInput, Select, Textarea, o un widget
-// custom. Ver ARQUITECTURA-FRONTEND.md, "Componente Field", para el patron
-// completo y la especificacion exacta de medidas.
 import { useId } from 'react';
 import styles from './Field.module.css';
 
