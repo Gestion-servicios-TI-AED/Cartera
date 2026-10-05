@@ -857,5 +857,12 @@ HRMS y se adaptan solo textos/datos). Se hace por pasos, con el HRMS como modelo
   relativo, y el Top 10 abre por defecto. Otrosíes reutiliza las mismas celdas
   (Negocio con avatar sin el prefijo/unidad, Inmueble con la unidad destacada, PDF y
   Verificación como chips).
+- **Corrección posterior (pedido del usuario):** la tabla de Cartera **vuelve a sus
+  columnas originales** (BK: Etapa, Frente/Torre, Nomenclatura, Referencia, Comprador,
+  Valor apartamento, Cuotas mora, Días atraso, Valor vencido, % en mora; Oliv: sin Etapa/
+  Frente) -- el usuario las necesita todas, incluida Referencia ordenable. Conserva los
+  realces (chip de días, valor vencido en rojo, barra de %) y por eso la tabla vuelve a
+  scrollear en horizontal en pantallas angostas. Las celdas `CeldaComprador`/
+  `CeldaInmueble` quedan solo para Otrosíes.
 - Pendiente (en orden): Inicio (de Baía Kristal y Oliv) --
   Cartera ya heredó los estilos de tarjetas/KPIs de `Dashboard.module.css`.

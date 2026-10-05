@@ -28,7 +28,7 @@ import { updateFlagsNegocio } from '../../api/negocios.js';
 import { formatCOP, formatDate } from '../../utils/format.js';
 import { etiquetaEtapa } from '../../utils/etapas.js';
 import { StatTile } from '../dashboard/StatTile.jsx';
-import { CeldaComprador, CeldaInmueble, ChipDias, BarraMora, ValorVencido } from './CarteraCeldas.jsx';
+import { ChipDias, BarraMora, ValorVencido } from './CarteraCeldas.jsx';
 import dashStyles from '../dashboard/Dashboard.module.css';
 import styles from './CarteraMoraPage.module.css';
 
@@ -531,31 +531,38 @@ export function CarteraMoraPage() {
                     <thead>
                       {esContraentrega ? (
                         <tr>
+                          <th>Frente/Torre</th>
+                          <th aria-sort={ariaSort(sort, 'unidad')}><SortHeader label="Nomenclatura" sortKey="unidad" sort={sort} onSort={toggleSort} /></th>
+                          <th aria-sort={ariaSort(sort, 'referencia')}><SortHeader label="Referencia" sortKey="referencia" sort={sort} onSort={toggleSort} /></th>
                           <th aria-sort={ariaSort(sort, 'comprador')}><SortHeader label="Comprador" sortKey="comprador" sort={sort} onSort={toggleSort} /></th>
-                          <th aria-sort={ariaSort(sort, 'unidad')}><SortHeader label="Inmueble" sortKey="unidad" sort={sort} onSort={toggleSort} /></th>
                           <th aria-sort={ariaSort(sort, 'fechaSaldoContraentrega')}><SortHeader label="Fecha vencida" sortKey="fechaSaldoContraentrega" sort={sort} onSort={toggleSort} align="center" /></th>
                           <th aria-sort={ariaSort(sort, 'montoEnMora')}><SortHeader label="Valor pendiente" sortKey="montoEnMora" sort={sort} onSort={toggleSort} align="center" /></th>
                         </tr>
                       ) : (
                         <tr>
+                          <th aria-sort={ariaSort(sort, 'etapa')}><SortHeader label="Etapa" sortKey="etapa" sort={sort} onSort={toggleSort} /></th>
+                          <th>Frente/Torre</th>
+                          <th aria-sort={ariaSort(sort, 'unidad')}><SortHeader label="Nomenclatura" sortKey="unidad" sort={sort} onSort={toggleSort} /></th>
+                          <th aria-sort={ariaSort(sort, 'referencia')}><SortHeader label="Referencia" sortKey="referencia" sort={sort} onSort={toggleSort} /></th>
                           <th aria-sort={ariaSort(sort, 'comprador')}><SortHeader label="Comprador" sortKey="comprador" sort={sort} onSort={toggleSort} /></th>
-                          <th aria-sort={ariaSort(sort, 'unidad')}><SortHeader label="Inmueble" sortKey="unidad" sort={sort} onSort={toggleSort} /></th>
                           <th aria-sort={ariaSort(sort, 'valorInmueble')}><SortHeader label="Valor apartamento" sortKey="valorInmueble" sort={sort} onSort={toggleSort} align="center" /></th>
-                          <th aria-sort={ariaSort(sort, 'cuotasEnMora')}><SortHeader label="Cuotas" sortKey="cuotasEnMora" sort={sort} onSort={toggleSort} align="center" /></th>
-                          <th aria-sort={ariaSort(sort, 'maxDiasAtraso')}><SortHeader label="Atraso" sortKey="maxDiasAtraso" sort={sort} onSort={toggleSort} align="center" /></th>
+                          <th aria-sort={ariaSort(sort, 'cuotasEnMora')}><SortHeader label="Cuotas mora" sortKey="cuotasEnMora" sort={sort} onSort={toggleSort} align="center" /></th>
+                          <th aria-sort={ariaSort(sort, 'maxDiasAtraso')}><SortHeader label="Días atraso" sortKey="maxDiasAtraso" sort={sort} onSort={toggleSort} align="center" /></th>
                           <th aria-sort={ariaSort(sort, 'montoEnMora')}><SortHeader label="Valor vencido" sortKey="montoEnMora" sort={sort} onSort={toggleSort} align="center" /></th>
-                          <th aria-sort={ariaSort(sort, 'pctEnMora')}><SortHeader label="% en mora" sortKey="pctEnMora" sort={sort} onSort={toggleSort} /></th>
+                          <th aria-sort={ariaSort(sort, 'pctEnMora')}><SortHeader label="% en mora" sortKey="pctEnMora" sort={sort} onSort={toggleSort} align="center" /></th>
                         </tr>
                       )}
                     </thead>
                     <tbody>
                       {(meta.data ?? []).length === 0 ? (
-                        <tr><td colSpan={esContraentrega ? 4 : 7} className={styles.sinResultados}>Sin resultados.</td></tr>
+                        <tr><td colSpan={esContraentrega ? 6 : 10} className={styles.sinResultados}>Sin resultados.</td></tr>
                       ) : esContraentrega ? (
                         meta.data.map((f) => (
                           <tr key={f.id} onContextMenu={(e) => abrirMenuContextual(e, f)} className={styles.filaCtxMenu}>
-                            <td><CeldaComprador nombre={f.comprador} sub={f.referencia} /></td>
-                            <td><CeldaInmueble principal={f.unidad ?? '—'} sub={[f.frente, f.torre != null ? `Torre ${f.torre}` : null].filter(Boolean).join(' / ')} /></td>
+                            <td>{[f.frente, f.torre != null ? `Torre ${f.torre}` : null].filter(Boolean).join(' / ') || '—'}</td>
+                            <td>{f.unidad ?? '—'}</td>
+                            <td>{f.referencia ?? '—'}</td>
+                            <td className={styles.truncar} title={f.comprador ?? ''}>{f.comprador ?? '—'}</td>
                             <td className={`${styles.numCellCentro} ${styles.tonoWarning}`}>{formatDate(f.fechaSaldoContraentrega)}</td>
                             <td className={styles.numCellCentro}><ValorVencido valor={f.montoEnMora} /></td>
                           </tr>
@@ -563,13 +570,11 @@ export function CarteraMoraPage() {
                       ) : (
                         meta.data.map((f) => (
                           <tr key={f.id} onContextMenu={(e) => abrirMenuContextual(e, f)} className={styles.filaCtxMenu}>
-                            <td><CeldaComprador nombre={f.comprador} sub={f.referencia} /></td>
-                            <td>
-                              <CeldaInmueble
-                                principal={f.negocioId ? <Link to={`/negocios/${f.negocioId}`}>{f.unidad ?? f.id}</Link> : (f.unidad ?? '—')}
-                                sub={[f.etapa ? etiquetaEtapa(f.etapa) : null, f.frente, f.torre != null ? `Torre ${f.torre}` : null].filter(Boolean).join(' · ')}
-                              />
-                            </td>
+                            <td>{f.etapa ? etiquetaEtapa(f.etapa) : '—'}</td>
+                            <td>{[f.frente, f.torre != null ? `Torre ${f.torre}` : null].filter(Boolean).join(' / ') || '—'}</td>
+                            <td>{f.negocioId ? <Link to={`/negocios/${f.negocioId}`}>{f.unidad ?? f.id}</Link> : (f.unidad ?? '—')}</td>
+                            <td>{f.referencia ?? '—'}</td>
+                            <td className={styles.truncar} title={f.comprador ?? ''}>{f.comprador ?? '—'}</td>
                             <td className={styles.numCellCentro}>{f.valorInmueble != null ? formatCOP(f.valorInmueble) : '—'}</td>
                             <td className={styles.numCellCentro}>{f.cuotasEnMora}</td>
                             <td className={styles.numCellCentro}><ChipDias dias={f.maxDiasAtraso} /></td>

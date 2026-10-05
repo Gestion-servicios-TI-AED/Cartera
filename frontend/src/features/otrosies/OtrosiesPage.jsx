@@ -414,6 +414,9 @@ export function OtrosiesPage() {
                 <th aria-sort={ariaSort(sort, 'dealName')}>
                   <SortHeader label="Negocio" sortKey="dealName" sort={sort} onSort={toggleSort} />
                 </th>
+                <th aria-sort={ariaSort(sort, 'referenciaRecaudo')}>
+                  <SortHeader label="Ref. Recaudo" sortKey="referenciaRecaudo" sort={sort} onSort={toggleSort} />
+                </th>
                 <th aria-sort={ariaSort(sort, 'inmueble')}>
                   <SortHeader label="Inmueble" sortKey="inmueble" sort={sort} onSort={toggleSort} />
                 </th>
@@ -431,12 +434,13 @@ export function OtrosiesPage() {
             <tbody>
               {sortedRows.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className={styles.sinResultados}>No se encontraron registros</td>
+                  <td colSpan={6} className={styles.sinResultados}>No se encontraron registros</td>
                 </tr>
               ) : (
                 sortedRows.map((row) => (
                   <tr key={row.id ?? row.dealName}>
-                    <td><CeldaComprador nombre={nombreNegocio(row.dealName)} sub={row.referenciaRecaudo} /></td>
+                    <td><CeldaComprador nombre={nombreNegocio(row.dealName)} /></td>
+                    <td>{row.referenciaRecaudo ? <span className={styles.refBadge}>{row.referenciaRecaudo}</span> : <span className={styles.muted}>—</span>}</td>
                     <td><CeldaInmueble {...partirInmueble(row.inmueble?.label)} /></td>
                     <td><StageBadge stage={row.stage} /></td>
                     <td>

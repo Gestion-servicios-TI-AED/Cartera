@@ -683,3 +683,65 @@
   width: 52px;
   flex-shrink: 0;
 }
+
+.referencia {
+  font-family: var(--font-mono);
+  font-size: var(--text-label-size);
+  color: var(--color-ink-secondary);
+  white-space: nowrap;
+}
+
+/* Con la columna Referencia son 8 columnas: celdas más compactas para no scrollear */
+.card th,
+.card td {
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+.card .avatar {
+  width: 30px;
+  height: 30px;
+}
+
+.card .personaNombre {
+  max-width: 140px;
+}
+
+.card .barraMora {
+  min-width: 70px;
+}
+
+.card .barraMoraValor {
+  width: 48px;
+}
+
+.card .inmueble .personaSub {
+  max-width: 150px;
+}
+
+.card .personaNombre {
+  max-width: 120px;
+}
+.card .inmueble .personaSub {
+  max-width: 130px;
+}
+
+.card .personaNombre {
+  max-width: 170px;
+  white-space: normal;
+  line-height: 1.25;
+}
+.card .inmueble .personaSub {
+  max-width: 150px;
+  white-space: normal;
+}
+.card .referencia {
+  letter-spacing: -0.02em;
+}
+
+.card .personaNombre {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
