@@ -1,0 +1,227 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.cargando,
+.error {
+  padding: var(--space-md) 0;
+  font-size: var(--text-data-size);
+  color: var(--color-ink-muted);
+  margin: 0;
+}
+
+.error {
+  color: var(--color-danger-ink);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+}
+
+.title {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-headline-size);
+  font-weight: var(--text-headline-weight);
+  color: var(--color-ink);
+  margin: 0;
+  overflow-wrap: break-word;
+}
+
+.syncInfo {
+  font-size: var(--text-label-size);
+  color: var(--color-ink-muted);
+}
+
+/* ── Body en 2 columnas (izq: info/inmueble -- der: financiero) ─────────── */
+
+.body {
+  display: grid;
+  grid-template-columns: minmax(0, 320px) minmax(0, 1fr);
+  gap: var(--space-md);
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .body {
+    grid-template-columns: 1fr;
+  }
+}
+
+.columna {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  min-width: 0;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+}
+
+.subtitulo {
+  font-size: var(--text-label-size);
+  font-weight: var(--text-label-weight);
+  letter-spacing: var(--text-label-tracking);
+  text-transform: uppercase;
+  color: var(--color-ink-muted);
+  margin: 0;
+}
+
+.miniLabel {
+  font-size: var(--text-label-size);
+  font-weight: var(--text-label-weight);
+  letter-spacing: var(--text-label-tracking);
+  text-transform: uppercase;
+  color: var(--color-ink-muted);
+}
+
+.infoRow {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.infoValor {
+  font-size: var(--text-body-size);
+  font-weight: 500;
+  color: var(--color-ink);
+  overflow-wrap: break-word;
+}
+
+.link {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+.refBadge {
+  display: inline-block;
+  font-family: monospace;
+  font-size: var(--text-label-size);
+  background: var(--color-warning-surface);
+  color: var(--color-warning-ink);
+  border: 1px solid color-mix(in srgb, var(--color-warning-ink) 25%, transparent);
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+}
+
+.fieldGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-sm) var(--space-md);
+}
+
+.fieldCell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.fieldValor {
+  font-size: var(--text-data-size);
+  color: var(--color-ink-secondary);
+  overflow-wrap: break-word;
+}
+
+.sinDatos {
+  font-size: var(--text-data-size);
+  color: var(--color-ink-muted);
+  font-style: italic;
+  margin: 0;
+}
+
+/* ── Tablas (financiero, subforms) ───────────────────────────────────── */
+
+.tableWrap {
+  overflow-x: auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-data-size);
+}
+
+.table th,
+.table td {
+  padding: var(--space-sm) var(--space-md);
+  text-align: left;
+  border-bottom: 1px solid var(--color-border);
+  white-space: nowrap;
+}
+
+.table th {
+  background: var(--color-surface-sunken);
+  font-size: var(--text-label-size);
+  font-weight: var(--text-label-weight);
+  letter-spacing: var(--text-label-tracking);
+  text-transform: uppercase;
+  color: var(--color-ink-muted);
+  border-bottom: 2px solid var(--color-primary);
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.table tbody tr:hover {
+  background: var(--color-info-surface);
+}
+
+.right {
+  text-align: right;
+}
+
+.montoFuerte {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-ink);
+  font-family: monospace;
+}
+
+/* Callout de monto grande (Oliv) -- Oportunidad/Baía Kristal nunca necesitó
+   esto, ahí el monto vive dentro de la tabla "Plan de Pagos"; Oliv no tiene
+   ese desglose, solo el `amount` del Deal, así que se destaca solo. */
+.montoGrande {
+  font-family: var(--font-display);
+  font-size: var(--text-title-size);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-ink);
+  margin: 0;
+}
+
+/* ── Subforms (dentro del Accordion) ────────────────────────────────────── */
+
+.seccionBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  padding: var(--space-md);
+}
+
+.aviso {
+  font-size: var(--text-label-size);
+  font-style: italic;
+  color: var(--color-ink-muted);
+  margin: var(--space-sm) 0 0;
+}

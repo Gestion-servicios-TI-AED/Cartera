@@ -1,0 +1,283 @@
+/* Compartido por HistorialPage / SincronizacionPage / ConfiguracionFrentesPage
+   -- mismas clases de página (.page/.header/.headerRow/.title/.subtitle) y
+   .card (padding plano var(--space-xl), sin header/body partido) que
+   Usuarios.module.css (copiado 1:1 del HRMS) -- las 4 pantallas de Accesos
+   comparten un mismo lenguaje visual, aunque Historial/Sincronización/
+   Frentes no tengan un equivalente literal en el HRMS para copiar. Sin
+   max-width en ningún lado (Full-Width Rule, ver AccesosLayout.module.css). */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  width: 100%;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.headerRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: var(--text-headline-size);
+  font-weight: var(--text-headline-weight);
+  margin: 0;
+}
+
+.subtitle {
+  color: var(--color-ink-muted);
+  font-size: var(--text-data-size);
+  margin-top: 2px;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  flex-shrink: 0;
+}
+
+/* Sin max-width -- Full-Width Rule. Mismo padding plano que
+   Usuarios.module.css#.card (el HRMS no separa header/body dentro de un
+   card de Accesos). */
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.cardTitle {
+  font-family: var(--font-display);
+  font-size: var(--text-title-size);
+  font-weight: var(--text-title-weight);
+  color: var(--color-ink);
+}
+
+.cardHint {
+  font-size: var(--text-data-size);
+  color: var(--color-ink-muted);
+  margin-top: 2px;
+}
+
+.formError {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  background: var(--color-danger-surface);
+  color: var(--color-danger-ink);
+  border-radius: var(--radius-sm);
+  padding: var(--space-sm) var(--space-md);
+  font-size: var(--text-data-size);
+}
+
+.formSuccess {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  background: var(--color-success-surface);
+  color: var(--color-success-ink);
+  border-radius: var(--radius-sm);
+  padding: var(--space-sm) var(--space-md);
+  font-size: var(--text-data-size);
+}
+
+.loadingState,
+.emptyState {
+  color: var(--color-ink-muted);
+  font-size: var(--text-data-size);
+  padding: var(--space-lg);
+  text-align: center;
+}
+
+/* --- Lista (historial) -- vive dentro de .card, que ya trae su propio
+   padding plano, por eso acá solo hay espaciado vertical entre filas. --- */
+
+.list {
+  display: flex;
+  flex-direction: column;
+}
+
+.listRow {
+  padding: var(--space-sm) 0;
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.list .listRow:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.listRowMain {
+  flex: 1;
+  min-width: 0;
+}
+
+.listRowTitle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  flex-wrap: wrap;
+  font-size: var(--text-data-size);
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+.listRowMeta {
+  font-size: var(--text-label-size);
+  color: var(--color-ink-muted);
+  margin-top: 2px;
+}
+
+/* --- Formulario --- */
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  padding: var(--space-lg);
+  border-top: 1px solid var(--color-border);
+  background: var(--color-surface-sunken);
+}
+
+.row {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+}
+
+.fieldMd {
+  width: 260px;
+}
+
+.checkboxField {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-size: var(--text-data-size);
+  color: var(--color-ink-secondary);
+}
+
+.modulosBox {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  max-height: 260px;
+  overflow-y: auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-md);
+  background: var(--color-surface);
+}
+
+.modulosGrupoTitulo {
+  font-size: var(--text-label-size);
+  font-weight: var(--text-label-weight);
+  letter-spacing: var(--text-label-tracking);
+  text-transform: uppercase;
+  color: var(--color-ink-muted);
+  margin-bottom: var(--space-xs);
+}
+
+.modulosGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 4px;
+}
+
+.formActions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+/* --- Progreso (sincronización) --- */
+
+.progressTrack {
+  width: 100%;
+  height: 8px;
+  border-radius: var(--radius-full);
+  background: var(--color-surface-sunken);
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  border-radius: var(--radius-full);
+  background: var(--color-brand-deep);
+  transition: width var(--duration-standard) var(--ease-standard);
+}
+
+.progressText {
+  font-size: var(--text-data-size);
+  color: var(--color-ink-muted);
+}
+
+.statusOk {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  color: var(--color-success-ink);
+  font-size: var(--text-data-size);
+}
+
+.statusError {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  color: var(--color-danger-ink);
+  font-size: var(--text-data-size);
+}
+
+.statusWarning {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  color: var(--color-warning-ink);
+  font-size: var(--text-data-size);
+}
+
+.spin {
+  animation: accesos-spin 1s linear infinite;
+}
+
+@keyframes accesos-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.torreLista {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 180px;
+  overflow-y: auto;
+}
+
+.torreFila {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: var(--text-data-size);
+  color: var(--color-ink-secondary);
+  padding: 4px var(--space-sm);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-sunken);
+}

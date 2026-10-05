@@ -1,0 +1,185 @@
+.layout {
+  display: flex;
+  gap: var(--space-md);
+  /* El alto real se fija en JS via `style` (ver useAlturaDisponible en
+     NegociosPage.jsx) -- `height:100%` no sirve acá: el ancestro que
+     scrollea (.scrollArea del AppShell) es un item flex sin `height` propio
+     (solo `flex:1`), así que un porcentaje no tiene contra qué resolverse y
+     cae a `auto`. Este min-height solo cubre el instante antes de la
+     primera medición (evita un salto de layout muy chico al montar). */
+  min-height: 520px;
+}
+
+.panel {
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.centrado {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-align: center;
+  padding: var(--space-2xl);
+  gap: var(--space-sm);
+}
+
+.cargando {
+  color: var(--color-ink-muted);
+  font-size: var(--text-data-size);
+}
+
+.emptyTitulo {
+  font-family: var(--font-display);
+  font-size: var(--text-title-size);
+  font-weight: 600;
+  color: var(--color-ink);
+  margin: 0;
+}
+
+.emptyTexto {
+  font-size: var(--text-data-size);
+  color: var(--color-ink-muted);
+  max-width: 320px;
+  margin: 0;
+}
+
+.botonSync {
+  margin-top: var(--space-sm);
+  padding: 10px 20px;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: var(--color-primary);
+  color: var(--color-primary-ink-on);
+  font-weight: 600;
+  font-size: var(--text-data-size);
+  cursor: pointer;
+}
+
+.botonSync:hover:not(:disabled) {
+  background: var(--color-primary-hover);
+}
+
+.botonSync:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ── Panel de estadísticas (sin selección) ──────────────────────────────── */
+
+.stats {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  padding: var(--space-lg);
+}
+
+.kpiGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--space-md);
+}
+
+.kpiCard {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  padding: var(--space-md);
+}
+
+.kpiLabel {
+  font-size: var(--text-label-size);
+  font-weight: var(--text-label-weight);
+  letter-spacing: var(--text-label-tracking);
+  text-transform: uppercase;
+  color: var(--color-ink-muted);
+  margin: 0 0 4px;
+}
+
+.kpiValor {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--color-ink);
+  font-variant-numeric: tabular-nums;
+  margin: 0;
+}
+
+.kpiValorSm {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-ink);
+  font-variant-numeric: tabular-nums;
+  margin: 0;
+}
+
+.exito {
+  color: var(--color-success-ink);
+}
+
+.desgloseGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-md);
+}
+
+.desgloseCard {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  padding: var(--space-md);
+}
+
+.desgloseLista {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  margin-top: var(--space-sm);
+}
+
+.desgloseFila {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+}
+
+.desgloseEtiqueta {
+  font-size: var(--text-data-size);
+  color: var(--color-ink-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.desgloseValores {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-sm);
+  flex-shrink: 0;
+}
+
+.desgloseCount {
+  font-size: var(--text-data-size);
+  font-weight: 600;
+  color: var(--color-ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.desgloseSaldo {
+  font-size: var(--text-label-size);
+  color: var(--color-warning-ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.hint {
+  text-align: center;
+  font-size: var(--text-data-size);
+  color: var(--color-ink-muted);
+  margin: 0;
+}

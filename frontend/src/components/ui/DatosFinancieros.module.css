@@ -1,0 +1,71 @@
+.columnas {
+  background: var(--color-surface);
+  column-gap: var(--space-xl);
+}
+
+@media (min-width: 900px) {
+  .columnas {
+    columns: 2;
+  }
+}
+
+.fila,
+.filaMes {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-lg);
+  padding: var(--space-sm) var(--space-md);
+  border-bottom: 1px solid var(--color-border);
+  break-inside: avoid;
+}
+
+.etiqueta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  flex-shrink: 0;
+  font-size: var(--text-label-size);
+  font-weight: var(--text-label-weight);
+  letter-spacing: var(--text-label-tracking);
+  text-transform: uppercase;
+  color: var(--color-ink-muted);
+}
+
+.valor {
+  font-size: var(--text-data-size);
+  font-weight: 500;
+  color: var(--color-ink);
+  text-align: right;
+  overflow-wrap: break-word;
+}
+
+.valorMes {
+  font-size: var(--text-data-size);
+  color: var(--color-ink);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.muted {
+  color: var(--color-ink-muted);
+}
+
+.sep {
+  margin: 0 6px;
+  color: var(--color-border-strong);
+}
+
+.vacio {
+  color: var(--color-border-strong);
+  font-style: italic;
+}
+
+.sinDatos {
+  padding: var(--space-md);
+  font-size: var(--text-data-size);
+  color: var(--color-ink-muted);
+  font-style: italic;
+  background: var(--color-surface);
+  margin: 0;
+}

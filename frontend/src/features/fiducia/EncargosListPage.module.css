@@ -1,0 +1,259 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.header .title {
+  flex: 1;
+}
+
+.hiddenInput {
+  display: none;
+}
+
+.error {
+  color: var(--color-danger-ink);
+  font-size: var(--text-data-size);
+  margin: 0;
+}
+
+.vacio,
+.cargando {
+  color: var(--color-ink-muted);
+  font-size: var(--text-data-size);
+}
+
+.contadorEncargos {
+  font-size: var(--text-data-size);
+  color: var(--color-ink-muted);
+  align-self: center;
+}
+
+/* ── Resultado de subida ─────────────────────────────────────────────── */
+
+.resultadosSubida {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.resultadoOk,
+.resultadoError {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--text-data-size);
+  margin: 0;
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-sm);
+}
+
+.resultadoOk {
+  background: var(--color-success-surface);
+  color: var(--color-success-ink);
+}
+
+.resultadoError {
+  background: var(--color-danger-surface);
+  color: var(--color-danger-ink);
+}
+
+/* ── Edición inline ──────────────────────────────────────────────────── */
+
+.editForm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  max-width: 240px;
+}
+
+.inputCodigo {
+  font-family: monospace;
+  max-width: 140px;
+}
+
+.editAcciones {
+  display: flex;
+  gap: var(--space-xs);
+  margin-top: 2px;
+}
+
+.filaCodigo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  margin-top: 2px;
+}
+
+.codigoBadge {
+  font-family: monospace;
+  font-size: var(--text-label-size);
+  color: var(--color-primary);
+  background: var(--color-info-surface);
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+}
+
+.descripcionProyecto {
+  font-size: var(--text-label-size);
+  color: var(--color-ink-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.archivoNombre {
+  color: var(--color-ink-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 220px;
+}
+
+.hojasBadges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.hojaBadge {
+  font-size: var(--text-label-size);
+  color: var(--color-ink-muted);
+  background: var(--color-surface-sunken);
+  border: 1px solid var(--color-border);
+  padding: 1px 8px;
+  border-radius: var(--radius-full);
+  white-space: nowrap;
+}
+
+.fechaImportado {
+  color: var(--color-ink-muted);
+  font-size: var(--text-label-size);
+  white-space: nowrap;
+}
+
+.accionesCol {
+  display: flex;
+  gap: 4px;
+  justify-content: flex-end;
+}
+
+.iconButton {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-ink-muted);
+  cursor: pointer;
+  transition: background-color var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);
+}
+
+.iconButton:hover:not(:disabled) {
+  background: var(--color-surface-sunken);
+  color: var(--color-ink);
+}
+
+.iconButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.iconButtonDanger:hover:not(:disabled) {
+  color: var(--color-danger-ink);
+  background: var(--color-danger-surface);
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: var(--text-headline-size);
+  font-weight: var(--text-headline-weight);
+  color: var(--color-ink);
+  margin: 0;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-md);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-lg);
+}
+
+/* `min-width`, no `width` fijo (regla "ancho fluido, nunca se corta" de
+   ARQUITECTURA-FRONTEND.md) -- un `<select>` se autoajusta al contenido de
+   sus opciones cuando no se le fuerza un ancho. */
+.fieldSm {
+  min-width: 200px;
+}
+
+/* min-width, no width fijo -- acá gatea tanto el buscador (`<input>`, donde
+   el ancho generoso sigue siendo obligatorio como piso) como el `<select>`
+   de Proyecto, que sí se autoajusta a su contenido. */
+.fieldMd {
+  min-width: 260px;
+}
+
+/* Fecha opcional del Excel al subir (Jefe Gabriel, 2026-09-24, solo Oliv por
+   ahora) -- min-width, no width fijo, para que el helper text no se corte. */
+.fieldFecha {
+  min-width: 200px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.table th,
+.table td {
+  padding: var(--space-sm) var(--space-md);
+  text-align: left;
+  font-size: var(--text-data-size);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.table th {
+  background: var(--color-surface-sunken);
+  border-bottom: 2px solid var(--color-primary);
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.table a {
+  color: var(--color-primary);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.table a:hover {
+  text-decoration: underline;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-md);
+  font-size: var(--text-data-size);
+  color: var(--color-ink-muted);
+}

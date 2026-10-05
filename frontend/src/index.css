@@ -1,0 +1,100 @@
+@import './tokens.css';
+
+/* TT Firs Neue es la tipografia de marca licenciada de aed; los archivos de
+   fuente no estan disponibles todavia. Cuando existan, ponerlos en
+   /public/fonts y descomentar esto -- nada mas cambia, el stack de
+   --font-display ya empieza con "TT Firs Neue" y cae a Inter (via
+   coincidencia de fuentes del sistema) mientras tanto. */
+/*
+@font-face {
+  font-family: 'TT Firs Neue';
+  src: url('/fonts/tt-firs-neue-semibold.woff2') format('woff2');
+  font-weight: 600;
+  font-display: swap;
+}
+*/
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* El scroll real de la app vive DENTRO de AppShell (.scrollArea, con Lenis)
+   -- el documento en si nunca deberia poder scrollear. `min-height:100dvh`
+   sin `overflow:hidden` no lo garantiza: si el body llega a medir un pixel
+   mas alto que el `.shell` de adentro (encontrado como bug real: un
+   desajuste entre `100dvh` y el alto real terminaba dejando ~150px de mas),
+   el navegador agrega SU PROPIA scrollbar encima de la de Lenis -- doble
+   scroll, y ese ancho/alto extra corre todo el layout (sidebar incluido)
+   dejando un espacio en blanco debajo. `height:100%` + `overflow:hidden` en
+   html/body cierran esa puerta del todo, sin importar la causa exacta del
+   desajuste. */
+html {
+  height: 100%;
+  overflow: hidden;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  height: 100%;
+  overflow: hidden;
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line);
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+h4,
+p {
+  margin: 0;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
+  text-wrap: balance;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

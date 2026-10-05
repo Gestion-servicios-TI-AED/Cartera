@@ -1,14 +1,14 @@
-# Claude Code internal folder
-.claude/
-
-# Environment files at root level
+node_modules/
 .env
-
-# Superpowers subagent-driven-development scratch (progress ledger, etc.)
-.superpowers/
-
-# Dev server logs (backend/frontend redirected here during local runs)
+dist/
 *.log
 
-# Stray artifact from a Windows shell redirect gone wrong (`> nul`)
+# OS
+.DS_Store
+Thumbs.db
+
+# Claude Code / herramientas locales
+.claude/
+.superpowers/
+.playwright-mcp/
 nul

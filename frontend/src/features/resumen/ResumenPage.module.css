@@ -1,0 +1,370 @@
+.labelConIcono {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.limpiar {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: none;
+  background: none;
+  color: var(--color-primary);
+  font-size: var(--text-data-size);
+  font-weight: 500;
+  cursor: pointer;
+  padding: 9px 0;
+}
+
+.limpiar:hover {
+  color: var(--color-primary-hover);
+  text-decoration: underline;
+}
+
+.filtroLabel {
+  font-size: var(--text-label-size);
+  font-weight: var(--text-label-weight);
+  letter-spacing: var(--text-label-tracking);
+  text-transform: uppercase;
+  color: var(--color-ink-muted);
+  align-self: center;
+}
+
+/* ── KPIs ────────────────────────────────────────────────────────────── */
+
+.kpiSecciones {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.kpiSeccionTitulo {
+  font-size: var(--text-label-size);
+  font-weight: var(--text-label-weight);
+  letter-spacing: var(--text-label-tracking);
+  text-transform: uppercase;
+  color: var(--color-ink-muted);
+  margin: 0 0 var(--space-sm);
+}
+
+.statSub {
+  font-size: var(--text-data-size);
+  color: var(--color-ink-muted);
+}
+
+/* ── Tendencia ───────────────────────────────────────────────────────── */
+
+.tendenciaCard {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.tendenciaEnfocada {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  background: var(--color-bg);
+  padding: var(--space-xl);
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.tendenciaHeader {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.tendenciaHeaderTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+}
+
+.tendenciaTitulo {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-family: var(--font-display);
+  font-size: var(--text-title-size);
+  font-weight: var(--text-title-weight);
+  color: var(--color-ink);
+  margin: 0;
+}
+
+.tendenciaHeaderAcciones {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+}
+
+.tendenciaStats {
+  font-size: var(--text-data-size);
+  color: var(--color-ink-muted);
+}
+
+.puntoSep {
+  margin: 0 8px;
+  color: var(--color-border-strong);
+}
+
+.tendenciaPeriodoActual {
+  font-size: var(--text-label-size);
+  color: var(--color-ink-muted);
+}
+
+.tendenciaPeriodoBadge {
+  font-size: var(--text-label-size);
+  font-weight: 600;
+  color: var(--color-primary);
+  background: var(--color-info-surface);
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+}
+
+.tendenciaPeriodoNota {
+  margin-left: 6px;
+  font-style: italic;
+  color: var(--color-border-strong);
+}
+
+/* ── Consolidado / Recaudo por Etapa (contenedores) ─────────────────────── */
+
+.consolidadoCard {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.consolidadoTitulo {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-family: var(--font-display);
+  font-size: var(--text-title-size);
+  font-weight: var(--text-title-weight);
+  color: var(--color-ink);
+  margin: 0;
+}
+
+.mesSelector {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-md);
+}
+
+.exportarConsolidado {
+  margin-left: auto;
+}
+
+.fieldMesSm {
+  width: 220px;
+}
+
+.avisoMeses {
+  font-size: var(--text-label-size);
+  font-style: italic;
+  color: var(--color-ink-muted);
+  text-align: center;
+  margin: 0;
+}
+
+.etapaToggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-ink-muted);
+  padding: 0;
+}
+
+/* ── Tabla Consolidado (grupos coloreados + columna fija) ───────────────── */
+
+.consolidadoNota {
+  font-size: var(--text-label-size);
+  color: var(--color-ink-muted);
+  margin: 0;
+}
+
+.consolidadoWrap {
+  overflow-x: auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+/* table-layout:fixed + <colgroup> (ver ConsolidadoCarteraEtapa en el JSX) --
+   sin esto, table-layout:auto con `width:100%` fuerza 18 columnas a caber en
+   el ancho del contenedor sin importar cuánto texto tengan: los encabezados
+   de varias palabras (ej. "VALOR TOTAL VENTA (FIDUCIARIA+DISPONIBLES)")
+   terminaban recortados a un ancho menor al de su propio texto, sin
+   `overflow` que los recorte, así que se veían literalmente encima del
+   encabezado vecino. Con columnas de ancho fijo (colDato) y SIN width:100%
+   en la tabla (el ancho real sale de la suma de columnas, no al revés), cada
+   encabezado tiene el espacio que declaró su <col> y el `consolidadoWrap`
+   de arriba se encarga del scroll horizontal -- mismo patrón que
+   `DashboardPage.module.css` (.megaTable) para la tabla de Plan vs. Recaudo. */
+.consolidadoTable {
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: var(--text-data-size);
+}
+
+.colEtapaGroup {
+  width: 150px;
+}
+
+.colDato {
+  width: 132px;
+}
+
+.consolidadoTable th,
+.consolidadoTable td {
+  padding: var(--space-sm) 6px;
+  text-align: center;
+  border-bottom: 1px solid var(--color-border);
+}
+
+/* `.consolidadoTable th` de arriba (selector clase+elemento) pesa MÁS que
+   `.colHeader` sola (una sola clase) -- si el nowrap fuera parte de esa
+   regla compartida, ganaría por especificidad sobre el white-space:normal
+   de `.colHeader` de más abajo sin importar el orden en el archivo, y los
+   encabezados largos nunca envolverían (quedarían en una sola línea
+   desbordando sobre la columna vecina, sin borde que lo delate). Por eso el
+   nowrap se aplica explícito solo donde hace falta -- nunca en el selector
+   compartido con `.colHeader`. */
+.celda,
+.colSticky,
+.grupoHeader {
+  white-space: nowrap;
+}
+
+.colSticky {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  text-align: left;
+  padding-left: var(--space-md);
+  background: var(--color-surface);
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+.colStickyTotal {
+  background: var(--color-surface-sunken);
+}
+
+.grupoHeader {
+  font-size: var(--text-label-size);
+  font-weight: var(--text-label-weight);
+  letter-spacing: var(--text-label-tracking);
+  text-transform: uppercase;
+  border-left: 2px solid var(--color-border);
+}
+
+.colHeader {
+  font-size: 10px;
+  font-weight: var(--text-label-weight);
+  letter-spacing: var(--text-label-tracking);
+  text-transform: uppercase;
+  white-space: normal;
+  overflow-wrap: break-word;
+  line-height: 1.35;
+  vertical-align: bottom;
+  padding-top: var(--space-sm);
+  padding-bottom: var(--space-sm);
+}
+
+.celda {
+  font-variant-numeric: tabular-nums;
+}
+
+.bordeGrupo {
+  border-left: 2px solid var(--color-border-strong);
+}
+
+.fila:hover {
+  background: var(--color-surface-sunken);
+}
+
+.filaTotal {
+  background: var(--color-surface-sunken);
+  font-weight: 700;
+  border-top: 2px solid var(--color-border-strong);
+}
+
+.filaTotal .colSticky {
+  background: var(--color-surface-sunken);
+}
+
+.tono-info {
+  background: var(--color-info-surface);
+  color: var(--color-info-ink);
+}
+
+.tono-success {
+  background: var(--color-success-surface);
+  color: var(--color-success-ink);
+}
+
+.tono-warning {
+  background: var(--color-warning-surface);
+  color: var(--color-warning-ink);
+}
+
+.filaTotal .tono-info,
+.filaTotal .tono-success,
+.filaTotal .tono-warning {
+  background: var(--color-surface-sunken);
+  color: var(--color-ink);
+}
+
+/* ── Footer sync ─────────────────────────────────────────────────────── */
+
+.syncFooter {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-md) var(--space-lg);
+  font-size: var(--text-data-size);
+  color: var(--color-ink-muted);
+}
+
+.syncOk {
+  color: var(--color-success-ink);
+  flex-shrink: 0;
+}
+
+.syncErr {
+  color: var(--color-danger-ink);
+  flex-shrink: 0;
+}
+
+.syncPend {
+  color: var(--color-warning-ink);
+  flex-shrink: 0;
+}
+
+.syncResumen {
+  margin-left: auto;
+}

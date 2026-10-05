@@ -1,0 +1,528 @@
+.page,
+.detalle {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  padding: var(--space-lg);
+}
+
+.centrado {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.cargando,
+.error,
+.sinDatosPad {
+  padding: var(--space-md);
+  font-size: var(--text-data-size);
+  color: var(--color-ink-muted);
+  margin: 0;
+}
+
+.sinDatosPad {
+  font-style: italic;
+}
+
+.error {
+  color: var(--color-danger-ink);
+}
+
+/* ── Header card ─────────────────────────────────────────────────────── */
+
+.headerCard {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-md) var(--space-lg);
+}
+
+.headerRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+}
+
+.headerInfo {
+  min-width: 0;
+}
+
+.eyebrow {
+  font-size: var(--text-label-size);
+  font-weight: var(--text-label-weight);
+  letter-spacing: var(--text-label-tracking);
+  text-transform: uppercase;
+  color: var(--color-ink-muted);
+  margin: 0 0 2px;
+}
+
+.titulo {
+  font-family: var(--font-display);
+  font-size: var(--text-headline-size);
+  font-weight: var(--text-headline-weight);
+  color: var(--color-ink);
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.subtitulo2 {
+  font-size: var(--text-title-size);
+  font-weight: 600;
+  color: var(--color-primary);
+  margin: 4px 0 0;
+}
+
+.puntoSep {
+  margin: 0 6px;
+  color: var(--color-border-strong);
+}
+
+.headerAcciones {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-sm);
+  flex-shrink: 0;
+}
+
+.headerBadges {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+}
+
+.contadorMov {
+  font-size: var(--text-data-size);
+  color: var(--color-ink-muted);
+  background: var(--color-surface-sunken);
+  border: 1px solid var(--color-border);
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+}
+
+.botonExportar {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--text-label-size);
+  font-weight: var(--text-label-weight);
+  padding: 6px 12px;
+  border-radius: var(--radius-full);
+  background: var(--color-primary);
+  color: var(--color-primary-ink-on);
+  border: none;
+  cursor: pointer;
+  transition: background-color var(--duration-fast) var(--ease-standard);
+}
+
+.botonExportar:hover:not(:disabled) {
+  background: var(--color-primary-hover);
+}
+
+.botonExportar:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.textoDerecha {
+  text-align: right;
+}
+
+.saldoTotal {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-ink);
+  font-variant-numeric: tabular-nums;
+  margin: 0;
+}
+
+.textoExito {
+  color: var(--color-success-ink);
+}
+
+.textoAmbar {
+  color: var(--color-warning-ink);
+}
+
+.textoPeligro {
+  color: var(--color-danger-ink);
+  font-weight: 600;
+}
+
+.textoPeligroClaro {
+  color: var(--color-danger-ink);
+}
+
+/* ── Comprador ───────────────────────────────────────────────────────── */
+
+.listaCompradores {
+  display: flex;
+  flex-direction: column;
+}
+
+.filaComprador {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-sm) var(--space-md);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.filaComprador:last-child {
+  border-bottom: none;
+}
+
+.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--color-info-surface);
+  border: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--text-data-size);
+  font-weight: 700;
+  color: var(--color-primary);
+  flex-shrink: 0;
+}
+
+.compradorInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.compradorNombre {
+  font-size: var(--text-body-size);
+  font-weight: 500;
+  color: var(--color-ink);
+  margin: 0;
+}
+
+.mutedSmall {
+  font-size: var(--text-data-size);
+  color: var(--color-ink-muted);
+  margin: 2px 0 0;
+}
+
+.compradorPct {
+  font-size: var(--text-data-size);
+  font-weight: 600;
+  color: var(--color-ink-muted);
+  flex-shrink: 0;
+}
+
+/* ── Tablas genéricas (movimientos, conciliación, plan de pagos) ────────── */
+
+.seccionBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  padding: var(--space-md);
+}
+
+.subtitulo {
+  font-size: var(--text-label-size);
+  font-weight: var(--text-label-weight);
+  letter-spacing: var(--text-label-tracking);
+  text-transform: uppercase;
+  color: var(--color-ink-muted);
+  margin: 0 0 var(--space-sm);
+}
+
+.tableWrap {
+  overflow-x: auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-data-size);
+}
+
+.table th,
+.table td {
+  padding: var(--space-sm) var(--space-md);
+  text-align: left;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.table th {
+  background: var(--color-surface-sunken);
+  font-size: var(--text-label-size);
+  font-weight: var(--text-label-weight);
+  letter-spacing: var(--text-label-tracking);
+  text-transform: uppercase;
+  color: var(--color-ink-muted);
+  border-bottom: 2px solid var(--color-primary);
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.right {
+  text-align: right;
+}
+
+.nowrap {
+  white-space: nowrap;
+}
+
+.strong {
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+.truncCell {
+  max-width: 240px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vacio {
+  color: var(--color-border-strong);
+  font-style: italic;
+}
+
+.colChevron {
+  width: 24px;
+}
+
+.filaClicable {
+  cursor: pointer;
+  transition: background-color var(--duration-fast) var(--ease-standard);
+}
+
+.filaClicable:hover {
+  background: var(--color-info-surface);
+}
+
+.chevronRow {
+  color: var(--color-ink-muted);
+  transition: transform var(--duration-fast) var(--ease-standard);
+}
+
+.chevronRowOpen {
+  transform: rotate(90deg);
+  color: var(--color-primary);
+}
+
+.thConcepto {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.filaExpandida {
+  background: var(--color-info-surface);
+}
+
+.filaExpandida td {
+  padding: var(--space-md) var(--space-lg);
+}
+
+.gridExpandido {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: var(--space-sm) var(--space-lg);
+}
+
+.miniLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--text-label-size);
+  font-weight: var(--text-label-weight);
+  letter-spacing: var(--text-label-tracking);
+  text-transform: uppercase;
+  color: var(--color-ink-muted);
+  margin: 0 0 2px;
+}
+
+.miniValor {
+  font-size: var(--text-data-size);
+  color: var(--color-ink);
+  margin: 0;
+  overflow-wrap: break-word;
+}
+
+.paginacionSeccion {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-sm) var(--space-md);
+  background: var(--color-surface-sunken);
+  border: 1px solid var(--color-border);
+  border-top: none;
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
+}
+
+.paginacionBotones {
+  display: flex;
+  gap: var(--space-xs);
+}
+
+.botonPaginacion {
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  font-size: var(--text-data-size);
+  color: var(--color-ink-secondary);
+  cursor: pointer;
+}
+
+.botonPaginacion:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.aviso {
+  font-size: var(--text-data-size);
+  font-style: italic;
+  color: var(--color-ink-muted);
+  margin: 0;
+}
+
+.link {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+/* ── Conciliación ────────────────────────────────────────────────────── */
+
+.kpiGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--space-md);
+}
+
+.kpiCard,
+.card {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  padding: var(--space-md);
+}
+
+.kpiValor {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--color-ink);
+  font-variant-numeric: tabular-nums;
+  margin: 0;
+}
+
+.kpiValorVacio {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--color-border-strong);
+  margin: 0;
+}
+
+.kpiPorcentaje {
+  font-size: var(--text-label-size);
+  font-weight: 600;
+  color: var(--color-ink-muted);
+}
+
+.kpiSub {
+  display: block;
+  font-size: var(--text-label-size);
+  font-weight: 600;
+}
+
+.filaEntreDos {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+}
+
+.notaAmbar {
+  font-size: var(--text-data-size);
+  color: var(--color-warning-ink);
+  margin: 2px 0 0;
+}
+
+.dataText {
+  font-size: var(--text-data-size);
+  color: var(--color-ink-secondary);
+  margin: 0;
+}
+
+.saldoAFavor {
+  font-size: var(--text-data-size);
+  font-weight: 600;
+  color: var(--color-success-ink);
+  margin: 0;
+}
+
+.listaPagos {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.filaPago {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  font-size: var(--text-data-size);
+}
+
+.pagoInfo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  min-width: 0;
+}
+
+.pagoId {
+  font-size: var(--text-label-size);
+  font-weight: 600;
+  font-family: monospace;
+  color: var(--color-primary);
+  background: var(--color-info-surface);
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+}
+
+.pagoValor {
+  text-align: right;
+}
+
+.notaDestinado {
+  display: block;
+  font-size: var(--text-label-size);
+  color: var(--color-ink-muted);
+  margin-top: 2px;
+}
+
+.notaVencida {
+  display: block;
+  font-size: var(--text-label-size);
+  color: var(--color-danger-ink);
+  margin-top: 2px;
+}
+
+.notaPagada {
+  display: block;
+  font-size: var(--text-label-size);
+  color: var(--color-ink-muted);
+  margin-top: 2px;
+}

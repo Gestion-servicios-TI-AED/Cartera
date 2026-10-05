@@ -1,0 +1,98 @@
+/* Mismos valores exactos que WizardLayout.module.css del HRMS (.body/.nav/
+   .navItem/.navItemActive/.content) -- ver el comentario de cabecera de
+   AccesosLayout.jsx sobre por qué viven acá directo en vez de en un
+   WizardLayout que Cartera no tiene. */
+
+.body {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-xl);
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  width: 224px;
+  flex-shrink: 0;
+  position: sticky;
+  top: var(--space-lg);
+}
+
+.navItem {
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: var(--text-body-size);
+  color: var(--color-ink-secondary);
+  text-decoration: none;
+  padding: 9px 12px;
+  border-radius: var(--radius-sm);
+  transition: background-color var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);
+}
+
+.navItem:hover {
+  background: var(--color-surface-sunken);
+  color: var(--color-ink);
+}
+
+.navItem:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.navItemActive,
+.navItemActive:hover {
+  background: var(--color-surface-sunken);
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+}
+
+@media (max-width: 900px) {
+  .body {
+    flex-direction: column;
+    gap: var(--space-md);
+  }
+
+  .nav {
+    width: 100%;
+    position: static;
+    padding-bottom: var(--space-sm);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .content {
+    width: 100%;
+  }
+}
+
+/* Item de nav sin pantalla real todavía -- mismo lugar en el árbol que el
+   link real ocuparía, pero sin interacción. */
+.navItemDisabled {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: var(--text-body-size);
+  color: var(--color-ink-muted);
+  padding: 10px 14px;
+  cursor: default;
+}
+
+/* `.content` de arriba no trae espaciado propio (en el HRMS eso vive en
+   WizardLayout.module.css, compartido con el perfil del empleado, que
+   siempre envuelve un solo `.card`) -- acá cada pantalla de Accesos mete
+   varios hermanos directos (toolbar, banner de error, tabla/card), así que
+   este wrapper local les da el mismo espaciado vertical que cualquier
+   `.page` del resto del producto. */
+.contentInner {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}

@@ -1,0 +1,409 @@
+.iconoTitulo {
+  color: var(--color-danger-ink);
+  vertical-align: -2px;
+  margin-right: 4px;
+}
+
+.labelConIcono {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.limpiarFiltros {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: none;
+  background: none;
+  color: var(--color-primary);
+  font-size: var(--text-data-size);
+  font-weight: 500;
+  cursor: pointer;
+  padding-bottom: 9px;
+}
+
+.limpiarFiltros:hover {
+  color: var(--color-primary-hover);
+  text-decoration: underline;
+}
+
+/* ── Antigüedad de la mora (tarjetas por rango, click filtra la tabla) ──── */
+
+.rangoGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%), 1fr));
+  gap: var(--space-sm);
+}
+
+.rangoCard {
+  text-align: left;
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  cursor: pointer;
+  transition: background-color var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard);
+}
+
+.rangoCard:hover {
+  background: var(--color-surface-sunken);
+}
+
+.rangoCardActiva,
+.rangoCardActiva:hover {
+  background: var(--color-danger-surface);
+  border-color: var(--color-danger-ink);
+}
+
+.rangoLabel {
+  font-size: var(--text-label-size);
+  color: var(--color-ink-muted);
+}
+
+.rangoCount {
+  font-size: var(--text-title-size);
+  font-weight: 700;
+  color: var(--color-ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.rangoMonto {
+  font-size: var(--text-label-size);
+  font-weight: 600;
+  color: var(--color-danger-ink);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Tabs de vista (Cuota Inicial / Saldo Contraentrega) ────────────────── */
+
+.vistaTabs {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.vistaTab {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-ink-secondary);
+  font-size: var(--text-data-size);
+  font-weight: 500;
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.vistaTabActiva {
+  background: var(--color-brand-deep);
+  border-color: var(--color-brand-deep);
+  color: var(--color-primary-ink-on);
+}
+
+.vistaBadge {
+  font-size: var(--text-label-size);
+  font-weight: 700;
+  padding: 1px 7px;
+  border-radius: var(--radius-pill, 999px);
+  background: var(--color-danger-surface);
+  color: var(--color-danger-ink);
+}
+
+.vistaBadgeActiva {
+  background: rgba(255, 255, 255, 0.25);
+  color: var(--color-primary-ink-on);
+}
+
+/* ── Callout de Saldo Contraentrega vencido ─────────────────────────────── */
+
+.alertaContraentrega {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  background: var(--color-danger-surface);
+  border: 1px solid var(--color-danger-ink);
+  border-radius: var(--radius-md);
+  padding: var(--space-lg);
+  color: var(--color-ink);
+  font-size: var(--text-data-size);
+}
+
+.alertaIcono {
+  color: var(--color-danger-ink);
+  flex-shrink: 0;
+}
+
+.alertaNumero {
+  font-size: var(--text-title-size);
+  color: var(--color-danger-ink);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Trámite / Canje (pills) ─────────────────────────────────────────────── */
+
+.tramiteRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+}
+
+.tramiteLabel {
+  font-size: var(--text-label-size);
+  font-weight: var(--text-label-weight);
+  letter-spacing: var(--text-label-tracking);
+  text-transform: uppercase;
+  color: var(--color-ink-muted);
+  margin-right: var(--space-xs);
+}
+
+.tramitePill {
+  font-size: var(--text-data-size);
+  font-weight: 500;
+  padding: 5px var(--space-md);
+  border-radius: var(--radius-pill, 999px);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-ink-secondary);
+  cursor: pointer;
+}
+
+.tramitePillActiva {
+  background: var(--color-brand-deep);
+  border-color: var(--color-brand-deep);
+  color: var(--color-primary-ink-on);
+}
+
+/* ── Top 10 ──────────────────────────────────────────────────────────────── */
+
+.topCard {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.topToggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-ink-muted);
+  padding: 0;
+}
+
+.topTitulo {
+  font-size: var(--text-label-size);
+  font-weight: var(--text-label-weight);
+  letter-spacing: var(--text-label-tracking);
+  text-transform: uppercase;
+  color: var(--color-ink-muted);
+}
+
+.topVacio {
+  font-size: var(--text-data-size);
+  color: var(--color-ink-muted);
+  padding: var(--space-sm);
+}
+
+.topGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(360px, 100%), 1fr));
+  column-gap: var(--space-lg);
+}
+
+.topFila {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: 4px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.rankBadge {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+  background: var(--color-surface-sunken);
+  color: var(--color-ink-secondary);
+}
+
+.rank0 {
+  background: var(--color-danger-ink);
+  color: var(--color-primary-ink-on);
+}
+
+.rank1 {
+  background: var(--color-danger-ink);
+  opacity: 0.8;
+  color: var(--color-primary-ink-on);
+}
+
+.rank2 {
+  background: var(--color-warning-ink);
+  color: var(--color-primary-ink-on);
+}
+
+.rankDefault {
+  background: var(--color-surface-sunken);
+  color: var(--color-ink-secondary);
+}
+
+.topInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.topComprador {
+  font-size: var(--text-data-size);
+  color: var(--color-ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.topUbicacion {
+  font-size: var(--text-label-size);
+  color: var(--color-ink-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.topDias {
+  font-size: var(--text-label-size);
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: var(--radius-pill, 999px);
+  background: var(--color-warning-surface);
+  color: var(--color-warning-ink);
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.topMonto {
+  font-size: var(--text-data-size);
+  font-weight: 600;
+  color: var(--color-ink);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  flex-shrink: 0;
+  width: 110px;
+  text-align: right;
+}
+
+/* ── Tabla ───────────────────────────────────────────────────────────────── */
+
+.filaCtxMenu {
+  cursor: context-menu;
+}
+
+/* Columnas numericas de la tabla de detalle -- centradas (no a la derecha
+   como en `dashStyles.numCell`, que comparten Dashboard/Resumen): con
+   Etapa/Frente/Nomenclatura/Referencia/Comprador a la izquierda y los
+   numeros pegados al borde derecho, el ojo lee la fila como "partida" en dos
+   mitades con alineaciones opuestas. Centrado empareja la lectura vertical
+   de cada columna sin ese quiebre.
+
+   Selector duplicado (no una sola clase) a propósito: `dashStyles.table th,
+   dashStyles.table td { text-align: left; }` (Dashboard.module.css) tiene
+   especificidad (0,1,1) -- una clase + un selector de tipo `td` -- que le
+   gana a una sola clase como `.numCellCentro` (0,1,0), sin importar el
+   orden de los imports. Repetir la clase sube la especificidad a (0,2,0) y
+   gana de forma determinística. Bug real: esto dejaba `text-align: center`
+   completamente sin efecto en esta tabla -- los números quedaban
+   alineados a la izquierda pese a la clase. */
+.numCellCentro.numCellCentro {
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.truncar {
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sinResultados {
+  padding: var(--space-xl);
+  text-align: center;
+  color: var(--color-ink-muted);
+}
+
+.tonoWarning {
+  color: var(--color-warning-ink);
+}
+
+.tonoDanger {
+  color: var(--color-danger-ink);
+}
+
+/* ── Menu contextual (clic derecho sobre una fila) ──────────────────────── */
+
+.contextMenu {
+  position: fixed;
+  z-index: var(--z-modal);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-floating);
+  padding: var(--space-xs) 0;
+  min-width: 210px;
+}
+
+.contextMenuItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  width: 100%;
+  text-align: left;
+  padding: var(--space-sm) var(--space-md);
+  border: none;
+  background: none;
+  color: var(--color-ink);
+  font-size: var(--text-data-size);
+  cursor: pointer;
+}
+
+.contextMenuItem:hover:not(:disabled) {
+  background: var(--color-surface-sunken);
+}
+
+.contextMenuItem:disabled {
+  color: var(--color-ink-muted);
+  cursor: not-allowed;
+}
+
+.contextMenuSep {
+  height: 1px;
+  background: var(--color-border);
+  margin: var(--space-xs) 0;
+}
+
+.iconoTramite {
+  color: var(--color-warning-ink);
+}
+
+.iconoCanje {
+  color: var(--color-primary);
+}
+
+.checkActivo {
+  color: var(--color-success-ink);
+  margin-left: auto;
+}

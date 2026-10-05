@@ -1,0 +1,444 @@
+// Módulo 'Otrosíes' de Baía Kristal -- SOLO LECTURA (tabla de consulta, sin
+// formularios ni edición). Muestra los Negocios/Deals con el estado del
+// 'Otro sí - Contrato de Fiducia' y quién es el encargado (Encargado_Otro_Si).
+//
+// El backend filtra duro: GET /otrosies devuelve SIEMPRE solo los negocios
+// con archivo=Sí (nunca llegan los 'No' ni los 'Pendiente de verificar'),
+// por eso no hay filtro ni columna de Archivo -- si el negocio aparece en
+// la tabla, tiene el PDF, y la columna 'Ver PDF' lo deja claro.
+//
+// Columna/filtro 'Otro sí requerido' QUITADOS (Jefe Gabriel, 2026-09-24): el
+// picklist `Otro_si_Requerido` de Zoho no es confiable -- hay casos reales
+// marcados 'No' que sí tienen el documento adjunto (`otro_si_tiene_archivo`
+// desmiente al picklist), así que mostrarlo/filtrar por él comunicaba una
+// señal falsa. El dato sigue existiendo en el modelo/sync/backend
+// (`otro_si_requerido`, `otroSiRequerido` en la API) por si se necesita
+// después -- solo se dejó de mostrar y de ofrecer como filtro acá.
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Search, ListFilter, RefreshCw, Layers, MapPin, Building, CheckCircle2, Circle } from 'lucide-react';
+import { StageBadge } from '../../components/ui/StageBadge.jsx';
+import { Field, TextInput, Select } from '../../components/ui/Field.jsx';
+import { InfoTooltip } from '../../components/ui/InfoTooltip.jsx';
+import { Pagination } from '../../components/ui/Pagination.jsx';
+import { SortHeader } from '../../components/ui/SortHeader.jsx';
+import { useSortableTable, ariaSort } from '../../hooks/useSortableTable.js';
+import {
+  listOtrosies,
+  listStagesOtrosi,
+  iniciarSyncOtrosies,
+  getSyncStatusOtrosies,
+  archivoOtrosieUrl,
+  marcarVerificadoOtrosi,
+} from '../../api/otrosies.js';
+import { formatDateTime } from '../../utils/format.js';
+import { etiquetaEtapa } from '../../utils/etapas.js';
+import styles from './OtrosiesPage.module.css';
+
+const VERIFICADO_OPCIONES = [
+  { value: '', label: 'Todos' },
+  { value: 'si', label: 'Verificados' },
+  { value: 'no', label: 'Sin verificar' },
+];
+
+// Check manual de "ya comparé este otrosí contra el CRM" (Jefe Gabriel,
+// 2026-09-24) -- botón clickeable, no una columna de solo lectura: el
+// problema real que resuelve este módulo es que el CRM queda desactualizado
+// (se firma el otrosí, se sube el documento, pero nadie refleja el cambio en
+// el plan de pagos de Zoho), así que necesita quedar constancia de quién ya
+// comparó el documento contra el CRM y cuándo. Título nativo (`title=`) con
+// quién/cuándo en vez de un tooltip propio -- info secundaria, no vale la
+// pena un componente nuevo para esto.
+function BotonVerificado({ row, guardando, onToggle }) {
+  const detalle = row.verificado && row.verificadoPor
+    ? `Verificado por ${row.verificadoPor.nombre} el ${formatDateTime(row.verificadoEn)}`
+    : 'Sin verificar contra el CRM';
+  return (
+    <button
+      type="button"
+      className={`${styles.botonVerificado} ${row.verificado ? styles.botonVerificadoActivo : ''}`}
+      onClick={() => onToggle(row)}
+      disabled={guardando}
+      title={detalle}
+    >
+      {row.verificado ? <CheckCircle2 size={15} /> : <Circle size={15} />}
+      {row.verificado ? 'Verificado' : 'Sin verificar'}
+    </button>
+  );
+}
+
+// Calco de SyncStatusBar en OportunidadesListPage.jsx (mismo look y polling
+// cada 15s) pero con los endpoints propios que Carlos está agregando
+// (POST /otrosies/sync, GET /otrosies/sync/status -- mismo shape que sus
+// pares de Oportunidades).
+function SyncStatusBar() {
+  const [status, setStatus] = useState(null);
+  const [sincronizando, setSincronizando] = useState(false);
+
+  const cargarEstado = useCallback(() => {
+    getSyncStatusOtrosies().then((res) => setStatus(res.data)).catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    cargarEstado();
+    const interval = setInterval(cargarEstado, 15000);
+    return () => clearInterval(interval);
+  }, [cargarEstado]);
+
+  async function handleSync() {
+    setSincronizando(true);
+    await iniciarSyncOtrosies();
+    setTimeout(() => {
+      cargarEstado();
+      setSincronizando(false);
+    }, 3000);
+  }
+
+  const corriendo = status?.status === 'running' || sincronizando;
+
+  return (
+    <div className={styles.syncBar}>
+      <div className={styles.syncEstado}>
+        {status?.status === 'never' && 'Sin sincronizaciones'}
+        {corriendo && (
+          <span className={styles.syncCorriendo}>
+            <span className={styles.syncDot} />
+            Sincronizando…
+          </span>
+        )}
+        {!corriendo && status?.status === 'success' && (
+          <span>
+            Última sync: <strong>{formatDateTime(status.finalizadoEn)}</strong>{' '}
+            <span className={styles.syncOk}>({status.registrosSync} reg.)</span>
+          </span>
+        )}
+        {!corriendo && status?.status === 'error' && (
+          <span className={styles.syncError}>Error en sync: {status.errorMsg?.slice(0, 50)}</span>
+        )}
+      </div>
+      <button type="button" className={styles.botonSync} onClick={handleSync} disabled={corriendo}>
+        <RefreshCw size={13} className={corriendo ? styles.spin : ''} />
+        {corriendo ? 'Sincronizando…' : 'Sincronizar ahora'}
+      </button>
+    </div>
+  );
+}
+
+export function OtrosiesPage() {
+  // Deliberadamente useState normal (NO usePersistentState) -- pedido explícito
+  // del usuario: a diferencia del resto de listados del proyecto, este módulo
+  // no debe recordar filtros/página entre visitas, deben arrancar limpios.
+  const [filtros, setFiltros] = useState({ search: '', stage: '', etapa: '', frente: '', torre: '', verificado: '' });
+  const [pagina, setPagina] = useState(1);
+  const [resultado, setResultado] = useState(null);
+  const [stages, setStages] = useState([]);
+  const [opciones, setOpciones] = useState({
+    etapasDisponibles: [],
+    frentesDisponibles: [],
+    frentesPorEtapa: {},
+    torresPorFrente: {},
+    torresPorEtapaFrente: {},
+  });
+  const [cargando, setCargando] = useState(true);
+  // Id de la fila con un PATCH /verificado en vuelo -- deshabilita SOLO ese
+  // botón (no toda la tabla) mientras se confirma, evita doble clic.
+  const [guardandoId, setGuardandoId] = useState(null);
+
+  const meta = resultado ?? {};
+  const filas = meta.data ?? [];
+
+  const valueGetters = useMemo(
+    () => ({
+      dealName: (f) => f.dealName ?? '',
+      stage: (f) => f.stage ?? '',
+      referenciaRecaudo: (f) => f.referenciaRecaudo ?? '',
+      inmueble: (f) => f.inmueble?.label ?? '',
+      encargadoOtroSi: (f) => f.encargadoOtroSi ?? '',
+      otroSiTieneArchivo: (f) => (f.otroSiTieneArchivo === true ? 1 : 0),
+      verificado: (f) => (f.verificado === true ? 1 : 0),
+    }),
+    []
+  );
+  const { sortedRows, sort, toggleSort: toggleSortInternal } = useSortableTable(filas, valueGetters, { mode: 'remote' });
+
+  function toggleSort(key) {
+    toggleSortInternal(key);
+    setPagina(1);
+  }
+
+  async function cargar() {
+    setCargando(true);
+    try {
+      const { search, stage, etapa, frente, torre, verificado } = filtros;
+      const res = await listOtrosies({
+        search,
+        stage,
+        etapa,
+        frente,
+        torre,
+        verificado,
+        sortBy: sort.key ?? undefined,
+        sortDir: sort.direction ?? undefined,
+        page: pagina,
+        limit: 20,
+      });
+      setResultado(res.data);
+      setOpciones((prev) => ({
+        etapasDisponibles: res.data.etapasDisponibles ?? prev.etapasDisponibles,
+        frentesDisponibles: res.data.frentesDisponibles ?? prev.frentesDisponibles,
+        frentesPorEtapa: res.data.frentesPorEtapa ?? prev.frentesPorEtapa,
+        torresPorFrente: res.data.torresPorFrente ?? prev.torresPorFrente,
+        torresPorEtapaFrente: res.data.torresPorEtapaFrente ?? prev.torresPorEtapaFrente,
+      }));
+    } finally {
+      setCargando(false);
+    }
+  }
+
+  useEffect(() => {
+    listStagesOtrosi().then((res) => setStages(res.data));
+  }, []);
+
+  useEffect(() => {
+    cargar();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filtros, pagina, sort]);
+
+  function actualizarFiltro(campo, valor) {
+    setFiltros((prev) => ({ ...prev, [campo]: valor }));
+    setPagina(1);
+  }
+
+  function handleEtapaChange(value) {
+    setFiltros((prev) => {
+      const { frentesPorEtapa, torresPorEtapaFrente } = opciones;
+      let { frente, torre } = prev;
+      if (value && frente && !(frentesPorEtapa[value] || []).includes(frente)) {
+        frente = '';
+        torre = '';
+      } else if (value && frente && torre && !(torresPorEtapaFrente[`${value}||${frente}`] || []).includes(torre)) {
+        torre = '';
+      }
+      return { ...prev, etapa: value, frente, torre };
+    });
+    setPagina(1);
+  }
+
+  function handleFrenteChange(value) {
+    setFiltros((prev) => ({ ...prev, frente: value, torre: '' }));
+    setPagina(1);
+  }
+
+  // Optimista: refleja el nuevo estado en la fila apenas confirma el backend
+  // (no antes -- si el PATCH falla, la fila se queda como estaba, sin
+  // necesidad de revertir nada a mano). Si el filtro "Verificado" está
+  // activo, la fila puede dejar de calzar con él -- se recarga la página
+  // entera en ese caso para no dejar una fila fantasma en la lista filtrada.
+  async function handleToggleVerificado(row) {
+    setGuardandoId(row.id);
+    try {
+      const res = await marcarVerificadoOtrosi(row.id, !row.verificado);
+      if (filtros.verificado) {
+        await cargar();
+      } else {
+        setResultado((prev) => ({
+          ...prev,
+          data: prev.data.map((r) => (r.id === row.id ? { ...r, ...res.data } : r)),
+        }));
+      }
+    } catch (err) {
+      window.alert(err.message || 'No se pudo actualizar la verificación'); // eslint-disable-line no-alert
+    } finally {
+      setGuardandoId(null);
+    }
+  }
+
+  const frenteOptions = filtros.etapa
+    ? (opciones.frentesPorEtapa?.[filtros.etapa] || [])
+    : (opciones.frentesDisponibles ?? []);
+  const torreOptions = filtros.frente
+    ? (filtros.etapa
+      ? (opciones.torresPorEtapaFrente?.[`${filtros.etapa}||${filtros.frente}`] || [])
+      : (opciones.torresPorFrente?.[filtros.frente] || []))
+    : [];
+
+  return (
+    <div className={styles.page}>
+      <div className={styles.header}>
+        <h1 className={styles.title}>Otrosíes</h1>
+        <span className={styles.subtitle}>Baía Kristal · Contrato de Fiducia · Solo lectura</span>
+      </div>
+
+      <SyncStatusBar />
+
+      <div className={styles.row}>
+        <Field
+          className={styles.fieldMd}
+          label={
+            <span className={styles.labelConIcono}>
+              <Search size={13} />
+              Buscar
+              <InfoTooltip text="Escribe el nombre del negocio para filtrar la lista." />
+            </span>
+          }
+        >
+          {(p) => <TextInput {...p} value={filtros.search} onChange={(e) => actualizarFiltro('search', e.target.value)} placeholder="Nombre del negocio…" />}
+        </Field>
+        <Field
+          className={styles.fieldLg}
+          label={
+            <span className={styles.labelConIcono}>
+              <ListFilter size={13} />
+              Etapa CRM
+              <InfoTooltip text="Filtra por el estado actual del negocio en Zoho (match exacto)." />
+            </span>
+          }
+        >
+          {(p) => (
+            <Select {...p} value={filtros.stage ?? ''} onChange={(e) => actualizarFiltro('stage', e.target.value)}>
+              <option value="">Todas las etapas</option>
+              {stages.map((v) => <option key={v} value={v}>{v}</option>)}
+            </Select>
+          )}
+        </Field>
+        {opciones.etapasDisponibles.length > 0 && (
+          <Field
+            className={styles.fieldSm}
+            label={
+              <span className={styles.labelConIcono}>
+                <Layers size={13} />
+                Etapa del inmueble
+                <InfoTooltip text="Filtra por la etapa del inmueble asociado al otrosí." />
+              </span>
+            }
+          >
+            {(p) => (
+              <Select {...p} value={filtros.etapa ?? ''} onChange={(e) => handleEtapaChange(e.target.value)}>
+                <option value="">Todas las etapas</option>
+                {opciones.etapasDisponibles.map((et) => <option key={et} value={et}>{etiquetaEtapa(et)}</option>)}
+              </Select>
+            )}
+          </Field>
+        )}
+        {frenteOptions.length > 0 && (
+          <Field
+            className={styles.fieldSm}
+            label={
+              <span className={styles.labelConIcono}>
+                <MapPin size={13} />
+                Frente
+                <InfoTooltip text="Filtra por el proyecto/desarrollo del inmueble asociado al otrosí. Si hay una etapa elegida, solo se muestran los frentes de esa etapa." />
+              </span>
+            }
+          >
+            {(p) => (
+              <Select {...p} value={filtros.frente ?? ''} onChange={(e) => handleFrenteChange(e.target.value)}>
+                <option value="">Todos los frentes</option>
+                {frenteOptions.map((fr) => <option key={fr} value={fr}>{fr}</option>)}
+              </Select>
+            )}
+          </Field>
+        )}
+        {filtros.frente && torreOptions.length > 0 && (
+          <Field
+            className={styles.fieldSm}
+            label={
+              <span className={styles.labelConIcono}>
+                <Building size={13} />
+                Torre
+                <InfoTooltip text="Filtra por la torre del frente seleccionado." />
+              </span>
+            }
+          >
+            {(p) => (
+              <Select {...p} value={filtros.torre ?? ''} onChange={(e) => actualizarFiltro('torre', e.target.value)}>
+                <option value="">Todas las torres</option>
+                {torreOptions.map((tr) => <option key={tr} value={tr}>Torre {tr}</option>)}
+              </Select>
+            )}
+          </Field>
+        )}
+        <Field
+          className={styles.fieldSm}
+          label={
+            <span className={styles.labelConIcono}>
+              <CheckCircle2 size={13} />
+              Verificado
+              <InfoTooltip text="¿Ya se comparó este otrosí contra el plan de pagos del CRM? (check manual, no viene de Zoho)." />
+            </span>
+          }
+        >
+          {(p) => (
+            <Select {...p} value={filtros.verificado} onChange={(e) => actualizarFiltro('verificado', e.target.value)}>
+              {VERIFICADO_OPCIONES.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+            </Select>
+          )}
+        </Field>
+      </div>
+
+      {cargando ? (
+        <p className={styles.cargando}>Cargando…</p>
+      ) : (
+        <>
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th aria-sort={ariaSort(sort, 'dealName')}>
+                  <SortHeader label="Negocio" sortKey="dealName" sort={sort} onSort={toggleSort} />
+                </th>
+                <th aria-sort={ariaSort(sort, 'stage')}>
+                  <SortHeader label="Etapa CRM" sortKey="stage" sort={sort} onSort={toggleSort} />
+                </th>
+                <th aria-sort={ariaSort(sort, 'referenciaRecaudo')}>
+                  <SortHeader label="Ref. Recaudo" sortKey="referenciaRecaudo" sort={sort} onSort={toggleSort} />
+                </th>
+                <th aria-sort={ariaSort(sort, 'inmueble')}>
+                  <SortHeader label="Inmueble" sortKey="inmueble" sort={sort} onSort={toggleSort} />
+                </th>
+                <th aria-sort={ariaSort(sort, 'otroSiTieneArchivo')}>
+                  <SortHeader label="PDF" sortKey="otroSiTieneArchivo" sort={sort} onSort={toggleSort} />
+                </th>
+                <th aria-sort={ariaSort(sort, 'verificado')}>
+                  <SortHeader label="Verificado" sortKey="verificado" sort={sort} onSort={toggleSort} />
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {sortedRows.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className={styles.sinResultados}>No se encontraron registros</td>
+                </tr>
+              ) : (
+                sortedRows.map((row) => (
+                  <tr key={row.id ?? row.dealName}>
+                    <td className={styles.nombreNegocio}>{row.dealName}</td>
+                    <td><StageBadge stage={row.stage} /></td>
+                    <td>
+                      {row.referenciaRecaudo ? <span className={styles.refBadge}>{row.referenciaRecaudo}</span> : <span className={styles.muted}>—</span>}
+                    </td>
+                    <td>{row.inmueble?.label || 'Sin inmueble'}</td>
+                    <td>
+                      {row.otroSiTieneArchivo === true ? (
+                        <a href={archivoOtrosieUrl(row.id)} target="_blank" rel="noopener noreferrer" className={styles.linkPdf}>
+                          Ver PDF
+                        </a>
+                      ) : (
+                        <span className={styles.muted}>—</span>
+                      )}
+                    </td>
+                    <td>
+                      <BotonVerificado row={row} guardando={guardandoId === row.id} onToggle={handleToggleVerificado} />
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+
+          {meta.pagination && (
+            <Pagination page={pagina} pageSize={meta.pagination.limit} total={meta.pagination.total} onPageChange={setPagina} />
+          )}
+        </>
+      )}
+    </div>
+  );
+}

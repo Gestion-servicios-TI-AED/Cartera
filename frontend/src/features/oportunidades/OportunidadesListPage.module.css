@@ -1,0 +1,320 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: var(--text-headline-size);
+  font-weight: var(--text-headline-weight);
+  color: var(--color-ink);
+  margin: 0;
+}
+
+.subtitle {
+  font-size: var(--text-data-size);
+  color: var(--color-ink-muted);
+}
+
+/* ── Barra de sincronización ─────────────────────────────────────────── */
+
+.syncBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-md) var(--space-lg);
+}
+
+.syncEstado {
+  font-size: var(--text-data-size);
+  color: var(--color-ink-muted);
+}
+
+.syncCorriendo {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--color-primary);
+}
+
+.syncDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+
+.syncOk {
+  color: var(--color-success-ink);
+}
+
+.syncError {
+  color: var(--color-danger-ink);
+}
+
+.botonSync {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: var(--color-primary);
+  color: var(--color-primary-ink-on);
+  font-size: var(--text-data-size);
+  font-weight: 600;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background-color var(--duration-fast) var(--ease-standard);
+}
+
+.botonSync:hover:not(:disabled) {
+  background: var(--color-primary-hover);
+}
+
+.botonSync:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── KPIs ────────────────────────────────────────────────────────────── */
+
+.kpiGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--space-md);
+}
+
+.kpiCard {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+}
+
+.kpiHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.kpiIcon {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.kpiLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--text-data-size);
+  font-weight: 500;
+  color: var(--color-ink-muted);
+}
+
+.kpiValue {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-ink);
+  line-height: 1.2;
+}
+
+.kpiSub {
+  font-size: var(--text-data-size);
+  color: var(--color-ink-muted);
+}
+
+.labelConIcono {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  /* Defensa contra un label+ícono+tooltip que no entre en el ancho del
+     campo (ver `.fieldSm`/`.fieldMd`/`.fieldLg` abajo) -- nunca se corta,
+     en el peor caso baja a una segunda línea. */
+  flex-wrap: wrap;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-md);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-lg);
+}
+
+/* `min-width`, no `width` fijo (regla "ancho fluido, nunca se corta" de
+   ARQUITECTURA-FRONTEND.md): un `<select>` nativo ya se autoajusta al
+   contenido de sus opciones cuando no se le fuerza un ancho -- estas clases
+   solo ponen un piso para que campos de valores cortos (Frente, Torre) no
+   queden angostos e inconsistentes entre sí. */
+.fieldSm {
+  min-width: 200px;
+}
+
+.fieldMd {
+  /* El buscador es un <input>, que NO se autoajusta a su placeholder como
+     un <select> -- acá el ancho generoso es obligatorio, no un piso. */
+  min-width: 320px;
+}
+
+/* Reservado para el <select> de "Etapa CRM": los valores reales de
+   Zoho llegan a medir 60 caracteres (ej. "11BC CARGUE DOCUMENTOS A PORTAL
+   BANCOLOMBIA SALA DE VENTAS") -- dejarlo autoajustarse sin tope desbalancea
+   toda la fila de filtros. Ancho generoso + elipsis para esos casos extremos,
+   en vez de un corte seco sin aviso. */
+.fieldLg {
+  min-width: 340px;
+  max-width: 420px;
+}
+
+.fieldLg select {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.table th,
+.table td {
+  padding: var(--space-sm) var(--space-md);
+  text-align: left;
+  font-size: var(--text-data-size);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.table th {
+  background: var(--color-surface-sunken);
+  border-bottom: 2px solid var(--color-primary);
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.table a {
+  color: var(--color-primary);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.table a:hover {
+  text-decoration: underline;
+}
+
+.cargando {
+  color: var(--color-ink-muted);
+  font-size: var(--text-data-size);
+}
+
+.sinResultados {
+  text-align: center;
+  padding: var(--space-lg);
+  color: var(--color-ink-muted);
+}
+
+.filaClicable {
+  cursor: pointer;
+  transition: background-color var(--duration-fast) var(--ease-standard);
+}
+
+.filaClicable:hover {
+  background: var(--color-info-surface);
+}
+
+.nombreOportunidad {
+  font-weight: 500;
+  color: var(--color-ink);
+}
+
+.mono {
+  font-variant-numeric: tabular-nums;
+  color: var(--color-ink-secondary);
+}
+
+.muted {
+  color: var(--color-ink-muted);
+  font-size: var(--text-label-size);
+}
+
+.refBadge {
+  font-family: monospace;
+  font-size: var(--text-label-size);
+  background: var(--color-warning-surface);
+  color: var(--color-warning-ink);
+  border: 1px solid color-mix(in srgb, var(--color-warning-ink) 25%, transparent);
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-md);
+  font-size: var(--text-data-size);
+  color: var(--color-ink-muted);
+}
+
+.botonPaginacion {
+  padding: 6px 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-ink-secondary);
+  font-size: var(--text-data-size);
+  cursor: pointer;
+}
+
+.botonPaginacion:hover:not(:disabled) {
+  background: var(--color-surface-sunken);
+}
+
+.botonPaginacion:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}

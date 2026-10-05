@@ -1,0 +1,359 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: var(--text-headline-size);
+  font-weight: var(--text-headline-weight);
+  color: var(--color-ink);
+  margin: 0;
+}
+
+.contador {
+  font-size: var(--text-data-size);
+  color: var(--color-ink-muted);
+}
+
+.botonExportar {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: var(--color-primary);
+  color: var(--color-primary-ink-on);
+  font-size: var(--text-data-size);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color var(--duration-fast) var(--ease-standard);
+}
+
+.botonExportar:hover:not(:disabled) {
+  background: var(--color-primary-hover);
+}
+
+.botonExportar:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ── Filtros ─────────────────────────────────────────────────────────── */
+
+.filtrosCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-lg);
+}
+
+.filtrosFila {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-md);
+}
+
+.fieldBuscar {
+  flex: 1;
+  min-width: 260px;
+}
+
+/* `min-width`, no `width` fijo (regla "ancho fluido, nunca se corta" de
+   ARQUITECTURA-FRONTEND.md) -- los 3 campos que usan estas clases son
+   `<select>`, que se autoajustan al contenido de sus opciones cuando no se
+   les fuerza un ancho. */
+.fieldMd {
+  min-width: 240px;
+}
+
+.fieldSm {
+  min-width: 200px;
+}
+
+.fieldFecha {
+  width: 160px;
+}
+
+.labelConIcono {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.presets {
+  display: flex;
+  gap: 4px;
+}
+
+.presetBoton {
+  padding: 9px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-ink-secondary);
+  font-size: var(--text-label-size);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);
+}
+
+.presetBoton:hover {
+  background: var(--color-surface-sunken);
+}
+
+.presetActivo {
+  background: var(--color-info-surface);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.limpiar {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+  border: none;
+  background: none;
+  color: var(--color-primary);
+  font-size: var(--text-data-size);
+  font-weight: 500;
+  cursor: pointer;
+  padding: 9px 0;
+}
+
+.limpiar:hover {
+  color: var(--color-primary-hover);
+  text-decoration: underline;
+}
+
+/* ── Estado vacío / cargando ─────────────────────────────────────────── */
+
+.cargando {
+  color: var(--color-ink-muted);
+  font-size: var(--text-data-size);
+}
+
+/* Bloque grande de "sin resultados" (el <div> con vacioTitulo/vacioTexto
+   dentro) -- nombre separado de `.vacio` (más abajo, el guión "—" inline
+   en una celda de tabla) a propósito: antes de este fix, las dos reglas
+   compartían el nombre `.vacio` y CSS las mezcla por PROPIEDAD, no por
+   bloque -- el <span> inline heredaba este `display:flex` + `padding:
+   var(--space-2xl)`, inflando la altura de toda la fila de la tabla
+   (bug real reportado por el usuario, visible tanto en esta página como en
+   la de Oliv que reusa este mismo módulo). */
+.vacioEstado {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: var(--space-2xl);
+  text-align: center;
+}
+
+.vacioTitulo {
+  font-weight: 500;
+  color: var(--color-ink-secondary);
+  margin: 0;
+}
+
+.vacioTexto {
+  color: var(--color-ink-muted);
+  font-size: var(--text-data-size);
+  margin: 0;
+}
+
+/* ── Tabla ───────────────────────────────────────────────────────────── */
+
+.tableWrap {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-data-size);
+}
+
+.table th,
+.table td {
+  padding: var(--space-sm) var(--space-md);
+  text-align: left;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.table th {
+  background: var(--color-surface-sunken);
+  font-size: var(--text-label-size);
+  font-weight: var(--text-label-weight);
+  letter-spacing: var(--text-label-tracking);
+  text-transform: uppercase;
+  color: var(--color-ink-muted);
+  white-space: nowrap;
+  border-bottom: 2px solid var(--color-primary);
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.thConcepto {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.right {
+  text-align: right;
+}
+
+.colChevron {
+  width: 24px;
+}
+
+.filaClicable {
+  cursor: pointer;
+  transition: background-color var(--duration-fast) var(--ease-standard);
+}
+
+.filaClicable:hover {
+  background: var(--color-info-surface);
+}
+
+.chevronRow {
+  color: var(--color-ink-muted);
+  transition: transform var(--duration-fast) var(--ease-standard);
+}
+
+.chevronRowOpen {
+  transform: rotate(90deg);
+  color: var(--color-primary);
+}
+
+.mono {
+  font-family: monospace;
+  font-weight: 600;
+  color: var(--color-ink-secondary);
+  white-space: nowrap;
+}
+
+.nowrap {
+  white-space: nowrap;
+}
+
+.strong {
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+.truncSm {
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.truncMd {
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.extra {
+  color: var(--color-border-strong);
+}
+
+.vacio {
+  color: var(--color-border-strong);
+  font-style: italic;
+}
+
+.filaExpandida {
+  background: var(--color-info-surface);
+}
+
+.filaExpandida td {
+  padding: var(--space-md) var(--space-lg);
+}
+
+.gridExpandido {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: var(--space-sm) var(--space-lg);
+}
+
+.miniLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--text-label-size);
+  font-weight: var(--text-label-weight);
+  letter-spacing: var(--text-label-tracking);
+  text-transform: uppercase;
+  color: var(--color-ink-muted);
+  margin: 0 0 2px;
+}
+
+.miniValor {
+  font-size: var(--text-data-size);
+  color: var(--color-ink);
+  margin: 0;
+  overflow-wrap: break-word;
+}
+
+/* ── Paginación ──────────────────────────────────────────────────────── */
+
+.paginacion {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-sm) var(--space-md);
+  border-top: 1px solid var(--color-border);
+  background: var(--color-surface-sunken);
+}
+
+.paginacionTexto {
+  font-size: var(--text-label-size);
+  color: var(--color-ink-muted);
+}
+
+.paginacionBotones {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.botonPaginacion {
+  padding: 6px 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-ink-secondary);
+  font-size: var(--text-data-size);
+  cursor: pointer;
+}
+
+.botonPaginacion:hover:not(:disabled) {
+  background: var(--color-surface-sunken);
+}
+
+.botonPaginacion:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}

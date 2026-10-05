@@ -1,135 +1,222 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-07-30T00:00:00Z",
-  "title": "Design System: Cartera AED",
+  "generatedAt": "2026-08-07T21:00:00.000Z",
+  "title": "Design System: HRMS aed",
   "extensions": {
     "colorMeta": {
-      "harbor-teal": {
+      "primary": {
         "role": "primary",
-        "displayName": "Harbor Teal",
-        "canonical": "#0e7581",
-        "tonalRamp": [
-          "#062e33", "#0a4f57", "#0e7581", "#159aa8",
-          "#4bb9c4", "#8bd3da", "#c3e9ed", "#e6f6f8"
-        ]
+        "displayName": "Azul Vibrante",
+        "canonical": "#232BED",
+        "tonalRamp": ["#12175E", "#171C82", "#1B21A6", "#1F26C9", "#232BED", "#4B51F0", "#7B80F5", "#B0B3FA"]
       },
-      "logo-navy": {
+      "accent-vibrant": {
         "role": "secondary",
-        "displayName": "Logo Navy",
-        "canonical": "#001c5c",
-        "tonalRamp": [
-          "#00071d", "#000f38", "#001c5c", "#002a86",
-          "#1e46b3", "#5c78cc", "#9bade0", "#d3ddf3"
-        ]
+        "displayName": "Verde Vibrante",
+        "canonical": "#23FF55",
+        "tonalRamp": ["#054719", "#0A6E29", "#0F9938", "#17C948", "#23FF55", "#5CFF7F", "#93FFA9", "#C9FFD3"],
+        "note": "Used as a raw fill only for the 6px status dot inside success badges (estado ACTIVO, contrato Vigente) -- the one deliberate exception to badges always using the desaturated -ink/-surface pair."
       },
+      "brand-deep": {
+        "role": "secondary",
+        "displayName": "Azul Profundo",
+        "canonical": "#0B2D4D",
+        "tonalRamp": ["#040F1A", "#071C2D", "#092540", "#0A2946", "#0B2D4D", "#2E4E6E", "#5A7590", "#8FA7BC"]
+      },
+      "accent-deep": {
+        "role": "tertiary",
+        "displayName": "Verde Profundo",
+        "canonical": "#014145",
+        "tonalRamp": ["#001010", "#00201F", "#00302F", "#01393B", "#014145", "#2E6265", "#5E8B8D", "#9BBDBE"]
+      },
+      "bg": { "role": "neutral", "displayName": "App Canvas", "canonical": "#F7F8FA" },
+      "surface": { "role": "neutral", "displayName": "Surface", "canonical": "#FFFFFF" },
+      "surface-sunken": { "role": "neutral", "displayName": "Surface Sunken", "canonical": "#EEF1F5" },
+      "border": { "role": "neutral", "displayName": "Border", "canonical": "#DEE3EA" },
+      "border-strong": { "role": "neutral", "displayName": "Border Strong", "canonical": "#C3CBD6" },
       "ink": {
         "role": "neutral",
         "displayName": "Ink",
-        "canonical": "oklch(0.208 0.016 195)",
-        "tonalRamp": [
-          "oklch(0.129 0.012 195)", "oklch(0.208 0.016 195)", "oklch(0.279 0.018 195)", "oklch(0.372 0.020 195)",
-          "oklch(0.554 0.022 195)", "oklch(0.711 0.020 195)", "oklch(0.869 0.016 195)", "oklch(0.968 0.008 195)"
-        ]
+        "canonical": "#10151F",
+        "tonalRamp": ["#0A0D13", "#10151F", "#2B3341", "#545E70", "#8891A0", "#C3CBD6", "#DEE3EA", "#F7F8FA"]
       },
-      "surface-base": {
-        "role": "neutral",
-        "displayName": "Surface Base",
-        "canonical": "oklch(0.984 0.006 195)"
-      }
+      "ink-secondary": { "role": "neutral", "displayName": "Ink Secondary", "canonical": "#2B3341" },
+      "ink-muted": { "role": "neutral", "displayName": "Ink Muted", "canonical": "#545E70" },
+      "success-ink": { "role": "success", "displayName": "Success (Verde Profundo)", "canonical": "#014145" },
+      "success-surface": { "role": "success", "displayName": "Success Surface", "canonical": "#DFF3EA" },
+      "warning-ink": { "role": "warning", "displayName": "Warning Ink", "canonical": "#8A5A00" },
+      "warning-surface": { "role": "warning", "displayName": "Warning Surface", "canonical": "#FFF3D6" },
+      "danger-ink": { "role": "danger", "displayName": "Danger Ink", "canonical": "#9F2B25" },
+      "danger-surface": { "role": "danger", "displayName": "Danger Surface", "canonical": "#FBE9E7" },
+      "info-ink": { "role": "info", "displayName": "Info Ink (Azul Vibrante)", "canonical": "#232BED" },
+      "info-surface": { "role": "info", "displayName": "Info Surface", "canonical": "#E8E9FD" }
     },
     "typographyMeta": {
-      "heading": { "displayName": "Heading (Lexend)", "purpose": "Títulos de sección y valores de KPI. Techo de 25px -- sin hero numbers." },
-      "body": { "displayName": "Body (Source Sans 3)", "purpose": "Tablas, formularios, texto general." },
-      "label": { "displayName": "Label", "purpose": "Encabezados de sección discretos, uppercase sutil." }
+      "display": { "displayName": "Display", "purpose": "Page-level titles only (e.g. record name on a detail page, module titles). Never marketing-hero scale." },
+      "headline": { "displayName": "Headline", "purpose": "Section / tab-panel headers within a page." },
+      "title": { "displayName": "Title", "purpose": "Card headers, modal titles, table section headers." },
+      "body": { "displayName": "Body", "purpose": "Form field values, paragraph text, modal copy. WCAG floor -- never smaller than 1rem." },
+      "data": { "displayName": "Data", "purpose": "Dense table cells only (0.875rem) -- the one place text legitimately drops below Body size." },
+      "label": { "displayName": "Label", "purpose": "Table column headers and form field labels only -- functional micro-label, not a decorative eyebrow." }
     },
     "shadows": [
-      { "name": "card", "value": "0 1px 3px 0 rgb(14 117 129 / 0.08), 0 1px 2px -1px rgb(14 117 129 / 0.06)", "purpose": "Estado de reposo de toda tarjeta." },
-      { "name": "raised", "value": "0 4px 12px -2px rgb(14 117 129 / 0.14), 0 2px 4px -2px rgb(14 117 129 / 0.08)", "purpose": "Hover de tarjetas interactivas (KPIs clicables, ítems de lista)." },
-      { "name": "overlay", "value": "0 16px 32px -8px rgb(10 79 87 / 0.22), 0 4px 8px -4px rgb(10 79 87 / 0.10)", "purpose": "Menús desplegables y popovers." }
+      { "name": "floating", "value": "0 8px 24px rgba(16, 21, 31, 0.12)", "purpose": "Dropdowns, popovers, date pickers, info tooltips -- anything detached from normal page flow." },
+      { "name": "modal", "value": "0 16px 48px rgba(16, 21, 31, 0.18)", "purpose": "Dialogs and multi-step creation wizards." },
+      { "name": "toast", "value": "0 6px 20px rgba(16, 21, 31, 0.15)", "purpose": "Transient notifications." }
+    ],
+    "zIndex": [
+      { "name": "dropdown", "value": 100 },
+      { "name": "sticky", "value": 200 },
+      { "name": "modal-backdrop", "value": 300 },
+      { "name": "modal", "value": 310 },
+      { "name": "toast", "value": 400 },
+      { "name": "tooltip", "value": 500, "note": "Top of the scale -- a tooltip must never be occluded by a modal, toast, or sticky nav open at the same time." }
     ],
     "motion": [
-      { "name": "color-transition", "value": "color 150ms ease, background-color 150ms ease", "purpose": "Único tipo de transición usado -- cambios de color en hover/active, sin movimiento de layout." }
+      { "name": "ease-standard", "value": "cubic-bezier(0.22, 1, 0.36, 1)", "purpose": "Default ease-out-quint for state transitions, hover/focus feedback, panel open/close." },
+      { "name": "duration-fast", "value": "120ms", "purpose": "Hover/focus micro-feedback." },
+      { "name": "duration-standard", "value": "200ms", "purpose": "Panel/tab transitions, modal open." },
+      { "name": "scroll-easing", "value": "lenis (lenis/react, root={false})", "purpose": "Wraps every independently-scrolling content pane so wheel/touch scroll eases continuously instead of stepping section-by-section. Native scrollTop under the hood (position: sticky stays compatible); sidebar nav and fixed chrome stay outside it; respects prefers-reduced-motion by default." }
     ],
-    "breakpoints": []
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "md", "value": "768px" },
+      { "name": "lg", "value": "1024px" },
+      { "name": "xl", "value": "1280px" }
+    ]
   },
   "components": [
     {
       "name": "Primary Button",
       "kind": "button",
       "refersTo": "button-primary",
-      "description": "Acción principal -- fondo Harbor Teal, texto blanco.",
+      "description": "Main call-to-action; one per view.",
       "html": "<button class=\"ds-btn-primary\">Guardar</button>",
-      "css": ".ds-btn-primary { display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 8px; font-weight: 500; font-size: 16px; color: #ffffff; background-color: #0e7581; border: none; cursor: pointer; transition: background-color 150ms ease; } .ds-btn-primary:hover { background-color: #0a4f57; } .ds-btn-primary:focus-visible { outline: 2px solid #0e7581; outline-offset: 2px; } .ds-btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }"
+      "css": ".ds-btn-primary { background: #232BED; color: #FFFFFF; font-family: Raleway, system-ui, sans-serif; font-weight: 500; font-size: 1.0625rem; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; transition: background 120ms cubic-bezier(0.22, 1, 0.36, 1); } .ds-btn-primary:hover { background: #1B21C4; } .ds-btn-primary:focus-visible { outline: 2px solid #232BED; outline-offset: 2px; }"
     },
     {
       "name": "Secondary Button",
       "kind": "button",
       "refersTo": "button-secondary",
-      "description": "Acción secundaria -- fondo blanco con borde.",
+      "description": "Secondary action alongside a primary button (e.g. 'Cancelar').",
       "html": "<button class=\"ds-btn-secondary\">Cancelar</button>",
-      "css": ".ds-btn-secondary { display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 8px; font-weight: 500; font-size: 16px; color: #334155; background-color: #ffffff; border: 1px solid #e2e8e8; cursor: pointer; transition: background-color 150ms ease; } .ds-btn-secondary:hover { background-color: #fafcfc; } .ds-btn-secondary:focus-visible { outline: 2px solid #0e7581; outline-offset: 2px; }"
-    },
-    {
-      "name": "Status Badge",
-      "kind": "chip",
-      "refersTo": "badge",
-      "description": "Indicador de estado del dominio -- un color = un significado (ejemplo: success).",
-      "html": "<span class=\"ds-badge ds-badge-success\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M22 11.08V12a10 10 0 1 1-5.93-9.14\"/><polyline points=\"22 4 12 14.01 9 11.01\"/></svg>Al día</span>",
-      "css": ".ds-badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 10px; border-radius: 9999px; font-size: 14px; font-weight: 600; border: 1px solid transparent; } .ds-badge-success { background-color: #ecfdf5; color: #047857; border-color: #a7f3d0; }"
-    },
-    {
-      "name": "KPI Card",
-      "kind": "card",
-      "refersTo": "card",
-      "description": "Tarjeta de indicador -- ícono con fondo tenue, etiqueta, valor destacado (Lexend, 25px, techo del sistema).",
-      "html": "<div class=\"ds-card\"><div class=\"ds-card-icon\" style=\"background:#f0fdf4\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#16a34a\" stroke-width=\"2\"><path d=\"M21 12V7H5a2 2 0 0 1 0-4h14v4\"/><path d=\"M3 5v14a2 2 0 0 0 2 2h16v-5\"/><path d=\"M18 12a2 2 0 0 0 0 4h4v-4Z\"/></svg></div><span class=\"ds-card-label\">Recaudado del 30%</span><span class=\"ds-card-value\">$1.245M</span></div>",
-      "css": ".ds-card { display: flex; flex-direction: column; gap: 4px; padding: 16px; background: #ffffff; border: 1px solid #e2e8e8; border-radius: 12px; box-shadow: 0 1px 3px 0 rgb(14 117 129 / 0.08), 0 1px 2px -1px rgb(14 117 129 / 0.06); font-family: \"Source Sans 3\", system-ui, sans-serif; } .ds-card-icon { width: 32px; height: 32px; border-radius: 10px; display: flex; align-items: center; justify-content: center; } .ds-card-label { font-size: 14px; color: #64748b; font-weight: 500; } .ds-card-value { font-family: Lexend, system-ui, sans-serif; font-size: 25px; font-weight: 700; color: #1c2e30; letter-spacing: -0.01em; line-height: 1.2; }"
+      "css": ".ds-btn-secondary { background: #FFFFFF; color: #10151F; font-family: Raleway, system-ui, sans-serif; font-weight: 500; font-size: 1.0625rem; padding: 10px 20px; border: 1px solid #C3CBD6; border-radius: 6px; cursor: pointer; transition: background 120ms cubic-bezier(0.22, 1, 0.36, 1); } .ds-btn-secondary:hover { background: #EEF1F5; } .ds-btn-secondary:focus-visible { outline: 2px solid #232BED; outline-offset: 2px; }"
     },
     {
       "name": "Text Input",
       "kind": "input",
       "refersTo": "input",
-      "description": "Campo de texto estándar -- borde sutil, foco en Harbor Teal.",
-      "html": "<input class=\"ds-input\" type=\"text\" placeholder=\"Buscar...\" />",
-      "css": ".ds-input { display: block; width: 100%; border-radius: 8px; border: 1px solid #e2e8e8; background-color: #ffffff; padding: 8px 12px; font-size: 16px; color: #334155; } .ds-input::placeholder { color: #94a3b8; } .ds-input:focus { outline: none; box-shadow: 0 0 0 2px #0e7581; border-color: transparent; }"
+      "description": "Standard form field used across wizards and section forms.",
+      "html": "<label class=\"ds-field\"><span class=\"ds-label\">Primer nombre</span><input class=\"ds-input\" type=\"text\" placeholder=\"Ej. Juan\" /></label>",
+      "css": ".ds-field { display: flex; flex-direction: column; gap: 6px; } .ds-label { font-family: Raleway, system-ui, sans-serif; font-weight: 600; font-size: 0.75rem; letter-spacing: 0.03em; text-transform: uppercase; color: #2B3341; } .ds-input { font-family: Raleway, system-ui, sans-serif; font-size: 1rem; color: #10151F; background: #EEF1F5; border: 1px solid #DEE3EA; border-radius: 6px; padding: 9px 12px; transition: border-color 120ms cubic-bezier(0.22, 1, 0.36, 1); } .ds-input:focus { outline: none; border-color: #232BED; box-shadow: 0 0 0 2px rgba(35, 43, 237, 0.25); }"
+    },
+    {
+      "name": "Status Badge - Success",
+      "kind": "chip",
+      "refersTo": "badge-success",
+      "description": "Estado = Activo, approved request.",
+      "html": "<span class=\"ds-badge ds-badge-success\">Activo</span>",
+      "css": ".ds-badge { display: inline-flex; align-items: center; font-family: Raleway, system-ui, sans-serif; font-weight: 600; font-size: 0.75rem; letter-spacing: 0.03em; text-transform: uppercase; padding: 3px 10px; border-radius: 999px; } .ds-badge-success { background: #DFF3EA; color: #014145; }"
+    },
+    {
+      "name": "Status Badge - Warning",
+      "kind": "chip",
+      "refersTo": "badge-warning",
+      "description": "Pending approval, expiring soon.",
+      "html": "<span class=\"ds-badge ds-badge-warning\">Por vencer</span>",
+      "css": ".ds-badge-warning { display: inline-flex; align-items: center; font-family: Raleway, system-ui, sans-serif; font-weight: 600; font-size: 0.75rem; letter-spacing: 0.03em; text-transform: uppercase; padding: 3px 10px; border-radius: 999px; background: #FFF3D6; color: #8A5A00; }"
+    },
+    {
+      "name": "Status Badge - Danger",
+      "kind": "chip",
+      "refersTo": "badge-danger",
+      "description": "Retirado, sanción, documento vencido.",
+      "html": "<span class=\"ds-badge ds-badge-danger\">Retirado</span>",
+      "css": ".ds-badge-danger { display: inline-flex; align-items: center; font-family: Raleway, system-ui, sans-serif; font-weight: 600; font-size: 0.75rem; letter-spacing: 0.03em; text-transform: uppercase; padding: 3px 10px; border-radius: 999px; background: #FBE9E7; color: #9F2B25; }"
+    },
+    {
+      "name": "Underline Tab Item",
+      "kind": "nav",
+      "refersTo": "tab-item",
+      "description": "Horizontal section nav for short sets (<=~8 sections). Underline indicator, scrolls horizontally when the list overflows.",
+      "html": "<button class=\"ds-tab ds-tab-active\">Contrato</button>",
+      "css": ".ds-tab { font-family: \"TT Firs Neue\", Inter, system-ui, sans-serif; font-weight: 500; font-size: 0.9375rem; color: #2B3341; background: none; border: none; padding: 10px 4px; border-bottom: 2px solid transparent; cursor: pointer; white-space: nowrap; transition: color 120ms cubic-bezier(0.22, 1, 0.36, 1), border-color 120ms cubic-bezier(0.22, 1, 0.36, 1); } .ds-tab:hover { color: #10151F; } .ds-tab-active { color: #10151F; border-bottom-color: #232BED; }"
+    },
+    {
+      "name": "Vertical Section Nav Item",
+      "kind": "nav",
+      "refersTo": "section-nav-item",
+      "description": "Sticky vertical nav for detail views past ~8 sections. 224px sticky column beside the content card; collapses to a horizontal scrollable row below ~900px.",
+      "html": "<a class=\"ds-section-nav-item ds-section-nav-item-active\" href=\"#\">Salario</a>",
+      "css": ".ds-section-nav-item { display: block; font-family: Raleway, system-ui, sans-serif; font-weight: 500; font-size: 1rem; color: #2B3341; text-decoration: none; padding: 9px 12px; border-radius: 6px; transition: background 120ms cubic-bezier(0.22, 1, 0.36, 1), color 120ms cubic-bezier(0.22, 1, 0.36, 1); } .ds-section-nav-item:hover { background: #EEF1F5; color: #10151F; } .ds-section-nav-item-active { background: #EEF1F5; color: #232BED; font-weight: 600; }"
+    },
+    {
+      "name": "Global Edit Toggle",
+      "kind": "button-group",
+      "refersTo": "view-edit-mode",
+      "description": "Record-editing views open read-only. One Editar button top-right of the page header (in line with the title, outside the content card) switches the whole page into edit mode; swaps to Cancelar + Guardar. Never repeated per section -- driven by one boolean gating every section's <fieldset disabled>.",
+      "html": "<div class=\"ds-edit-controls\"><button class=\"ds-btn-secondary\">Cancelar</button><button class=\"ds-btn-primary\" form=\"profile-edit-form\">Guardar</button></div>",
+      "css": ".ds-edit-controls { display: flex; gap: 8px; flex-shrink: 0; }"
+    },
+    {
+      "name": "Info Tooltip",
+      "kind": "tooltip",
+      "refersTo": "info-tooltip-trigger",
+      "description": "Explains a non-obvious KPI/chart on hover or keyboard focus (never hover-only). Trigger is a 14px 'i' glyph right after the title. Bubble: Ink bg / Surface text, Data typography, rounded-sm, Floating shadow, z-index tooltip (500, top of the scale).",
+      "html": "<span class=\"ds-tooltip-trigger\" tabindex=\"0\" aria-describedby=\"kpi-1-tip\"><svg width=\"14\" height=\"14\">...</svg><span role=\"tooltip\" id=\"kpi-1-tip\" class=\"ds-tooltip-bubble\">Explicacion breve de que muestra este dato.</span></span>",
+      "css": ".ds-tooltip-trigger { position: relative; display: inline-flex; color: #545E70; cursor: help; } .ds-tooltip-trigger:hover, .ds-tooltip-trigger:focus-visible { color: #232BED; } .ds-tooltip-bubble { position: absolute; z-index: 500; bottom: calc(100% + 8px); left: 50%; transform: translate(-50%, 4px); max-width: 220px; background: #10151F; color: #FFFFFF; font-family: Raleway, system-ui, sans-serif; font-size: 0.875rem; line-height: 1.45; padding: 8px 16px; border-radius: 6px; box-shadow: 0 8px 24px rgba(16, 21, 31, 0.12); opacity: 0; pointer-events: none; transition: opacity 120ms cubic-bezier(0.22, 1, 0.36, 1), transform 120ms cubic-bezier(0.22, 1, 0.36, 1); } .ds-tooltip-trigger:hover .ds-tooltip-bubble, .ds-tooltip-trigger:focus-visible .ds-tooltip-bubble { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }"
     },
     {
       "name": "Sidebar Nav Item",
       "kind": "nav",
       "refersTo": "nav-item",
-      "description": "Ítem de navegación lateral -- barra de acento de 3px + fondo tenue cuando está activo, color al 60% de opacidad en reposo. Un solo acento (Harbor Teal) para todos los módulos -- la etiqueta de texto distingue cuál es cuál, no el color.",
-      "html": "<a class=\"ds-nav-item ds-nav-item-active\" href=\"#\" style=\"--accent:#0e7581\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.9\"><rect x=\"2\" y=\"7\" width=\"20\" height=\"14\" rx=\"2\"/><path d=\"M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16\"/></svg><span>Negocios</span></a>",
-      "css": ".ds-nav-item { position: relative; display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; text-decoration: none; color: color-mix(in srgb, var(--accent) 60%, transparent); transition: color 150ms ease, background-color 150ms ease; } .ds-nav-item:hover svg { transform: scale(1.1); } .ds-nav-item-active { background-color: color-mix(in srgb, var(--accent) 10%, transparent); color: var(--accent); } .ds-nav-item-active::before { content: ''; position: absolute; left: -4px; top: 6px; bottom: 6px; width: 3px; border-radius: 0 4px 4px 0; background-color: var(--accent); }"
+      "description": "Primary left-nav item; active state uses Azul Profundo, a small contained brand moment per the Rationed Brand Rule.",
+      "html": "<a class=\"ds-nav-item ds-nav-item-active\" href=\"#\">Empleados</a>",
+      "css": ".ds-nav-item { display: block; font-family: Raleway, system-ui, sans-serif; font-weight: 500; font-size: 0.9375rem; color: #2B3341; padding: 10px 14px; border-radius: 8px; text-decoration: none; transition: background 120ms cubic-bezier(0.22, 1, 0.36, 1); } .ds-nav-item:hover { background: #EEF1F5; } .ds-nav-item-active { background: #0B2D4D; color: #FFFFFF; }"
     }
   ],
   "narrative": {
-    "northStar": "The Clear Harbor",
-    "overview": "Baía Kristal — bahía de cristal — es la metáfora fundacional: un puerto financiero, no una app de consumo. La transparencia (cristal) sobre los números reales de recaudo y cartera es el trabajo del sistema; la calma de un puerto (bahía) es su temperamento. Nada aquí compite por atención — el dato es el protagonista, la interfaz es el marco que lo sostiene sin decorarlo. El sistema rechaza explícitamente lo lúdico: sin ilustraciones, sin mascotas, sin gradientes decorativos, sin gamificación.",
+    "northStar": "The Precise Ledger",
+    "overview": "A tool that behaves like a well-kept ledger, not a marketing surface: every screen is built to be scanned fast, trusted completely, and never ambiguous. aed's own brand identity is bold, dynamic, and vibrant (a signature green-to-blue gradient, electric blue, bright green) -- this product wears that identity as a precise accent, not as a wash across dense data screens. Color earns its place; most of the interface is calm, cool-tinted neutral so that the two moments of real color -- a primary action, a status badge, the login/empty-state gradient -- read as deliberate, not decorative. The product rejects two failure modes equally: the outdated enterprise look (dense gray forms, unlabeled tables, generic icon sets) and the generic AI-SaaS look (identical cards, gradient hero metrics, uppercase eyebrows, side-stripe borders).",
     "keyCharacteristics": [
-      "Neutros teñidos de teal (195°) en vez de grises planos",
-      "Un color = un significado: los 5 tokens de estado nunca se reasignan",
-      "Elevación discreta pero real -- teñida del matiz de marca, nunca skeuomórfica",
-      "Tipografía de dos voces: Lexend (encabezados) + Source Sans 3 (datos)"
+      "Cool, blue-tinted neutral canvas -- never the warm cream/sand AI default",
+      "Azul Vibrante and Verde Vibrante appear only as precise accents, never as large fills",
+      "A record's detail view is the hub: sections, not scattered top-level CRUD screens -- underline tabs for short sets, sticky vertical nav past ~8 sections",
+      "Flat-by-default surfaces with tonal layering; shadows reserved for floating elements only",
+      "Responsive motion without choreography -- confidence through clarity, not spectacle",
+      "Every independently-scrolling pane eases its scroll via Lenis so long pages read as one continuous surface",
+      "Record-editing views open read-only; one global Editar control gates the whole page into edit mode at once"
     ],
     "rules": [
-      { "name": "The One Meaning Rule", "body": "Un color = un significado, siempre. Los 5 tokens de estado no se piden prestados para otro uso.", "section": "colors" },
-      { "name": "The No Big Teal Rule", "body": "El Harbor Teal no cubre superficies grandes -- solo acentos, botones y tintes sutiles.", "section": "colors" },
-      { "name": "The No Hero Numbers Rule", "body": "25px es el techo de todo el sistema tipográfico -- no hay métricas gigantes de marketing.", "section": "typography" },
-      { "name": "The Tinted Shadow Rule", "body": "Ninguna sombra usa negro puro -- todas se tiñen con el matiz de marca (195°).", "section": "elevation" },
-      { "name": "The Single Accent Nav Rule", "body": "El sidebar usa un solo color (Harbor Teal) para todos los estados activos, nunca un color distinto por módulo -- la etiqueta de texto distingue módulos, no el color.", "section": "components" }
+      { "name": "The No-Cream Rule", "body": "Off-white aed (#F0ECE6) is a warm print neutral from the brand manual -- right for business cards and letterhead, wrong for a screen. It never appears as the app canvas.", "section": "colors" },
+      { "name": "The Rationed Brand Rule", "body": "Azul Vibrante and Verde Vibrante combined should never cover more than roughly 10% of any given screen's surface area.", "section": "colors" },
+      { "name": "The Tabular Numerals Rule", "body": "Any column of numbers (salarios, dias, cedulas, valores) uses font-variant-numeric: tabular-nums so digits align vertically.", "section": "typography" },
+      { "name": "The Floating-Only Rule", "body": "If it doesn't detach from the page's normal flow, it doesn't get a shadow. Depth is earned by z-index, not applied by default.", "section": "elevation" },
+      { "name": "The Fluid Scroll Rule", "body": "Every independently-scrolling content pane is wrapped in Lenis (root={false}) so scroll input eases into a continuous glide instead of stepping section by section. Native scrollTop under the hood keeps position: sticky compatible. Sidebar nav and fixed chrome stay outside it. Respects prefers-reduced-motion by default.", "section": "elevation" },
+      { "name": "The Full-Width Form Rule", "body": "Forms take the full content width, organized into horizontal rows of fields grouped by named section -- never a single narrow vertical field stack.", "section": "components" },
+      { "name": "The View/Edit Mode Rule", "body": "Record-editing views render read-only by default. One global Editar/Guardar/Cancelar control lives in the page header, never repeated per section -- driven by one shared boolean gating each section's fieldset disabled.", "section": "components" },
+      { "name": "The Explain-on-Demand Rule", "body": "A dense dashboard's KPIs and charts get their explanation via an Info Tooltip next to the title (hover + keyboard focus, role=tooltip), not via permanent caption text under every tile -- permanent captions on every tile is the identical-card-grids AI-SaaS tell wearing a data-viz costume. Reserve a permanent caption for context that's load-bearing to read the chart correctly at a glance.", "section": "components" }
     ],
     "dos": [
-      "Do teñir cualquier neutro nuevo hacia el matiz 195° de la marca.",
-      "Do usar los 5 tokens de estado para cualquier indicador de estado del dominio.",
-      "Do mantener Lexend exclusivo a encabezados/KPIs y Source Sans 3 para el resto.",
-      "Do usar la escala de sombra teñida (Card/Raised/Overlay) para cualquier elevación nueva."
+      "Do keep the app canvas cool-tinted neutral (#F7F8FA family) -- never the warm cream/sand AI default.",
+      "Do reserve Azul Vibrante and Verde Vibrante for actions, status, and identity moments.",
+      "Do use underline tabs for short section sets and a sticky vertical nav once a detail view outgrows a tab row.",
+      "Do use tabular-nums on every numeric table column.",
+      "Do give every loading/empty/error state real, deliberate content.",
+      "Do let list/table views and forms use the full content width, with form fields grouped into horizontal rows by named section.",
+      "Do gate an existing record's fields behind one global Editar/Guardar/Cancelar control in the page header.",
+      "Do wrap every independently-scrolling content pane in Lenis so scrolling eases continuously.",
+      "Do explain a non-obvious KPI or chart with an Info Tooltip next to its title instead of a permanent caption under every tile."
     ],
     "donts": [
-      "Don't usar ilustraciones decorativas, mascotas o iconografía juguetona.",
-      "Don't usar Harbor Teal como fondo de una superficie grande.",
-      "Don't introducir un número hero de más de 25px en ningún KPI.",
-      "Don't usar sombras con negro puro.",
-      "Don't usar border-left/right de más de 1px como acento de color en tarjetas (excepción: la barra activa de 3px del Sidebar, patrón de navegación establecido)."
+      "Don't replicate the SAP/Oracle-2000s look: dense gray forms, generic icons, unlabeled cramped tables.",
+      "Don't ship generic AI-SaaS scaffolding: identical cards, gradient hero metrics, uppercase eyebrows, side-stripe borders.",
+      "Don't let the interface feel like a playful consumer app.",
+      "Don't use Off-white aed (#F0ECE6) as a screen background.",
+      "Don't add a shadow to anything that isn't floating above the page.",
+      "Don't apply gradient-text anywhere -- the aed gradient is a graphic accent element, never a text treatment.",
+      "Don't repeat an Editar/Guardar/Cancelar control inside every tab or section of a detail view -- one global control per page.",
+      "Don't grow the accent-vibrant status dot into a stripe, larger chip, or full badge fill -- it stays a 6px indicator."
     ]
   }
 }
