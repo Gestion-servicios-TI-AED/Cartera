@@ -57,8 +57,8 @@ const COLOR_EXCEL = {
 const EXCEL_COLUMNAS_INICIAL = [
   { key: 'torre', header: 'TORRE', width: 14, align: 'left', render: (f) => f.torre ?? '—' },
   { key: 'unidad', header: 'UNIDAD', width: 16, align: 'left', render: (f) => f.unidad ?? '—' },
-  { key: 'referencia', header: 'REFERENCIA', width: 16, align: 'left', render: (f) => f.referenciaRecaudo ?? '' },
   { key: 'comprador', header: 'COMPRADOR', width: 32, align: 'left', render: (f) => f.comprador ?? '—' },
+  { key: 'referencia', header: 'REFERENCIA', width: 16, align: 'left', render: (f) => f.referenciaRecaudo ?? '' },
   { key: 'valorInmueble', header: 'VALOR APARTAMENTO', width: 20, numFmt: '#,##0', render: (f) => f.valorInmueble ?? 0 },
   { key: 'cuotasEnMora', header: 'CUOTAS MORA', width: 14, numFmt: '#,##0', render: (f) => f.cuotasEnMora ?? 0 },
   { key: 'maxDiasAtraso', header: 'DÍAS ATRASO', width: 14, numFmt: '#,##0', tono: 'warning', render: (f) => f.maxDiasAtraso ?? 0 },
@@ -68,8 +68,8 @@ const EXCEL_COLUMNAS_INICIAL = [
 const EXCEL_COLUMNAS_CONTRAENTREGA = [
   { key: 'torre', header: 'TORRE', width: 14, align: 'left', render: (f) => f.torre ?? '—' },
   { key: 'unidad', header: 'UNIDAD', width: 16, align: 'left', render: (f) => f.unidad ?? '—' },
-  { key: 'referencia', header: 'REFERENCIA', width: 16, align: 'left', render: (f) => f.referenciaRecaudo ?? '' },
   { key: 'comprador', header: 'COMPRADOR', width: 32, align: 'left', render: (f) => f.comprador ?? '—' },
+  { key: 'referencia', header: 'REFERENCIA', width: 16, align: 'left', render: (f) => f.referenciaRecaudo ?? '' },
   { key: 'fechaSaldoContraentrega', header: 'FECHA VENCIDA', width: 16, isDate: true, tono: 'warning', render: (f) => (f.fechaSaldoContraentrega ? new Date(f.fechaSaldoContraentrega) : null) },
   { key: 'montoEnMora', header: 'VALOR PENDIENTE', width: 20, numFmt: '#,##0', tono: 'danger', render: (f) => f.montoEnMora ?? 0 },
 ];
@@ -429,8 +429,8 @@ export function OlivCarteraMoraPage() {
                         <tr>
                           <th aria-sort={ariaSort(sort, 'torre')}><SortHeader label="Torre" sortKey="torre" sort={sort} onSort={toggleSort} /></th>
                           <th aria-sort={ariaSort(sort, 'unidad')}><SortHeader label="Nomenclatura" sortKey="unidad" sort={sort} onSort={toggleSort} /></th>
-                          <th aria-sort={ariaSort(sort, 'referenciaRecaudo')}><SortHeader label="Referencia" sortKey="referenciaRecaudo" sort={sort} onSort={toggleSort} /></th>
                           <th aria-sort={ariaSort(sort, 'comprador')}><SortHeader label="Comprador" sortKey="comprador" sort={sort} onSort={toggleSort} /></th>
+                          <th aria-sort={ariaSort(sort, 'referenciaRecaudo')}><SortHeader label="Referencia" sortKey="referenciaRecaudo" sort={sort} onSort={toggleSort} /></th>
                           <th aria-sort={ariaSort(sort, 'fechaSaldoContraentrega')}><SortHeader label="Fecha vencida" sortKey="fechaSaldoContraentrega" sort={sort} onSort={toggleSort} align="center" /></th>
                           <th aria-sort={ariaSort(sort, 'montoEnMora')}><SortHeader label="Valor pendiente" sortKey="montoEnMora" sort={sort} onSort={toggleSort} align="center" /></th>
                         </tr>
@@ -438,8 +438,8 @@ export function OlivCarteraMoraPage() {
                         <tr>
                           <th aria-sort={ariaSort(sort, 'torre')}><SortHeader label="Torre" sortKey="torre" sort={sort} onSort={toggleSort} /></th>
                           <th aria-sort={ariaSort(sort, 'unidad')}><SortHeader label="Nomenclatura" sortKey="unidad" sort={sort} onSort={toggleSort} /></th>
-                          <th aria-sort={ariaSort(sort, 'referenciaRecaudo')}><SortHeader label="Referencia" sortKey="referenciaRecaudo" sort={sort} onSort={toggleSort} /></th>
                           <th aria-sort={ariaSort(sort, 'comprador')}><SortHeader label="Comprador" sortKey="comprador" sort={sort} onSort={toggleSort} /></th>
+                          <th aria-sort={ariaSort(sort, 'referenciaRecaudo')}><SortHeader label="Referencia" sortKey="referenciaRecaudo" sort={sort} onSort={toggleSort} /></th>
                           <th aria-sort={ariaSort(sort, 'valorInmueble')}><SortHeader label="Valor apartamento" sortKey="valorInmueble" sort={sort} onSort={toggleSort} align="center" /></th>
                           <th aria-sort={ariaSort(sort, 'cuotasEnMora')}><SortHeader label="Cuotas mora" sortKey="cuotasEnMora" sort={sort} onSort={toggleSort} align="center" /></th>
                           <th aria-sort={ariaSort(sort, 'maxDiasAtraso')}><SortHeader label="Días atraso" sortKey="maxDiasAtraso" sort={sort} onSort={toggleSort} align="center" /></th>
@@ -456,8 +456,8 @@ export function OlivCarteraMoraPage() {
                           <tr key={f.id} onContextMenu={(e) => abrirMenuContextual(e, f)} className={styles.filaCtxMenu}>
                             <td><CeldaDoble arriba="Oliv" abajo={f.torre ?? null} /></td>
                             <td>{f.unidad ?? '—'}</td>
-                            <td>{f.referenciaRecaudo ?? ''}</td>
                             <td className={styles.truncar} title={f.comprador ?? ''}>{f.comprador ?? '—'}</td>
+                            <td>{f.referenciaRecaudo ?? ''}</td>
                             <td className={`${styles.numCellCentro} ${styles.tonoWarning}`}>{formatDate(f.fechaSaldoContraentrega)}</td>
                             <td className={styles.numCellCentro}><ValorVencido valor={f.montoEnMora} /></td>
                           </tr>
@@ -467,8 +467,8 @@ export function OlivCarteraMoraPage() {
                           <tr key={f.id} onContextMenu={(e) => abrirMenuContextual(e, f)} className={styles.filaCtxMenu}>
                             <td><CeldaDoble arriba="Oliv" abajo={f.torre ?? null} /></td>
                             <td><Link to={`/oliv/negocios/${f.id}`}>{f.unidad ?? f.id}</Link></td>
-                            <td>{f.referenciaRecaudo ?? ''}</td>
                             <td className={styles.truncar} title={f.comprador ?? ''}>{f.comprador ?? '—'}</td>
+                            <td>{f.referenciaRecaudo ?? ''}</td>
                             <td className={styles.numCellCentro}>{f.valorInmueble != null ? formatCOP(f.valorInmueble) : '—'}</td>
                             <td className={styles.numCellCentro}>{f.cuotasEnMora}</td>
                             <td className={styles.numCellCentro}><ChipDias dias={f.maxDiasAtraso} /></td>

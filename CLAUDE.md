@@ -867,5 +867,9 @@ HRMS y se adaptan solo textos/datos). Se hace por pasos, con el HRMS como modelo
 - **Ajuste final de Cartera:** Frente/Torre en **doble fila** (`CeldaDoble`: frente
   arriba, "Torre N" debajo; en Oliv "Oliv" arriba y la torre debajo) para que todas
   las filas se vean uniformes, y el % en mora con el número arriba y la barra debajo.
+- **Orden de Cartera (pedido del usuario):** la referencia va **a la derecha del
+  comprador** (tabla y Excel, BK y Oliv) y Baía Kristal arranca ordenada por **Etapa**
+  ascendente (clave de estado persistido nueva `cartera-mora:sort-v2` para no heredar
+  el orden vacío guardado en los navegadores). Oliv no tiene etapa, queda sin cambio.
 - Pendiente (en orden): Inicio (de Baía Kristal y Oliv) --
   Cartera ya heredó los estilos de tarjetas/KPIs de `Dashboard.module.css`.
