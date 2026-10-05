@@ -16,9 +16,11 @@ import {
   actualizarFechaTorre,
   actualizarFechaPiso,
 } from '../../api/configuracionesFrentes.js';
-import styles from './ConfiguracionFrentesPage.module.css';
+import { Pagination } from '../../components/ui/Pagination.jsx';
+import styles from '../accesos/Usuarios.module.css';
 
 const TODAS = '(Todas)';
+const PAGE_SIZE = 20;
 
 export function ConfiguracionFrentesPage() {
   const [filas, setFilas] = useState([]);
@@ -29,6 +31,7 @@ export function ConfiguracionFrentesPage() {
   const [fecha, setFecha] = useState('');
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState(null);
+  const [page, setPage] = useState(1);
 
   async function cargar() {
     setCargando(true);
@@ -54,6 +57,7 @@ export function ConfiguracionFrentesPage() {
     []
   );
   const { sortedRows, sort, toggleSort } = useSortableTable(filas, valueGetters);
+  const visibles = sortedRows.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -107,42 +111,52 @@ export function ConfiguracionFrentesPage() {
   return (
     <div className={styles.page}>
       <AccesosLayout>
-        <div className={styles.header}>
-          <div className={styles.headerRow}>
-            <div>
-              <h1 className={styles.title}>Fechas de entrega por Frente / Torre / Piso</h1>
-              <p className={styles.subtitle}>
-                Reemplaza la fecha estimada de la cuota Saldo Contraentrega en el cálculo de conciliación. Los tres niveles son
-                mutuamente excluyentes: borra el nivel existente antes de configurar otro para el mismo frente/torre.
-              </p>
-            </div>
+        <div className={styles.listHeader}>
+          <div>
+            <h1 className={styles.title}>Fechas de entrega</h1>
+            <p className={styles.subtitle}>
+              Por frente, torre y piso. Reemplaza la fecha estimada de la cuota Saldo Contraentrega en el cálculo de conciliación. Los tres niveles son
+              mutuamente excluyentes: borra el nivel existente antes de configurar otro para el mismo frente/torre.
+            </p>
           </div>
         </div>
 
-        <form className={styles.row} onSubmit={handleSubmit}>
-          <Field className={styles.fieldMd} label="Frente" required>
-            {(p) => <TextInput {...p} value={frente} onChange={(e) => setFrente(e.target.value)} placeholder="Ej. Kala" />}
-          </Field>
-          <Field className={styles.fieldMd} label="Torre" helper="Vacío = todo el frente">
-            {(p) => <TextInput {...p} value={torre} onChange={(e) => setTorre(e.target.value)} placeholder="Ej. 1" />}
-          </Field>
-          <Field className={styles.fieldMd} label="Piso" helper="Vacío = toda la torre">
-            {(p) => <TextInput {...p} value={piso} onChange={(e) => setPiso(e.target.value)} placeholder="Ej. 3" />}
-          </Field>
-          <Field className={styles.fieldMd} label="Fecha de entrega" helper="Vacío = quitar fecha">
-            {(p) => <TextInput {...p} type="date" value={fecha} onChange={(e) => setFecha(e.target.value)} />}
-          </Field>
-          <Button type="submit" disabled={guardando}>
-            {guardando ? 'Guardando…' : 'Guardar'}
-          </Button>
+        <form className={styles.sectionCard} onSubmit={handleSubmit}>
+          <div>
+            <h2 className={styles.sectionTitle}>Configurar una fecha</h2>
+            <p className={styles.sectionHint}>Deja torre y piso vacíos para todo el frente; solo el piso vacío para toda la torre.</p>
+          </div>
+          <div className={styles.row}>
+            <Field className={styles.fieldMd} label="Frente" required>
+              {(p) => <TextInput {...p} value={frente} onChange={(e) => setFrente(e.target.value)} placeholder="Ej. Kala" />}
+            </Field>
+            <Field className={styles.fieldMd} label="Torre" helper="Vacío = todo el frente">
+              {(p) => <TextInput {...p} value={torre} onChange={(e) => setTorre(e.target.value)} placeholder="Ej. 1" />}
+            </Field>
+            <Field className={styles.fieldMd} label="Piso" helper="Vacío = toda la torre">
+              {(p) => <TextInput {...p} value={piso} onChange={(e) => setPiso(e.target.value)} placeholder="Ej. 3" />}
+            </Field>
+            <Field className={styles.fieldMd} label="Fecha de entrega" helper="Vacío = quitar fecha">
+              {(p) => <TextInput {...p} type="date" value={fecha} onChange={(e) => setFecha(e.target.value)} />}
+            </Field>
+          </div>
+          <div className={styles.actions}>
+            <span />
+            <div className={styles.actionsEnd}>
+              <Button type="submit" variant="primary" disabled={guardando}>
+                {guardando ? 'Guardando…' : 'Guardar'}
+              </Button>
+            </div>
+          </div>
         </form>
-        {error && <p className={styles.error}>{error}</p>}
 
-        {cargando ? (
-          <p>Cargando…</p>
-        ) : filas.length === 0 ? (
-          <p className={styles.vacio}>Todavía no hay ninguna fecha de entrega configurada.</p>
-        ) : (
+        {error && (
+          <div className={styles.errorBanner} role="alert">
+            {error}
+          </div>
+        )}
+
+        <div className={styles.tableWrap}>
           <table className={styles.table}>
             <thead>
               <tr>
@@ -162,24 +176,40 @@ export function ConfiguracionFrentesPage() {
               </tr>
             </thead>
             <tbody>
-              {sortedRows.map((fila) => (
-                <tr key={`${fila.frente}|${fila.torre ?? ''}|${fila.piso ?? ''}`}>
-                  <td>{fila.frente}</td>
-                  <td>{fila.torre ?? TODAS}</td>
-                  <td>{fila.piso ?? TODAS}</td>
-                  <td>{fila.fechaEntrega ?? '—'}</td>
-                  <td>
-                    {fila.fechaEntrega && (
-                      <Button variant="ghost" onClick={() => handleQuitar(fila)}>
-                        Quitar
-                      </Button>
-                    )}
+              {cargando ? (
+                <tr>
+                  <td colSpan={5} className={styles.emptyState}>
+                    Cargando...
                   </td>
                 </tr>
-              ))}
+              ) : filas.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className={styles.emptyState}>
+                    Todavía no hay ninguna fecha de entrega configurada.
+                  </td>
+                </tr>
+              ) : (
+                visibles.map((fila) => (
+                  <tr key={`${fila.frente}|${fila.torre ?? ''}|${fila.piso ?? ''}`}>
+                    <td>{fila.frente}</td>
+                    <td>{fila.torre ?? TODAS}</td>
+                    <td>{fila.piso ?? TODAS}</td>
+                    <td className={fila.fechaEntrega ? styles.dateCell : `${styles.dateCell} ${styles.muted}`}>{fila.fechaEntrega ?? '—'}</td>
+                    <td>
+                      {fila.fechaEntrega && (
+                        <Button variant="secondary" onClick={() => handleQuitar(fila)}>
+                          Quitar
+                        </Button>
+                      )}
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
-        )}
+
+          {!cargando && filas.length > 0 && <Pagination page={page} pageSize={PAGE_SIZE} total={filas.length} onPageChange={setPage} />}
+        </div>
       </AccesosLayout>
     </div>
   );

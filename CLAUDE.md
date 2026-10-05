@@ -735,5 +735,13 @@ HRMS y se adaptan solo textos/datos). Se hace por pasos, con el HRMS como modelo
   personalizados sin cuentas). A diferencia del HRMS, los nombres de rol NO se
   fuerzan a mayúsculas (los roles reales de Cartera están en título: "Cartera",
   "Administrador").
-- Pendiente (en orden): Accesos — Historial, Fechas de entrega y Sincronización;
-  luego las pantallas de Baía Kristal y Oliv.
+- **Paso 4c — Accesos: Historial, Fechas de entrega y Sincronización (hecho):**
+  mismo lenguaje (títulos, tarjetas por sección, tabla en tarjeta con paginación,
+  botones principal/secundario). Historial pasa a tabla con persona (avatar) y la
+  acción como etiqueta. `ConfiguracionFrentesPage` usa las clases de
+  `accesos/Usuarios.module.css` (se eliminó su CSS propio) y
+  `Accesos.module.css` quedó solo con lo propio de Sincronización (progreso,
+  estados, lista de torres). Con esto **Accesos queda completo**.
+- Pendiente (en orden): pantallas de Baía Kristal y Oliv (Inicio, Dashboard,
+  Negocios, Inmuebles, Encargos, Movimientos, Resumen, Cartera, Otrosíes,
+  Oportunidades).

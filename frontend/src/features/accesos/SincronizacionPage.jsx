@@ -11,6 +11,7 @@ import { Badge } from '../../components/ui/Badge.jsx';
 import { iniciarBackfillSubforms, getBackfillSubformsStatus } from '../../api/oportunidades.js';
 import { verificarProjectCode } from '../../api/inventario.js';
 import styles from './Accesos.module.css';
+import shared from './Usuarios.module.css';
 
 function formatDuracion(segundos) {
   if (segundos == null) return null;
@@ -76,10 +77,10 @@ function BackfillSubformsCard() {
   const enCurso = running && result?.running;
 
   return (
-    <div className={styles.card}>
+    <section className={shared.sectionCard}>
       <div>
-        <h2 className={styles.cardTitle}>Plan de pagos desde Zoho</h2>
-        <p className={styles.cardHint}>Trae el plan de pagos (Forma de Pago / Propuesta de Pago) de Zoho para las oportunidades que todavía no lo tengan guardado -- necesario para que Dashboard muestre datos completos.</p>
+        <h2 className={shared.sectionTitle}>Plan de pagos desde Zoho</h2>
+        <p className={shared.sectionHint}>Trae el plan de pagos (Forma de Pago / Propuesta de Pago) de Zoho para las oportunidades que todavía no lo tengan guardado -- necesario para que Dashboard muestre datos completos.</p>
       </div>
 
       <div>
@@ -115,7 +116,7 @@ function BackfillSubformsCard() {
           <span>Error: {result.error}</span>
         </div>
       )}
-    </div>
+    </section>
   );
 }
 
@@ -177,10 +178,10 @@ function ProjectCodeReportCard() {
   }
 
   return (
-    <div className={styles.card}>
+    <section className={shared.sectionCard}>
       <div>
-        <h2 className={styles.cardTitle}>Project Code inconsistentes</h2>
-        <p className={styles.cardHint}>Detecta inmuebles cuyo Project_Code de Zoho no coincide con su propia unidad -- señal de que fue copiado por error de otro apartamento del mismo frente. Problema de datos en Zoho, no de la sincronización.</p>
+        <h2 className={shared.sectionTitle}>Project Code inconsistentes</h2>
+        <p className={shared.sectionHint}>Detecta inmuebles cuyo Project_Code de Zoho no coincide con su propia unidad -- señal de que fue copiado por error de otro apartamento del mismo frente. Problema de datos en Zoho, no de la sincronización.</p>
       </div>
 
       <div>
@@ -222,20 +223,18 @@ function ProjectCodeReportCard() {
           </div>
         </>
       )}
-    </div>
+    </section>
   );
 }
 
 export function SincronizacionPage() {
   return (
-    <div className={styles.page}>
+    <div className={shared.page}>
       <AccesosLayout>
-        <div className={styles.header}>
-          <div className={styles.headerRow}>
-            <div>
-              <h1 className={styles.title}>Sincronización de datos</h1>
-              <p className={styles.subtitle}>Herramientas de mantenimiento sobre los datos que vienen de Zoho.</p>
-            </div>
+        <div className={shared.listHeader}>
+          <div>
+            <h1 className={shared.title}>Sincronización</h1>
+            <p className={shared.subtitle}>Herramientas de mantenimiento sobre los datos que vienen de Zoho y HubSpot.</p>
           </div>
         </div>
 
