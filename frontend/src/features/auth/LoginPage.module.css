@@ -297,6 +297,10 @@
   gap: 6px;
 }
 
+.requisitos li svg {
+  flex-shrink: 0;
+}
+
 .requisitoOk {
   color: var(--color-success-ink);
   font-weight: 600;
