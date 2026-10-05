@@ -15,7 +15,8 @@
 // (`otro_si_requerido`, `otroSiRequerido` en la API) por si se necesita
 // después -- solo se dejó de mostrar y de ofrecer como filtro acá.
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Search, ListFilter, RefreshCw, Layers, MapPin, Building, CheckCircle2, Circle, X } from 'lucide-react';
+import { Search, ListFilter, RefreshCw, Layers, MapPin, Building, CheckCircle2, Circle, X, FileText } from 'lucide-react';
+import { CeldaComprador, CeldaInmueble } from '../cartera-mora/CarteraCeldas.jsx';
 import { StageBadge } from '../../components/ui/StageBadge.jsx';
 import { Field, TextInput, Select } from '../../components/ui/Field.jsx';
 import { InfoTooltip } from '../../components/ui/InfoTooltip.jsx';
@@ -33,6 +34,20 @@ import {
 import { formatDateTime } from '../../utils/format.js';
 import { etiquetaEtapa } from '../../utils/etapas.js';
 import styles from './OtrosiesPage.module.css';
+
+// "Baia Kristal - NOMBRE(S) - P4 6-E" -> solo los nombres (la unidad ya va en su columna).
+function nombreNegocio(dealName = '') {
+  const partes = String(dealName).split(' - ').map((x) => x.trim()).filter(Boolean);
+  return partes.length >= 3 ? partes.slice(1, -1).join(' - ') : dealName;
+}
+
+// "Etapa 2 - Prive - Torre 4 - 6-E" -> unidad destacada ("6-E") y la ubicación debajo.
+function partirInmueble(label) {
+  if (!label) return { principal: 'Sin inmueble' };
+  const partes = label.split(' - ');
+  if (partes.length < 2) return { principal: label };
+  return { principal: partes[partes.length - 1], sub: partes.slice(0, -1).join(' · ') };
+}
 
 const VERIFICADO_OPCIONES = [
   { value: '', label: 'Todos' },
@@ -399,41 +414,35 @@ export function OtrosiesPage() {
                 <th aria-sort={ariaSort(sort, 'dealName')}>
                   <SortHeader label="Negocio" sortKey="dealName" sort={sort} onSort={toggleSort} />
                 </th>
-                <th aria-sort={ariaSort(sort, 'stage')}>
-                  <SortHeader label="Etapa CRM" sortKey="stage" sort={sort} onSort={toggleSort} />
-                </th>
-                <th aria-sort={ariaSort(sort, 'referenciaRecaudo')}>
-                  <SortHeader label="Ref. Recaudo" sortKey="referenciaRecaudo" sort={sort} onSort={toggleSort} />
-                </th>
                 <th aria-sort={ariaSort(sort, 'inmueble')}>
                   <SortHeader label="Inmueble" sortKey="inmueble" sort={sort} onSort={toggleSort} />
                 </th>
+                <th aria-sort={ariaSort(sort, 'stage')}>
+                  <SortHeader label="Etapa CRM" sortKey="stage" sort={sort} onSort={toggleSort} />
+                </th>
                 <th aria-sort={ariaSort(sort, 'otroSiTieneArchivo')}>
-                  <SortHeader label="PDF" sortKey="otroSiTieneArchivo" sort={sort} onSort={toggleSort} />
+                  <SortHeader label="Documento" sortKey="otroSiTieneArchivo" sort={sort} onSort={toggleSort} />
                 </th>
                 <th aria-sort={ariaSort(sort, 'verificado')}>
-                  <SortHeader label="Verificado" sortKey="verificado" sort={sort} onSort={toggleSort} />
+                  <SortHeader label="Verificación" sortKey="verificado" sort={sort} onSort={toggleSort} />
                 </th>
               </tr>
             </thead>
             <tbody>
               {sortedRows.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className={styles.sinResultados}>No se encontraron registros</td>
+                  <td colSpan={5} className={styles.sinResultados}>No se encontraron registros</td>
                 </tr>
               ) : (
                 sortedRows.map((row) => (
                   <tr key={row.id ?? row.dealName}>
-                    <td className={styles.nombreNegocio}>{row.dealName}</td>
+                    <td><CeldaComprador nombre={nombreNegocio(row.dealName)} sub={row.referenciaRecaudo} /></td>
+                    <td><CeldaInmueble {...partirInmueble(row.inmueble?.label)} /></td>
                     <td><StageBadge stage={row.stage} /></td>
-                    <td>
-                      {row.referenciaRecaudo ? <span className={styles.refBadge}>{row.referenciaRecaudo}</span> : <span className={styles.muted}>—</span>}
-                    </td>
-                    <td>{row.inmueble?.label || 'Sin inmueble'}</td>
                     <td>
                       {row.otroSiTieneArchivo === true ? (
                         <a href={archivoOtrosieUrl(row.id)} target="_blank" rel="noopener noreferrer" className={styles.linkPdf}>
-                          Ver PDF
+                          <FileText size={14} /> Ver PDF
                         </a>
                       ) : (
                         <span className={styles.muted}>—</span>

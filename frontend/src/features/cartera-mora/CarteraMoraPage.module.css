@@ -496,3 +496,190 @@
 .alertaContraentrega {
   border-radius: var(--radius-lg);
 }
+
+/* ── Rediseño fuerte: celdas con jerarquía, severidad visible ─────────────── */
+
+.persona {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  min-width: 0;
+}
+
+.avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--color-info-surface);
+  color: var(--color-primary);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.personaTexto {
+  min-width: 0;
+}
+
+.personaNombre {
+  margin: 0;
+  max-width: 190px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+.personaSub {
+  margin: 0;
+  font-size: var(--text-label-size);
+  color: var(--color-ink-muted);
+}
+
+.inmueble {
+  min-width: 0;
+}
+
+.inmueblePrincipal {
+  margin: 0;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.chipDias {
+  display: inline-block;
+  min-width: 52px;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  font-size: var(--text-label-size);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+.sevBaja {
+  background: var(--color-surface-sunken);
+  color: var(--color-ink-secondary);
+}
+
+.sevMedia {
+  background: var(--color-warning-surface);
+  color: var(--color-warning-ink);
+}
+
+.sevAlta {
+  background: var(--color-danger-surface);
+  color: var(--color-danger-ink);
+}
+
+.valorVencido {
+  font-weight: 700;
+  color: var(--color-danger-ink);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.barraMora {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  min-width: 120px;
+}
+
+.barraMoraValor {
+  width: 44px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: var(--color-ink-secondary);
+}
+
+.barraMoraPista {
+  flex: 1;
+  height: 6px;
+  border-radius: var(--radius-full);
+  background: var(--color-surface-sunken);
+  overflow: hidden;
+}
+
+.barraMoraRelleno {
+  display: block;
+  height: 100%;
+  border-radius: var(--radius-full);
+  background: var(--color-danger-ink);
+}
+
+.muted {
+  color: var(--color-ink-muted);
+}
+
+/* Antigüedad: cada rango se tiñe de menos a más grave y muestra su peso relativo */
+.rangoCard {
+  position: relative;
+  --tinte: color-mix(in srgb, var(--color-warning-ink) calc(100% - var(--sev, 0) * 1%), var(--color-danger-ink));
+  border-top: 3px solid var(--tinte);
+  background: var(--color-surface);
+}
+
+.rangoCount {
+  font-size: 1.5rem;
+}
+
+.rangoMonto {
+  color: var(--tinte);
+}
+
+.rangoPista {
+  display: block;
+  margin-top: var(--space-sm);
+  height: 4px;
+  border-radius: var(--radius-full);
+  background: var(--color-surface-sunken);
+  overflow: hidden;
+}
+
+.rangoRelleno {
+  display: block;
+  height: 100%;
+  border-radius: var(--radius-full);
+  background: var(--tinte);
+}
+
+.filaCtxMenu:hover td {
+  background: var(--color-surface);
+}
+
+/* Ajuste de ancho: que las 7 columnas quepan sin scroll horizontal a 1440px */
+.card th,
+.card td {
+  padding-left: 12px;
+  padding-right: 12px;
+}
+
+.personaNombre {
+  max-width: 190px;
+}
+
+.barraMora {
+  min-width: 96px;
+}
+
+.barraMoraValor {
+  width: 40px;
+}
+
+.inmueble .personaSub {
+  max-width: 170px;
+}
+
+.card .personaNombre {
+  max-width: 150px;
+}
+
+.card .barraMoraValor {
+  width: 52px;
+  flex-shrink: 0;
+}

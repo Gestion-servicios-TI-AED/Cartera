@@ -846,5 +846,16 @@ HRMS y se adaptan solo textos/datos). Se hace por pasos, con el HRMS como modelo
   tabla en tarjeta con encabezado discreto y paginación dentro, columnas de acción
   (PDF, Verificado) sin partir el texto. Lógica sin cambios (sigue sin persistir filtros
   entre visitas, a pedido). Estilos en `otrosies/OtrosiesPage.module.css`.
+- **Rediseño fuerte de Cartera y Otrosíes (mismo día, a pedido: el primer corte
+  cambiaba poco):** las filas ahora se leen de un vistazo con celdas compartidas
+  (`cartera-mora/CarteraCeldas.jsx`: `CeldaComprador` avatar+nombre+referencia,
+  `CeldaInmueble` unidad destacada+ubicación, `ChipDias` por severidad
+  (≤30 neutro / ≤60 ámbar / >60 rojo), `BarraMora`, `ValorVencido`). Cartera pasó de
+  10 columnas a 7 (4 en Saldo Contraentrega) y ya no scrollea en horizontal a
+  1440px; se perdió el orden por Etapa/Referencia (ahora Inmueble ordena por unidad).
+  "Antigüedad de la mora" tiñe cada rango de menos a más grave con barra de peso
+  relativo, y el Top 10 abre por defecto. Otrosíes reutiliza las mismas celdas
+  (Negocio con avatar sin el prefijo/unidad, Inmueble con la unidad destacada, PDF y
+  Verificación como chips).
 - Pendiente (en orden): Inicio (de Baía Kristal y Oliv) --
   Cartera ya heredó los estilos de tarjetas/KPIs de `Dashboard.module.css`.

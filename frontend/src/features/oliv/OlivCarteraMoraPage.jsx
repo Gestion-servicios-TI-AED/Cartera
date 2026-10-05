@@ -33,6 +33,7 @@ import { usePersistentState } from '../../hooks/usePersistentState.js';
 import { getCarteraMoraOliv } from '../../api/olivResumen.js';
 import { formatCOP, formatDate } from '../../utils/format.js';
 import { StatTile } from '../dashboard/StatTile.jsx';
+import { CeldaComprador, CeldaInmueble, ChipDias, BarraMora, ValorVencido } from '../cartera-mora/CarteraCeldas.jsx';
 import dashStyles from '../dashboard/Dashboard.module.css';
 import styles from '../cartera-mora/CarteraMoraPage.module.css';
 
@@ -166,7 +167,7 @@ export function OlivCarteraMoraPage() {
   const [error, setError] = useState(null);
   const [exportando, setExportando] = useState(false);
   const [topFilas, setTopFilas] = useState([]);
-  const [topAbierto, setTopAbierto] = useState(false);
+  const [topAbierto, setTopAbierto] = useState(true);
   const [menuContextual, setMenuContextual] = useState(null);
 
   const ultimaPeticionRef = useRef(0);
@@ -282,6 +283,7 @@ export function OlivCarteraMoraPage() {
   const resumen = meta.resumen ?? {};
   const porRangoMora = meta.porRangoMora ?? [];
   const conteos = meta.conteos ?? {};
+  const maxMontoRango = Math.max(0, ...porRangoMora.map((r) => r.monto || 0));
   const hasFilters = filtros.search || filtros.torre || filtros.estadoInmueble || filtros.rango;
 
   function clearFilters() {
@@ -347,16 +349,20 @@ export function OlivCarteraMoraPage() {
               <h2 className={styles.bloqueTitulo}>Antigüedad de la mora</h2>
               <p className={styles.bloqueSub}>Mismo criterio que las hojas de la fiduciaria. Haz clic en un rango para filtrar la tabla.</p>
               <div className={styles.rangoGrid}>
-                {porRangoMora.map((r) => (
+                {porRangoMora.map((r, i) => (
                   <button
                     key={r.rango}
                     type="button"
                     className={`${styles.rangoCard} ${filtros.rango === r.rango ? styles.rangoCardActiva : ''}`}
+                    style={{ '--sev': porRangoMora.length > 1 ? (i / (porRangoMora.length - 1)) * 100 : 100 }}
                     onClick={() => actualizarFiltro('rango', filtros.rango === r.rango ? '' : r.rango)}
                   >
                     <p className={styles.rangoLabel}>{r.label}</p>
                     <p className={styles.rangoCount}>{r.count}</p>
                     <p className={styles.rangoMonto}>{formatCOP(r.monto)}</p>
+                    <span className={styles.rangoPista}>
+                      <span className={styles.rangoRelleno} style={{ width: `${maxMontoRango > 0 ? Math.max(4, (r.monto / maxMontoRango) * 100) : 0}%` }} />
+                    </span>
                   </button>
                 ))}
               </div>
@@ -421,53 +427,45 @@ export function OlivCarteraMoraPage() {
                     <thead>
                       {esContraentrega ? (
                         <tr>
-                          <th aria-sort={ariaSort(sort, 'torre')}><SortHeader label="Torre" sortKey="torre" sort={sort} onSort={toggleSort} /></th>
-                          <th aria-sort={ariaSort(sort, 'unidad')}><SortHeader label="Nomenclatura" sortKey="unidad" sort={sort} onSort={toggleSort} /></th>
-                          <th aria-sort={ariaSort(sort, 'referenciaRecaudo')}><SortHeader label="Referencia" sortKey="referenciaRecaudo" sort={sort} onSort={toggleSort} /></th>
                           <th aria-sort={ariaSort(sort, 'comprador')}><SortHeader label="Comprador" sortKey="comprador" sort={sort} onSort={toggleSort} /></th>
+                          <th aria-sort={ariaSort(sort, 'unidad')}><SortHeader label="Inmueble" sortKey="unidad" sort={sort} onSort={toggleSort} /></th>
                           <th aria-sort={ariaSort(sort, 'fechaSaldoContraentrega')}><SortHeader label="Fecha vencida" sortKey="fechaSaldoContraentrega" sort={sort} onSort={toggleSort} align="center" /></th>
                           <th aria-sort={ariaSort(sort, 'montoEnMora')}><SortHeader label="Valor pendiente" sortKey="montoEnMora" sort={sort} onSort={toggleSort} align="center" /></th>
                         </tr>
                       ) : (
                         <tr>
-                          <th aria-sort={ariaSort(sort, 'torre')}><SortHeader label="Torre" sortKey="torre" sort={sort} onSort={toggleSort} /></th>
-                          <th aria-sort={ariaSort(sort, 'unidad')}><SortHeader label="Nomenclatura" sortKey="unidad" sort={sort} onSort={toggleSort} /></th>
-                          <th aria-sort={ariaSort(sort, 'referenciaRecaudo')}><SortHeader label="Referencia" sortKey="referenciaRecaudo" sort={sort} onSort={toggleSort} /></th>
                           <th aria-sort={ariaSort(sort, 'comprador')}><SortHeader label="Comprador" sortKey="comprador" sort={sort} onSort={toggleSort} /></th>
+                          <th aria-sort={ariaSort(sort, 'unidad')}><SortHeader label="Inmueble" sortKey="unidad" sort={sort} onSort={toggleSort} /></th>
                           <th aria-sort={ariaSort(sort, 'valorInmueble')}><SortHeader label="Valor apartamento" sortKey="valorInmueble" sort={sort} onSort={toggleSort} align="center" /></th>
-                          <th aria-sort={ariaSort(sort, 'cuotasEnMora')}><SortHeader label="Cuotas mora" sortKey="cuotasEnMora" sort={sort} onSort={toggleSort} align="center" /></th>
-                          <th aria-sort={ariaSort(sort, 'maxDiasAtraso')}><SortHeader label="Días atraso" sortKey="maxDiasAtraso" sort={sort} onSort={toggleSort} align="center" /></th>
+                          <th aria-sort={ariaSort(sort, 'cuotasEnMora')}><SortHeader label="Cuotas" sortKey="cuotasEnMora" sort={sort} onSort={toggleSort} align="center" /></th>
+                          <th aria-sort={ariaSort(sort, 'maxDiasAtraso')}><SortHeader label="Atraso" sortKey="maxDiasAtraso" sort={sort} onSort={toggleSort} align="center" /></th>
                           <th aria-sort={ariaSort(sort, 'montoEnMora')}><SortHeader label="Valor vencido" sortKey="montoEnMora" sort={sort} onSort={toggleSort} align="center" /></th>
-                          <th aria-sort={ariaSort(sort, 'pctEnMora')}><SortHeader label="% en mora" sortKey="pctEnMora" sort={sort} onSort={toggleSort} align="center" /></th>
+                          <th aria-sort={ariaSort(sort, 'pctEnMora')}><SortHeader label="% en mora" sortKey="pctEnMora" sort={sort} onSort={toggleSort} /></th>
                         </tr>
                       )}
                     </thead>
                     <tbody>
                       {(meta.data ?? []).length === 0 ? (
-                        <tr><td colSpan={esContraentrega ? 6 : 9} className={styles.sinResultados}>Sin resultados.</td></tr>
+                        <tr><td colSpan={esContraentrega ? 4 : 7} className={styles.sinResultados}>Sin resultados.</td></tr>
                       ) : esContraentrega ? (
                         meta.data.map((f) => (
                           <tr key={f.id} onContextMenu={(e) => abrirMenuContextual(e, f)} className={styles.filaCtxMenu}>
-                            <td>{f.torre ?? '—'}</td>
-                            <td>{f.unidad ?? '—'}</td>
-                            <td>{f.referenciaRecaudo ?? ''}</td>
-                            <td className={styles.truncar} title={f.comprador ?? ''}>{f.comprador ?? '—'}</td>
+                            <td><CeldaComprador nombre={f.comprador} sub={f.referenciaRecaudo} /></td>
+                            <td><CeldaInmueble principal={f.unidad ?? '—'} sub={f.torre ?? ''} /></td>
                             <td className={`${styles.numCellCentro} ${styles.tonoWarning}`}>{formatDate(f.fechaSaldoContraentrega)}</td>
-                            <td className={`${styles.numCellCentro} ${styles.tonoDanger}`}>{formatCOP(f.montoEnMora)}</td>
+                            <td className={styles.numCellCentro}><ValorVencido valor={f.montoEnMora} /></td>
                           </tr>
                         ))
                       ) : (
                         meta.data.map((f) => (
                           <tr key={f.id} onContextMenu={(e) => abrirMenuContextual(e, f)} className={styles.filaCtxMenu}>
-                            <td>{f.torre ?? '—'}</td>
-                            <td><Link to={`/oliv/negocios/${f.id}`}>{f.unidad ?? f.id}</Link></td>
-                            <td>{f.referenciaRecaudo ?? ''}</td>
-                            <td className={styles.truncar} title={f.comprador ?? ''}>{f.comprador ?? '—'}</td>
+                            <td><CeldaComprador nombre={f.comprador} sub={f.referenciaRecaudo} /></td>
+                            <td><CeldaInmueble principal={<Link to={`/oliv/negocios/${f.id}`}>{f.unidad ?? f.id}</Link>} sub={f.torre ?? ''} /></td>
                             <td className={styles.numCellCentro}>{f.valorInmueble != null ? formatCOP(f.valorInmueble) : '—'}</td>
                             <td className={styles.numCellCentro}>{f.cuotasEnMora}</td>
-                            <td className={`${styles.numCellCentro} ${styles.tonoWarning}`}>{f.maxDiasAtraso}</td>
-                            <td className={`${styles.numCellCentro} ${styles.tonoDanger}`}>{formatCOP(f.montoEnMora)}</td>
-                            <td className={`${styles.numCellCentro} ${styles.tonoDanger}`}>{fmtPct(f.pctEnMora)}</td>
+                            <td className={styles.numCellCentro}><ChipDias dias={f.maxDiasAtraso} /></td>
+                            <td className={styles.numCellCentro}><ValorVencido valor={f.montoEnMora} /></td>
+                            <td><BarraMora pct={f.pctEnMora} /></td>
                           </tr>
                         ))
                       )}

@@ -288,3 +288,25 @@
 .table td {
   vertical-align: middle;
 }
+
+.linkPdf {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: var(--radius-full);
+  background: var(--color-info-surface);
+  color: var(--color-primary);
+  font-size: var(--text-label-size);
+  font-weight: 600;
+}
+
+.linkPdf:hover {
+  text-decoration: none;
+  background: var(--color-surface-sunken);
+}
+
+.botonVerificado {
+  border-radius: var(--radius-full);
+  padding: 5px 12px;
+}
