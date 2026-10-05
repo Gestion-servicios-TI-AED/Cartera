@@ -689,3 +689,18 @@ para color, tipo, espaciado, movimiento, y patrones de componentes con
 nombre — léelo antes de tocar cualquier archivo de UI. Copiado tal cual de
 `Plantilla-Arquitectura-AED` (mismo branding aed que el resto de la familia
 de productos).
+
+## Migración de diseño a la identidad del HRMS (2026-10-05)
+
+Objetivo: que Cartera quede visualmente idéntica al HRMS (se copian JSX y CSS del
+HRMS y se adaptan solo textos/datos). Se hace por pasos, con el HRMS como modelo
+(`3. SISTEMA DE GESTIÓN DE RECURSOS HUMANOS/frontend`).
+
+- **Paso 1 — base + login (hecho):** `tokens.css` e `index.css` copiados del HRMS
+  (Inter variable alojada con `@fontsource-variable/inter`, importada en
+  `main.jsx`; se quitó Raleway de `index.html`; `--space-xs` pasa a 2px).
+  `LoginPage.module.css` y `CambiarPasswordPage.jsx` copiados tal cual;
+  `LoginPage.jsx` es el del HRMS con textos de Cartera (slogan, beneficios,
+  pie). Se conserva la foto propia de Cartagena en `public/login-hero.jpg`.
+- Pendiente (en orden): componentes base de `components/ui`, `AppShell`/`UserMenu`,
+  Accesos (usuarios/roles), y luego las pantallas de Baía Kristal y Oliv.
