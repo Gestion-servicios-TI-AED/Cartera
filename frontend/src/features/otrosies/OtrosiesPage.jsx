@@ -15,6 +15,7 @@
 // (`otro_si_requerido`, `otroSiRequerido` en la API) por si se necesita
 // después -- solo se dejó de mostrar y de ofrecer como filtro acá.
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Search, ListFilter, RefreshCw, Layers, MapPin, Building, CheckCircle2, Circle, X, FileText } from 'lucide-react';
 import { CeldaComprador, CeldaInmueble } from '../cartera-mora/CarteraCeldas.jsx';
 import { StageBadge } from '../../components/ui/StageBadge.jsx';
@@ -142,7 +143,16 @@ export function OtrosiesPage() {
   // Deliberadamente useState normal (NO usePersistentState) -- pedido explícito
   // del usuario: a diferencia del resto de listados del proyecto, este módulo
   // no debe recordar filtros/página entre visitas, deben arrancar limpios.
-  const [filtros, setFiltros] = useState({ search: '', stage: '', etapa: '', frente: '', torre: '', verificado: '' });
+  // Enlace desde Inicio (?verificado=no): arranca con ese filtro y limpia la URL.
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [filtros, setFiltros] = useState(() => ({
+    search: '', stage: '', etapa: '', frente: '', torre: '',
+    verificado: ['si', 'no'].includes(searchParams.get('verificado')) ? searchParams.get('verificado') : '',
+  }));
+  useEffect(() => {
+    if (searchParams.has('verificado')) setSearchParams({}, { replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const [pagina, setPagina] = useState(1);
   const [resultado, setResultado] = useState(null);
   const [stages, setStages] = useState([]);

@@ -17,7 +17,7 @@
 // 3. El menú contextual usa fila.id/inmuebleId/oportunidadId (mismo
 //    contrato que OlivDashboardPage), no negocioId/opportunityId.
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import ExcelJS from 'exceljs';
 import { AlertTriangle, Search, Building2, MapPin, X, Briefcase, Warehouse, ExternalLink, Download, Layers, Banknote, Percent } from 'lucide-react';
 import { Field, TextInput, Select } from '../../components/ui/Field.jsx';
@@ -127,6 +127,18 @@ const LIMIT = 50;
 export function OlivCarteraMoraPage() {
   const [filtros, setFiltros] = usePersistentState('oliv-cartera-mora:filtros', { search: '', torre: '', estadoInmueble: '', vista: 'inicial', rango: '' });
   const [pagina, setPagina] = usePersistentState('oliv-cartera-mora:pagina', 1);
+
+  // Enlaces desde Inicio (?vista=&rango=): aplican esos filtros una vez y limpian la URL.
+  const [searchParams, setSearchParams] = useSearchParams();
+  useEffect(() => {
+    const vista = searchParams.get('vista');
+    const rango = searchParams.get('rango');
+    if (!vista && !rango) return;
+    setFiltros(() => ({ search: '', torre: '', estadoInmueble: '', vista: vista === 'contraentrega' ? 'contraentrega' : 'inicial', rango: rango ?? '' }));
+    setPagina(1);
+    setSearchParams({}, { replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const [sort, setSort] = usePersistentState('oliv-cartera-mora:sort', { key: null, direction: null });
   const [resultado, setResultado] = useState(null);
   const [cargando, setCargando] = useState(true);

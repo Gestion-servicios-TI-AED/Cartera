@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react';
-import { Routes, Route, Link } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import { AppShell } from './components/layout/AppShell.jsx';
 import { ProtectedRoute } from './auth/ProtectedRoute.jsx';
 
@@ -53,6 +53,7 @@ const ResumenPage = lazyNamed(() => import('./features/resumen/ResumenPage.jsx')
 // Otrosíes (Baía Kristal) -- módulo de SOLO LECTURA, tabla de consulta del
 // estado del 'Otro sí - Contrato de Fiducia' sobre los Deals (ver
 // features/otrosies/OtrosiesPage.jsx).
+const InicioPage = lazyNamed(() => import('./features/inicio/InicioPage.jsx'), 'InicioPage');
 const OtrosiesPage = lazyNamed(() => import('./features/otrosies/OtrosiesPage.jsx'), 'OtrosiesPage');
 // Proyecto Oliv (CRM HubSpot) -- primer módulo, ver
 // features/oliv/OlivOportunidadesPage.jsx.
@@ -75,19 +76,6 @@ const OlivMovimientosPage = lazyNamed(() => import('./features/oliv/OlivMovimien
 const OlivResumenPage = lazyNamed(() => import('./features/oliv/OlivResumenPage.jsx'), 'OlivResumenPage');
 const OlivDashboardPage = lazyNamed(() => import('./features/oliv/OlivDashboardPage.jsx'), 'OlivDashboardPage');
 const OlivCarteraMoraPage = lazyNamed(() => import('./features/oliv/OlivCarteraMoraPage.jsx'), 'OlivCarteraMoraPage');
-
-// Placeholder de inicio -- todavia no hay modulo de nav real portado (ver
-// hoja de ruta del plan de migracion).
-function InicioPage() {
-  return (
-    <div>
-      <p>Cartera AED -- en migración. Todavía no hay módulos portados al sidebar.</p>
-      <p>
-        <Link to="/accesos/frentes">Fechas de entrega por Frente/Torre/Piso</Link> (Accesos, solo admins)
-      </p>
-    </div>
-  );
-}
 
 export default function App() {
   return (

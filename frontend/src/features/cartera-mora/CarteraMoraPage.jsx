@@ -10,7 +10,7 @@
 // cual, no el OrdinalBarChart (ApexCharts) que usan los demas graficos de
 // este dashboard.
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import ExcelJS from 'exceljs';
 import { AlertTriangle, Search, Layers, MapPin, Building, X, Briefcase, Warehouse, ExternalLink, Clock, Repeat, Check, Download, Banknote, Percent } from 'lucide-react';
 import { Field, TextInput, Select } from '../../components/ui/Field.jsx';
@@ -143,6 +143,18 @@ function cumpleFiltroTramite(fila, tramite) {
 export function CarteraMoraPage() {
   const [filtros, setFiltros] = usePersistentState('cartera-mora:filtros', { search: '', etapa: '', frente: '', torre: '', tramite: '', vista: 'inicial', rango: '' });
   const [pagina, setPagina] = usePersistentState('cartera-mora:pagina', 1);
+
+  // Enlaces desde Inicio (?vista=&rango=): aplican esos filtros una vez y limpian la URL.
+  const [searchParams, setSearchParams] = useSearchParams();
+  useEffect(() => {
+    const vista = searchParams.get('vista');
+    const rango = searchParams.get('rango');
+    if (!vista && !rango) return;
+    setFiltros(() => ({ search: '', etapa: '', frente: '', torre: '', tramite: '', vista: vista === 'contraentrega' ? 'contraentrega' : 'inicial', rango: rango ?? '' }));
+    setPagina(1);
+    setSearchParams({}, { replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const [sort, setSort] = usePersistentState('cartera-mora:sort-v3', ORDEN_POR_DEFECTO);
   const [resultado, setResultado] = useState(null);
   const [cargando, setCargando] = useState(true);

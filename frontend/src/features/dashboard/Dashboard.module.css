@@ -376,3 +376,9 @@
 .table tbody tr:hover {
   background: var(--color-surface-sunken);
 }
+
+/* Línea secundaria bajo la etiqueta de un KPI (ej. el valor del otro proyecto) */
+.statSub {
+  font-size: var(--text-label-size);
+  color: var(--color-ink-muted);
+}

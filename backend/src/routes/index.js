@@ -15,6 +15,7 @@ const olivInmuebleRoutes = require('../modules/olivInmueble/olivInmueble.routes'
 const olivNegocioRoutes = require('../modules/olivNegocio/olivNegocio.routes');
 const olivEncargoRoutes = require('../modules/olivEncargo/olivEncargo.routes');
 const olivResumenRoutes = require('../modules/olivResumen/olivResumen.routes');
+const inicioRoutes = require('../modules/inicio/inicio.routes');
 
 const router = express.Router();
 
@@ -38,6 +39,7 @@ router.use('/oliv/inmuebles', olivInmuebleRoutes);
 router.use('/oliv/negocios', olivNegocioRoutes);
 router.use('/oliv/encargos', olivEncargoRoutes);
 router.use('/oliv/resumen', olivResumenRoutes);
+router.use('/inicio', inicioRoutes);
 
 router.get('/health', (req, res) => res.json({ success: true, data: { status: 'ok' } }));
 

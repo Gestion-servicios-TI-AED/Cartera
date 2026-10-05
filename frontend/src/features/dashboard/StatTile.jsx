@@ -5,7 +5,7 @@ import styles from './Dashboard.module.css';
 // en una pastilla tintada según `tone` (primary | success | warning | neutral),
 // tooltip arriba a la derecha, cifra grande y etiqueta. `warning` tiñe la cifra
 // cuando es algo que requiere atención.
-export function StatTile({ label, value, description, icon: Icon, warning, tone = 'primary' }) {
+export function StatTile({ label, value, sub, description, icon: Icon, warning, tone = 'primary' }) {
   return (
     <div className={styles.statTile}>
       <div className={styles.statTop}>
@@ -18,6 +18,7 @@ export function StatTile({ label, value, description, icon: Icon, warning, tone 
       </div>
       <span className={`${styles.statValue} ${warning ? styles.statValueWarning : ''}`}>{value}</span>
       <span className={styles.statLabel}>{label}</span>
+      {sub && <span className={styles.statSub}>{sub}</span>}
     </div>
   );
 }

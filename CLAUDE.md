@@ -926,5 +926,22 @@ HRMS y se adaptan solo textos/datos). Se hace por pasos, con el HRMS como modelo
   con una nota, y al revés. Hay buscador de frente (persistente), "Expandir todo" y
   "Contraer todo". Sin paginación (es un árbol). No se probó guardar una fecha para no tocar
   datos reales de producción.
-- Pendiente (en orden): Inicio (de Baía Kristal y Oliv) --
+- **Paso 14 — Inicio (hecho, pedido y propuesta del usuario):** `/` ya no es un placeholder.
+  Por proyecto (selector Baía Kristal / Oliv, recordado en sesión): saludo + fecha +
+  chip de la última sincronización del CRM; **4 KPIs** con el `StatTile` del HRMS (Por recaudar,
+  Recaudado del mes, Monto en mora con # de negocios, Cuotas en mora) que enlazan al módulo y
+  muestran en pequeño el valor del *otro* proyecto; **panel de Alertas** ordenado por
+  gravedad (mora >90 días, Saldo Contraentrega vencido, Otrosíes sin verificar [solo BK],
+  sincronización con error o >36 h sin actualizar, cuotas que vencen en los próximos 7 días,
+  frentes sin fecha de entrega [solo admins, solo BK]) con estado vacío "Estás al día"; y
+  **Accesos rápidos** tomados de `NAV_GROUPS` (ahora exportado de `AppShell.jsx`), filtrados por
+  permiso. Backend: módulo nuevo `modules/inicio` (`GET /inicio`, solo `requireAuth`) que reusa
+  `dashboard.service`/`olivResumen.service` y **omite cada KPI/alerta si el usuario no tiene el
+  módulo al que enlaza**. La primera llamada con el cache frío tarda ~20 s (construye el
+  cache de cartera; ya se muestra un esqueleto de carga). Las alertas enlazan con filtros
+  aplicados: `/cartera-mora?rango=90%2B`, `?vista=contraentrega`, `/otrosies?verificado=no`
+  (las 3 pantallas los leen una vez al montar y limpian la URL). No se probó con un usuario de
+  permisos reducidos (solo con admin).
+- Pendiente: Panel de Alertas con más tipos y filas clicables en Cartera/Otrosíes (ver brechas
+  conocidas arriba).
   Cartera ya heredó los estilos de tarjetas/KPIs de `Dashboard.module.css`.

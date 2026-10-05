@@ -1,0 +1,323 @@
+/* Inicio: encabezado, KPIs (StatTile de dashboard), panel de alertas y accesos rapidos. */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  width: 100%;
+}
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+}
+
+.fecha::first-letter {
+  text-transform: uppercase;
+}
+
+.headerLado {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-md);
+}
+
+.chipSync {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: var(--radius-full);
+  background: var(--color-success-surface);
+  color: var(--color-success-ink);
+  font-size: var(--text-label-size);
+  font-weight: 600;
+}
+
+.sinSync {
+  background: var(--color-warning-surface);
+  color: var(--color-warning-ink);
+}
+
+.errorSync {
+  background: var(--color-danger-surface);
+  color: var(--color-danger-ink);
+}
+
+.kpiLink {
+  display: block;
+  min-width: 0;
+  color: inherit;
+  text-decoration: none;
+}
+
+.kpiLink > * {
+  height: 100%;
+}
+
+/* Alertas + accesos rapidos lado a lado en pantalla ancha */
+.cuerpo {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  gap: var(--space-md);
+  align-items: start;
+}
+
+@media (max-width: 1100px) {
+  .cuerpo {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.panel,
+.accesos {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  padding: 22px 24px;
+  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.panelHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.panelTitulo {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-title-size);
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+.contador {
+  padding: 2px 10px;
+  border-radius: var(--radius-full);
+  background: var(--color-info-surface);
+  color: var(--color-primary);
+  font-size: var(--text-label-size);
+  font-weight: 700;
+}
+
+.listaAlertas {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.listaAlertas li + li {
+  border-top: 1px solid var(--color-border);
+}
+
+.alerta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: 14px 8px;
+  margin: 0 -8px;
+  border-radius: var(--radius-md);
+  color: inherit;
+  text-decoration: none;
+  transition: background-color var(--duration-fast) var(--ease-standard);
+}
+
+.alerta:hover {
+  background: var(--color-surface-sunken);
+}
+
+.alertaIcono {
+  display: grid;
+  place-items: center;
+  flex: 0 0 36px;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+}
+
+.sev_danger {
+  background: var(--color-danger-surface);
+  color: var(--color-danger-ink);
+}
+
+.sev_warning {
+  background: var(--color-warning-surface);
+  color: var(--color-warning-ink);
+}
+
+.sev_info {
+  background: var(--color-info-surface);
+  color: var(--color-primary);
+}
+
+.alertaTexto {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.alertaTitulo {
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+.alertaDetalle {
+  font-size: var(--text-label-size);
+  color: var(--color-ink-muted);
+}
+
+.alertaCifras {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.alertaCuenta {
+  min-width: 36px;
+  padding: 2px 10px;
+  border-radius: var(--radius-full);
+  text-align: center;
+  font-size: var(--text-label-size);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.alertaMonto {
+  font-size: var(--text-label-size);
+  font-weight: 600;
+  color: var(--color-ink-secondary);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.alertaChevron {
+  flex-shrink: 0;
+  color: var(--color-ink-muted);
+}
+
+.alDia {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: var(--space-xl) 0;
+  text-align: center;
+}
+
+.alDiaIcono {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--color-success-surface);
+  color: var(--color-success-ink);
+}
+
+.alDiaTitulo {
+  margin: 8px 0 0;
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+.alDiaTexto {
+  margin: 0;
+  color: var(--color-ink-muted);
+  font-size: var(--text-data-size);
+}
+
+.accesosGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: var(--space-sm);
+  margin-top: var(--space-xs);
+}
+
+.acceso {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: 12px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-ink);
+  text-decoration: none;
+  font-weight: 600;
+  transition: border-color var(--duration-fast) var(--ease-standard), background-color var(--duration-fast) var(--ease-standard);
+}
+
+.acceso:hover {
+  border-color: var(--color-border-strong);
+  background: var(--color-surface-sunken);
+}
+
+.accesoIcono {
+  display: grid;
+  place-items: center;
+  flex: 0 0 34px;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-md);
+  background: var(--color-info-surface);
+  color: var(--color-primary);
+}
+
+.accesoLabel {
+  min-width: 0;
+}
+
+/* Esqueleto mientras carga (la primera consulta construye el cache de cartera) */
+.esqueleto {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.esqueletoFila {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(180px, 100%), 1fr));
+  gap: var(--space-md);
+}
+
+.esqueletoKpi,
+.esqueletoPanel {
+  display: block;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(90deg, var(--color-surface-sunken) 0%, var(--color-surface) 50%, var(--color-surface-sunken) 100%);
+  background-size: 200% 100%;
+  animation: brillo 1.4s ease-in-out infinite;
+}
+
+.esqueletoKpi {
+  height: 140px;
+}
+
+.esqueletoPanel {
+  height: 280px;
+}
+
+@keyframes brillo {
+  0% { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .esqueletoKpi,
+  .esqueletoPanel {
+    animation: none;
+  }
+}

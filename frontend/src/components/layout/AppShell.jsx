@@ -41,7 +41,7 @@ function IconOliv() {
 // declarados de una (todos `enDesarrollo`) y nunca llegó a tener ninguno
 // real. Con Oliv se agrega un item solo cuando el módulo correspondiente ya
 // existe de verdad -- Oportunidades es el primero.
-const NAV_GROUPS = [
+export const NAV_GROUPS = [
   {
     title: 'Baía Kristal',
     icon: IconBaiaKristal,
