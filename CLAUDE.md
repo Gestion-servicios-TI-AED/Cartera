@@ -871,5 +871,9 @@ HRMS y se adaptan solo textos/datos). Se hace por pasos, con el HRMS como modelo
   comprador** (tabla y Excel, BK y Oliv) y Baía Kristal arranca ordenada por **Etapa**
   ascendente (clave de estado persistido nueva `cartera-mora:sort-v2` para no heredar
   el orden vacío guardado en los navegadores). Oliv no tiene etapa, queda sin cambio.
+- **Etapa también en "Saldo Contraentrega vencido" (Baía Kristal):** esa pestaña no
+  tenía columna Etapa, así que el orden por defecto no se notaba ahí. Se agregó
+  (ordenable, y también en el Excel). Verificado recorriendo las 9 páginas de Cuota
+  Inicial: Etapa 1 > 2 > 3 > 4 > Isla Laguna > The Plaza > Vela Village.
 - Pendiente (en orden): Inicio (de Baía Kristal y Oliv) --
   Cartera ya heredó los estilos de tarjetas/KPIs de `Dashboard.module.css`.

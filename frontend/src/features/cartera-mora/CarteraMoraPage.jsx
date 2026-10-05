@@ -60,6 +60,7 @@ const EXCEL_COLUMNAS_INICIAL = [
   { key: 'pctEnMora', header: '% EN MORA', width: 13, numFmt: '0.0"%"', tono: 'danger', render: (f) => f.pctEnMora ?? 0 },
 ];
 const EXCEL_COLUMNAS_CONTRAENTREGA = [
+  { key: 'etapa', header: 'ETAPA', width: 30, align: 'left', render: (f) => (f.etapa ? etiquetaEtapa(f.etapa) : '—') },
   { key: 'frenteTorre', header: 'FRENTE/TORRE', width: 20, align: 'left', render: (f) => f.frenteTorre || '—' },
   { key: 'unidad', header: 'UNIDAD', width: 16, align: 'left', render: (f) => f.unidad ?? '—' },
   { key: 'comprador', header: 'COMPRADOR', width: 32, align: 'left', render: (f) => f.comprador ?? '—' },
@@ -531,6 +532,7 @@ export function CarteraMoraPage() {
                     <thead>
                       {esContraentrega ? (
                         <tr>
+                          <th aria-sort={ariaSort(sort, 'etapa')}><SortHeader label="Etapa" sortKey="etapa" sort={sort} onSort={toggleSort} /></th>
                           <th>Frente/Torre</th>
                           <th aria-sort={ariaSort(sort, 'unidad')}><SortHeader label="Nomenclatura" sortKey="unidad" sort={sort} onSort={toggleSort} /></th>
                           <th aria-sort={ariaSort(sort, 'comprador')}><SortHeader label="Comprador" sortKey="comprador" sort={sort} onSort={toggleSort} /></th>
@@ -555,10 +557,11 @@ export function CarteraMoraPage() {
                     </thead>
                     <tbody>
                       {(meta.data ?? []).length === 0 ? (
-                        <tr><td colSpan={esContraentrega ? 6 : 10} className={styles.sinResultados}>Sin resultados.</td></tr>
+                        <tr><td colSpan={esContraentrega ? 7 : 10} className={styles.sinResultados}>Sin resultados.</td></tr>
                       ) : esContraentrega ? (
                         meta.data.map((f) => (
                           <tr key={f.id} onContextMenu={(e) => abrirMenuContextual(e, f)} className={styles.filaCtxMenu}>
+                            <td>{f.etapa ? etiquetaEtapa(f.etapa) : '—'}</td>
                             <td><CeldaDoble arriba={f.frente} abajo={f.torre != null ? `Torre ${f.torre}` : null} /></td>
                             <td>{f.unidad ?? '—'}</td>
                             <td className={styles.truncar} title={f.comprador ?? ''}>{f.comprador ?? '—'}</td>
