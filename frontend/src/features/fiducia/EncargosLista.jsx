@@ -139,7 +139,7 @@ export function EncargosLista({ config }) {
         </div>
         <div className={styles.dropzoneControles}>
           {conFecha && (
-            <Field label="Fecha del Excel" helper="Vacía = hoy">
+            <Field label="Fecha del Excel (vacía = hoy)">
               {(p) => <TextInput {...p} type="date" value={fechaSubida} onChange={(e) => setFechaSubida(e.target.value)} />}
             </Field>
           )}
@@ -257,7 +257,7 @@ export function EncargosLista({ config }) {
                       ))}
                     </div>
                   </td>
-                  <td className={styles.fecha}>{formatDateTime(enc.creado_en)}</td>
+                  <td className={styles.fechaCorta}>{formatDateTime(enc.creado_en)}</td>
                   <td className={styles.accionesCol}>
                     <div className={styles.acciones}>
                       {editandoId !== enc.id && (
