@@ -742,15 +742,17 @@ HRMS y se adaptan solo textos/datos). Se hace por pasos, con el HRMS como modelo
   `accesos/Usuarios.module.css` (se eliminó su CSS propio) y
   `Accesos.module.css` quedó solo con lo propio de Sincronización (progreso,
   estados, lista de torres). Con esto **Accesos queda completo**.
-- **Paso 5 — Oportunidades de Baía Kristal y Oliv (hecho):** las dos listas comparten
-  `oportunidades/OportunidadesListPage.module.css` y los dos detalles
-  `OportunidadDetallePage.module.css` (se reescribieron). Lista: encabezado con
-  título + total + estado de sync y botón "Sincronizar ahora" (`<Button>`), filtros
-  con etiqueta y "Limpiar filtros", tabla en tarjeta con paginación adentro (Oliv
-  ahora muestra la etapa con `StageBadge`). Detalle: banner (hero de
-  `WizardLayout.module.css`) con iniciales, contacto/proyecto, última sync, etapa y
-  referencia de recaudo; cada bloque es una tarjeta de sección; el `Accordion`
-  pasa a tarjeta redonda con más aire. No cambió ninguna lógica ni endpoint.
+- **Paso 5 — Oportunidades de Baía Kristal y Oliv (hecho, 2 pasadas):** primero estilos
+  (listas con filtros etiquetados y tabla en tarjeta; detalle con banner y tarjetas
+  de sección), y luego, a pedido del usuario ("¿no podías aplicar algo más fuerte?"),
+  un rediseño estructural. Lista: tarjeta de estado de sync con el botón, celda de
+  oportunidad con avatar de iniciales, Oliv con `StageBadge`. Detalle: **cifras
+  clave arriba** (BK: valor final / cuota inicial / saldo contra entrega, tomadas
+  del plan de pagos por su etiqueta; Oliv: monto / unidad / cotizaciones enviadas)
+  y **pestañas** en vez de dos columnas apiladas (BK: Resumen / Plan de pagos /
+  Cotización; Oliv: Resumen / Cotizaciones y pagos / Documentos y negociación).
+  Los dos listados comparten `OportunidadesListPage.module.css` y los dos detalles
+  `OportunidadDetallePage.module.css`.
 - **Paso 6 — Negocios de Baía Kristal y Oliv (hecho, rediseño estructural):** ya no es
   lista lateral + panel. `/negocios` (y `/oliv/negocios`) es una **página de lista a
   ancho completo**: encabezado con total y acciones (Exportar / Reconstruir desde

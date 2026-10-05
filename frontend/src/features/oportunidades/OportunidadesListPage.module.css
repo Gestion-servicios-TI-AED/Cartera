@@ -39,6 +39,10 @@
   align-items: center;
   flex-wrap: wrap;
   gap: var(--space-md);
+  padding: 8px 8px 8px 18px;
+  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
 }
 
 .syncEstado {
@@ -223,4 +227,72 @@
   text-align: center;
   color: var(--color-ink-muted);
   font-size: var(--text-body-size);
+}
+
+/* Resumen de la lista */
+.kpiGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: var(--space-md);
+}
+
+.kpiCard {
+  display: flex;
+  flex-direction: column-reverse;
+  justify-content: flex-end;
+  gap: 4px;
+  padding: 16px 20px;
+  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.kpiLabel {
+  margin: 0;
+  font-size: var(--text-data-size);
+  color: var(--color-ink-muted);
+}
+
+.kpiValor {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.75rem;
+  font-weight: 600;
+  line-height: 1.1;
+  color: var(--color-ink);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Celda de oportunidad: avatar + nombre */
+.persona {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--color-info-surface);
+  color: var(--color-primary);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.personaTexto {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.detalleSec {
+  font-size: var(--text-label-size);
+  color: var(--color-ink-muted);
+  font-weight: 400;
 }

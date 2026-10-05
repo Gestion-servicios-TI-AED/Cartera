@@ -23,6 +23,11 @@ import { formatDateTime } from '../../utils/format.js';
 import { etiquetaEtapa } from '../../utils/etapas.js';
 import styles from './OportunidadesListPage.module.css';
 
+function iniciales(texto = '') {
+  const partes = String(texto).replace(/^(Baia Kristal|Oliv)\s*-\s*/i, '').trim().split(/\s+/).filter(Boolean);
+  return `${partes[0]?.[0] ?? ''}${partes.length > 1 ? partes[1][0] : ''}`.toUpperCase() || '?';
+}
+
 function SyncStatusBar() {
   const [status, setStatus] = useState(null);
   const [sincronizando, setSincronizando] = useState(false);
@@ -322,7 +327,14 @@ export function OportunidadesListPage() {
               ) : (
                 sortedRows.map((op) => (
                   <tr key={op.id} className={styles.filaClicable} onClick={() => navigate(`/oportunidades/${op.id}`)}>
-                    <td className={styles.nombreOportunidad}>{op.dealName}</td>
+                    <td>
+                      <div className={styles.persona}>
+                        <span className={styles.avatar}>{iniciales(op.dealName)}</span>
+                        <span className={styles.personaTexto}>
+                          <span className={styles.nombreOportunidad}>{op.dealName}</span>
+                        </span>
+                      </div>
+                    </td>
                     <td><StageBadge stage={op.stage} /></td>
                     <td>{op.referenciaRecaudo ? <span className={styles.refBadge}>{op.referenciaRecaudo}</span> : '—'}</td>
                     <td>{op.inmueble?.label || 'Sin inmueble'}</td>

@@ -26,6 +26,7 @@ import { useParams } from 'react-router-dom';
 import { BackLink } from '../../components/ui/BackLink.jsx';
 import { StageBadge } from '../../components/ui/StageBadge.jsx';
 import { Accordion } from '../../components/ui/Accordion.jsx';
+import { Tabs } from '../../components/ui/Tabs.jsx';
 import { getOportunidadOliv, listPropiedadesMetadataOliv } from '../../api/oliv.js';
 import { formatCOP, formatDate, formatDateTime } from '../../utils/format.js';
 import layoutStyles from '../../components/layout/WizardLayout.module.css';
@@ -101,6 +102,7 @@ function FieldGrid({ campos, propiedades, metadata }) {
 
 export function OlivOportunidadDetallePage() {
   const { id } = useParams();
+  const [tab, setTab] = useState('resumen');
   const [op, setOp] = useState(null);
   const [metadata, setMetadata] = useState({});
   const [cargando, setCargando] = useState(true);
@@ -142,66 +144,84 @@ export function OlivOportunidadDetallePage() {
         </div>
       </section>
 
-      <div className={styles.body}>
-        {/* Izquierda: info general + preferencias del inmueble (equivalente a Contacto/Inmueble en Baía Kristal) */}
-        <div className={styles.columna}>
-          <div className={styles.card}>
-            <p className={styles.subtitulo}>Información general</p>
-            <InfoRow label="Contacto">{op.nombreContacto}</InfoRow>
-            <InfoRow label="Email">{op.email ? <a href={`mailto:${op.email}`} className={styles.link}>{op.email}</a> : null}</InfoRow>
-            <InfoRow label="Teléfono">{op.telefono ? <a href={`tel:${op.telefono}`} className={styles.link}>{op.telefono}</a> : null}</InfoRow>
-            <InfoRow label="Proyecto">{op.proyecto}</InfoRow>
-            <InfoRow label="Referencia Recaudo">{op.referenciaRecaudo ? <span className={styles.refBadge}>{op.referenciaRecaudo}</span> : null}</InfoRow>
-            <InfoRow label="Ciudad de residencia">{propiedades.ciudad_de_residencia}</InfoRow>
-            <InfoRow label="País de ciudadanía">{propiedades.pais_de_ciudadania}</InfoRow>
-            <InfoRow label="Nacionalidad">{propiedades.nacionalidad}</InfoRow>
-            <InfoRow label="Residencia">{propiedades.residencia}</InfoRow>
-            <InfoRow label="Método de contacto preferido">{propiedades.metodo_de_contacto_preferido}</InfoRow>
+      <div className={styles.kpiGrid}>
+        <div className={styles.kpiCard}>
+          <p className={styles.kpiLabel}>Monto</p>
+          <p className={styles.kpiValor}>{op.amount != null ? formatCOP(op.amount) : 'Sin definir'}</p>
+        </div>
+        <div className={styles.kpiCard}>
+          <p className={styles.kpiLabel}>Unidad</p>
+          <p className={styles.kpiValor}>{op.cotizacionAceptada?.unitCode || '—'}</p>
+        </div>
+        <div className={styles.kpiCard}>
+          <p className={styles.kpiLabel}>Cotizaciones enviadas</p>
+          <p className={styles.kpiValor}>{propiedades.numero_de_cotizaciones_enviadas ?? '—'}</p>
+        </div>
+      </div>
+
+      <Tabs
+        ariaLabel="Secciones de la oportunidad"
+        value={tab}
+        onChange={setTab}
+        tabs={[
+          { key: 'resumen', label: 'Resumen' },
+          { key: 'cotizaciones', label: 'Cotizaciones y pagos' },
+          { key: 'documentos', label: 'Documentos y negociación' },
+        ]}
+      />
+
+      {tab === 'resumen' && (
+        <div className={styles.body}>
+          <div className={styles.columna}>
+            <div className={styles.card}>
+              <p className={styles.subtitulo}>Información general</p>
+              <InfoRow label="Contacto">{op.nombreContacto}</InfoRow>
+              <InfoRow label="Email">{op.email ? <a href={`mailto:${op.email}`} className={styles.link}>{op.email}</a> : null}</InfoRow>
+              <InfoRow label="Teléfono">{op.telefono ? <a href={`tel:${op.telefono}`} className={styles.link}>{op.telefono}</a> : null}</InfoRow>
+              <InfoRow label="Proyecto">{op.proyecto}</InfoRow>
+              <InfoRow label="Referencia Recaudo">{op.referenciaRecaudo ? <span className={styles.refBadge}>{op.referenciaRecaudo}</span> : null}</InfoRow>
+              <InfoRow label="Ciudad de residencia">{propiedades.ciudad_de_residencia}</InfoRow>
+              <InfoRow label="País de ciudadanía">{propiedades.pais_de_ciudadania}</InfoRow>
+              <InfoRow label="Nacionalidad">{propiedades.nacionalidad}</InfoRow>
+              <InfoRow label="Residencia">{propiedades.residencia}</InfoRow>
+              <InfoRow label="Método de contacto preferido">{propiedades.metodo_de_contacto_preferido}</InfoRow>
+            </div>
           </div>
 
-          <div className={styles.card}>
-            <p className={styles.subtitulo}>Preferencias del inmueble</p>
-            <FieldGrid campos={PREFERENCIAS_INMUEBLE} propiedades={propiedades} metadata={metadata} />
+          <div className={styles.columna}>
+            <div className={styles.card}>
+              <p className={styles.subtitulo}>Inmueble</p>
+              {op.cotizacionAceptada ? (
+                <>
+                  <InfoRow label="Unidad">{op.cotizacionAceptada.unitCode}</InfoRow>
+                  <InfoRow label="Torre">{op.cotizacionAceptada.unitTower}</InfoRow>
+                  <InfoRow label="Piso">{op.cotizacionAceptada.unitFloor}</InfoRow>
+                  <InfoRow label="Parqueadero asignado">{op.cotizacionAceptada.parqueadero?.nombre}</InfoRow>
+                  <InfoRow label="Depósito">{op.cotizacionAceptada.deposito?.nombre}</InfoRow>
+                  <InfoRow label="Cuarto útil">{op.cotizacionAceptada.cuartoUtil?.nombre}</InfoRow>
+                </>
+              ) : (
+                <p className={styles.sinDatos}>Sin cotización aceptada</p>
+              )}
+            </div>
+
+            <div className={styles.card}>
+              <p className={styles.subtitulo}>Preferencias del inmueble</p>
+              <FieldGrid campos={PREFERENCIAS_INMUEBLE} propiedades={propiedades} metadata={metadata} />
+            </div>
           </div>
         </div>
+      )}
 
-        {/* Derecha: financiero (equivalente a Plan de Pagos/Cotización/subforms en Baía Kristal) --
-            Plan de Pagos va al final a propósito (pedido del usuario, 2026-09-11), no primero. */}
+      {tab === 'cotizaciones' && (
         <div className={styles.columna}>
-          <div className={styles.card}>
-            <p className={styles.subtitulo}>Monto</p>
-            <p className={styles.montoGrande}>{op.amount != null ? formatCOP(op.amount) : 'Sin definir'}</p>
-          </div>
-
-          <div className={styles.card}>
-            <p className={styles.subtitulo}>Inmueble</p>
-            {op.cotizacionAceptada ? (
-              <>
-                <InfoRow label="Unidad">{op.cotizacionAceptada.unitCode}</InfoRow>
-                <InfoRow label="Torre">{op.cotizacionAceptada.unitTower}</InfoRow>
-                <InfoRow label="Piso">{op.cotizacionAceptada.unitFloor}</InfoRow>
-                <InfoRow label="Parqueadero asignado">{op.cotizacionAceptada.parqueadero?.nombre}</InfoRow>
-                <InfoRow label="Depósito">{op.cotizacionAceptada.deposito?.nombre}</InfoRow>
-                <InfoRow label="Cuarto útil">{op.cotizacionAceptada.cuartoUtil?.nombre}</InfoRow>
-              </>
-            ) : (
-              <p className={styles.sinDatos}>Sin cotización aceptada</p>
-            )}
-          </div>
-
           <div className={styles.card}>
             <p className={styles.subtitulo}>Cotizaciones</p>
             <FieldGrid campos={COTIZACIONES} propiedades={propiedades} metadata={metadata} />
           </div>
 
-          <Accordion title="Documentos y negociación" defaultOpen={false}>
-            <div className={styles.seccionBody}>
-              <FieldGrid campos={DOCUMENTOS_Y_NEGOCIACION} propiedades={propiedades} metadata={metadata} />
-            </div>
-          </Accordion>
-
-          {op.cotizacionAceptada?.planDePago && (
-            <Accordion title="Plan de Pagos" defaultOpen={false}>
+          {op.cotizacionAceptada?.planDePago ? (
+            <Accordion collapsible={false} title="Plan de Pagos">
               <div className={styles.seccionBody}>
                 <div className={styles.tableWrap}>
                   <table className={styles.table}>
@@ -228,9 +248,21 @@ export function OlivOportunidadDetallePage() {
                 </p>
               </div>
             </Accordion>
+          ) : (
+            <div className={styles.card}>
+              <p className={styles.subtitulo}>Plan de Pagos</p>
+              <p className={styles.sinDatos}>Sin cotización aceptada: todavía no hay plan de pagos.</p>
+            </div>
           )}
         </div>
-      </div>
+      )}
+
+      {tab === 'documentos' && (
+        <div className={styles.card}>
+          <p className={styles.subtitulo}>Documentos y negociación</p>
+          <FieldGrid campos={DOCUMENTOS_Y_NEGOCIACION} propiedades={propiedades} metadata={metadata} />
+        </div>
+      )}
     </div>
   );
 }

@@ -11,6 +11,7 @@ import { useParams } from 'react-router-dom';
 import { BackLink } from '../../components/ui/BackLink.jsx';
 import { StageBadge } from '../../components/ui/StageBadge.jsx';
 import { Accordion } from '../../components/ui/Accordion.jsx';
+import { Tabs } from '../../components/ui/Tabs.jsx';
 import { getOportunidad, getSubformsOportunidad, getCamposMetadata } from '../../api/oportunidades.js';
 import { formatCOP, formatDate, formatDateTime } from '../../utils/format.js';
 import { addFechaEstimada } from '../../utils/planDePagos.js';
@@ -138,6 +139,7 @@ function SubformsSection({ oportunidadId, fechaInicioPlanPagos }) {
 
 export function OportunidadDetallePage() {
   const { id } = useParams();
+  const [tab, setTab] = useState('resumen');
   const [op, setOp] = useState(null);
   const [fieldMap, setFieldMap] = useState({});
   const [cargando, setCargando] = useState(true);
@@ -166,6 +168,19 @@ export function OportunidadDetallePage() {
     return isNaN(n) || n !== 0;
   });
 
+  // Cifras clave arriba: se eligen del plan de pagos por su etiqueta (los nombres
+  // de campo de Zoho son crudos), solo si vienen con valor.
+  const kpis = [
+    ['Valor final de la negociación', /valor final/i],
+    ['Cuota inicial', /cuota inicial/i],
+    ['Saldo contra entrega', /saldo contra/i],
+  ]
+    .map(([label, patron]) => {
+      const par = camposFinancieros.find(([key]) => patron.test(fieldMap[key] || key));
+      return par ? [label, par[1]] : null;
+    })
+    .filter(Boolean);
+
   return (
     <div className={styles.page}>
       <BackLink to="/oportunidades">Oportunidades</BackLink>
@@ -183,9 +198,30 @@ export function OportunidadDetallePage() {
         </div>
       </section>
 
-      <div className={styles.body}>
-        {/* Izquierda: info general + inmueble */}
-        <div className={styles.columna}>
+      {kpis.length > 0 && (
+        <div className={styles.kpiGrid}>
+          {kpis.map(([label, valor]) => (
+            <div key={label} className={styles.kpiCard}>
+              <p className={styles.kpiLabel}>{label}</p>
+              <p className={styles.kpiValor}>{formatCOP(valor)}</p>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <Tabs
+        ariaLabel="Secciones de la oportunidad"
+        value={tab}
+        onChange={setTab}
+        tabs={[
+          { key: 'resumen', label: 'Resumen' },
+          { key: 'pagos', label: 'Plan de pagos' },
+          ...(op.seccionCotizacion && Object.keys(op.seccionCotizacion).length > 0 ? [{ key: 'cotizacion', label: 'Cotización' }] : []),
+        ]}
+      />
+
+      {tab === 'resumen' && (
+        <div className={styles.body}>
           <div className={styles.card}>
             <p className={styles.subtitulo}>Información general</p>
             <InfoRow label="Contacto">{op.contactName}</InfoRow>
@@ -203,8 +239,9 @@ export function OportunidadDetallePage() {
             </div>
           )}
         </div>
+      )}
 
-        {/* Derecha: financiero */}
+      {tab === 'pagos' && (
         <div className={styles.columna}>
           <div className={styles.card}>
             <p className={styles.subtitulo}>Plan de Pagos</p>
@@ -227,18 +264,18 @@ export function OportunidadDetallePage() {
             )}
           </div>
 
-          {op.seccionCotizacion && Object.keys(op.seccionCotizacion).length > 0 && (
-            <div className={styles.card}>
-              <p className={styles.subtitulo}>Cotización</p>
-              <FieldGrid data={op.seccionCotizacion} fieldMap={fieldMap} />
-            </div>
-          )}
-
-          <Accordion title="Forma y Propuesta de Pago" defaultOpen={false}>
+          <Accordion collapsible={false} title="Forma y Propuesta de Pago">
             <SubformsSection oportunidadId={id} fechaInicioPlanPagos={op.fechaInicioPlanPagos} />
           </Accordion>
         </div>
-      </div>
+      )}
+
+      {tab === 'cotizacion' && op.seccionCotizacion && Object.keys(op.seccionCotizacion).length > 0 && (
+        <div className={styles.card}>
+          <p className={styles.subtitulo}>Cotización</p>
+          <FieldGrid data={op.seccionCotizacion} fieldMap={fieldMap} />
+        </div>
+      )}
     </div>
   );
 }
