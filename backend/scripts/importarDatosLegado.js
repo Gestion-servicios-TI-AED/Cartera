@@ -266,8 +266,15 @@ async function main() {
       ],
     });
 
-    console.log('MovimientoFiduciario -- tabla grande (~1.9M filas), esto toma varios minutos...');
-    await importarMovimientosFiduciarios(legacy, nueva, mapas);
+    // --sin-movimientos: pasada final rápida. Los movimientos fiduciarios (3M filas, ~2 h) los
+    // concilia por hoja scripts/migracion/pasadaFinalMovimientos.js; aquí solo se actualizan las
+    // tablas chicas (encargos, hojas, negocios, compradores, ...).
+    if (process.argv.includes('--sin-movimientos')) {
+      console.log('MovimientoFiduciario -- OMITIDO (--sin-movimientos); usar scripts/migracion/pasadaFinalMovimientos.js');
+    } else {
+      console.log('MovimientoFiduciario -- tabla grande (~1.9M filas), esto toma varios minutos...');
+      await importarMovimientosFiduciarios(legacy, nueva, mapas);
+    }
 
     // Negocio: clave natural (referencia), pero SÍ es padre de
     // NegocioComprador/NegocioMovimiento -> igual necesita devolver el mapa
