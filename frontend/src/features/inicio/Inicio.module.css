@@ -242,19 +242,22 @@
 
 .accesosGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--space-sm);
   margin-top: var(--space-xs);
 }
 
 .acceso {
   display: flex;
+  flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: var(--space-sm);
-  padding: 12px 14px;
+  padding: 14px 4px;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   color: var(--color-ink);
+  text-align: center;
   text-decoration: none;
   font-weight: 600;
   transition: border-color var(--duration-fast) var(--ease-standard), background-color var(--duration-fast) var(--ease-standard);
@@ -278,6 +281,10 @@
 
 .accesoLabel {
   min-width: 0;
+  max-width: 100%;
+  font-size: 0.8125rem;
+  line-height: 1.25;
+  overflow-wrap: normal;
 }
 
 /* Esqueleto mientras carga (la primera consulta construye el cache de cartera) */
@@ -320,4 +327,9 @@
   .esqueletoPanel {
     animation: none;
   }
+}
+
+/* Alerta sin enlace (no hay a dónde ir con este rol): sin hover de enlace */
+div.alerta:hover {
+  background: transparent;
 }

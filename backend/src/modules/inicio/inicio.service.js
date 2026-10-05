@@ -33,17 +33,19 @@ function mapSync(log) {
 }
 
 // null = todo bien; si no, una alerta lista para el panel.
-function alertaDeSync(sync, etiquetaCrm) {
+function alertaDeSync(sync, etiquetaCrm, esAdmin) {
+  // Sincronización es solo para administradores: al resto se les avisa pero sin enlace.
+  const to = esAdmin ? '/accesos/sincronizacion' : null;
   if (sync.status === 'error') {
-    return { id: 'sync', tipo: 'danger', titulo: `La última sincronización con ${etiquetaCrm} falló`, detalle: String(sync.errorMsg ?? '').slice(0, 120) || 'Revisa el detalle en Sincronización.', to: '/accesos/sincronizacion' };
+    return { id: 'sync', tipo: 'danger', titulo: `La última sincronización con ${etiquetaCrm} falló`, detalle: String(sync.errorMsg ?? '').slice(0, 120) || 'Revisa el detalle en Sincronización.', to };
   }
   if (sync.status === 'never') {
-    return { id: 'sync', tipo: 'warning', titulo: `Aún no hay sincronizaciones con ${etiquetaCrm}`, detalle: 'Los datos pueden estar vacíos o desactualizados.', to: '/accesos/sincronizacion' };
+    return { id: 'sync', tipo: 'warning', titulo: `Aún no hay sincronizaciones con ${etiquetaCrm}`, detalle: 'Los datos pueden estar vacíos o desactualizados.', to };
   }
   const fin = sync.finalizadoEn ?? sync.iniciadoEn;
   const horas = fin ? (Date.now() - new Date(fin).getTime()) / 3600000 : Infinity;
   if (horas > HORAS_SYNC_DESACTUALIZADA) {
-    return { id: 'sync', tipo: 'warning', titulo: `Los datos de ${etiquetaCrm} llevan ${horas >= 48 ? `${Math.floor(horas / 24)} días` : `${Math.floor(horas)} h`} sin actualizarse`, detalle: 'La última sincronización exitosa es anterior a hace un día y medio.', to: '/accesos/sincronizacion' };
+    return { id: 'sync', tipo: 'warning', titulo: `Los datos de ${etiquetaCrm} llevan ${horas >= 48 ? `${Math.floor(horas / 24)} días` : `${Math.floor(horas)} h`} sin actualizarse`, detalle: 'La última sincronización exitosa es anterior a hace un día y medio.', to };
   }
   return null;
 }
@@ -112,12 +114,12 @@ async function inicioBaiaKristal(puede, esAdmin) {
   }
 
   const sync = mapSync(syncLog);
-  const alertaSync = alertaDeSync(sync, 'Zoho');
+  const alertaSync = alertaDeSync(sync, 'Zoho', esAdmin);
   if (alertaSync) alertas.push(alertaSync);
   return { nombre: 'Baía Kristal', kpis, alertas: ordenarAlertas(alertas), sync };
 }
 
-async function inicioOliv(puede) {
+async function inicioOliv(puede, esAdmin) {
   const veDashboard = puede('oliv-dashboard');
   const veCartera = puede('oliv-cartera-mora');
   const veOportunidades = puede('oliv-oportunidades');
@@ -133,7 +135,7 @@ async function inicioOliv(puede) {
 
   const { kpis, alertas } = armarCartera({ dash, moraInicial, moraContraentrega, rutas: { dashboard: '/oliv/dashboard', cartera: '/oliv/cartera-mora' }, mes, dias });
   const sync = mapSync(syncLog);
-  const alertaSync = alertaDeSync(sync, 'HubSpot');
+  const alertaSync = alertaDeSync(sync, 'HubSpot', esAdmin);
   if (alertaSync) alertas.push(alertaSync);
   return { nombre: 'Oliv', kpis, alertas: ordenarAlertas(alertas), sync };
 }
@@ -141,7 +143,7 @@ async function inicioOliv(puede) {
 async function obtenerInicio(usuario) {
   const permisosPorRol = await getRolesPermisos();
   const puede = (modulo) => tienePermiso(usuario.roles, modulo, permisosPorRol, usuario.esAdmin);
-  const [baia, oliv] = await Promise.all([inicioBaiaKristal(puede, Boolean(usuario.esAdmin)), inicioOliv(puede)]);
+  const [baia, oliv] = await Promise.all([inicioBaiaKristal(puede, Boolean(usuario.esAdmin)), inicioOliv(puede, Boolean(usuario.esAdmin))]);
   return { baia, oliv };
 }
 

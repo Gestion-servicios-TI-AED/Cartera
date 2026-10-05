@@ -942,6 +942,13 @@ HRMS y se adaptan solo textos/datos). Se hace por pasos, con el HRMS como modelo
   aplicados: `/cartera-mora?rango=90%2B`, `?vista=contraentrega`, `/otrosies?verificado=no`
   (las 3 pantallas los leen una vez al montar y limpian la URL). No se probó con un usuario de
   permisos reducidos (solo con admin).
+- **Pruebas de Inicio con permisos reducidos (2026-10-05):** con 4 roles/usuarios de prueba
+  (ya borrados): solo `cartera-mora` ve 2 KPIs + sus 3 alertas + 1 acceso; solo `otrosies` ve
+  solo la alerta de otrosíes; solo Oliv (`oliv-dashboard`+`oliv-oportunidades`) ve 2 KPIs y no ve
+  Baía Kristal; sin permisos ve el mensaje "todavía no tiene acceso". Hallazgo corregido: la
+  alerta de sincronización enlazaba a `/accesos/sincronizacion` (solo admin) -- para no
+  administradores ahora se muestra sin enlace (`to: null`). Accesos rápidos: 3 por fila,
+  icono arriba y etiqueta debajo.
 - Pendiente: Panel de Alertas con más tipos y filas clicables en Cartera/Otrosíes (ver brechas
   conocidas arriba).
   Cartera ya heredó los estilos de tarjetas/KPIs de `Dashboard.module.css`.

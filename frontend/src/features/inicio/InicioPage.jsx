@@ -82,7 +82,8 @@ function Alertas({ alertas }) {
             const Icono = ICONOS_ALERTA[a.tipo] ?? Info;
             return (
               <li key={a.id}>
-                <Link to={a.to} className={styles.alerta}>
+                {a.to ? (
+                  <Link to={a.to} className={styles.alerta}>
                   <span className={`${styles.alertaIcono} ${styles[`sev_${a.tipo}`]}`}><Icono size={18} strokeWidth={1.9} /></span>
                   <span className={styles.alertaTexto}>
                     <span className={styles.alertaTitulo}>{a.titulo}</span>
@@ -93,7 +94,20 @@ function Alertas({ alertas }) {
                     {a.monto != null && <span className={styles.alertaMonto}>{formatCOP(a.monto)}</span>}
                   </span>
                   <ChevronRight size={16} className={styles.alertaChevron} aria-hidden="true" />
-                </Link>
+                  </Link>
+                ) : (
+                  <div className={styles.alerta}>
+                  <span className={`${styles.alertaIcono} ${styles[`sev_${a.tipo}`]}`}><Icono size={18} strokeWidth={1.9} /></span>
+                  <span className={styles.alertaTexto}>
+                    <span className={styles.alertaTitulo}>{a.titulo}</span>
+                    <span className={styles.alertaDetalle}>{a.detalle}</span>
+                  </span>
+                  <span className={styles.alertaCifras}>
+                    {a.cuenta != null && <span className={`${styles.alertaCuenta} ${styles[`sev_${a.tipo}`]}`}>{new Intl.NumberFormat('es-CO').format(a.cuenta)}</span>}
+                    {a.monto != null && <span className={styles.alertaMonto}>{formatCOP(a.monto)}</span>}
+                  </span>
+                  </div>
+                )}
               </li>
             );
           })}
