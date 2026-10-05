@@ -1,14 +1,12 @@
-// Sidebar principal -- mecánica copiada tal cual de Plantilla-Arquitectura-AED
-// (ver el comentario original en plantilla-arquitectura/componentes/AppShell.jsx
-// para qué se puede tocar y qué no). Lo único adaptado acá es NAV_GROUPS
-// (contenido real de Cartera AED) y .brandName -- todos los items arrancan
-// `enDesarrollo: true` porque ningún módulo de zoho-payment-tracker/ se ha
-// migrado todavía a esta arquitectura (Fase 0 del plan de migración).
+// Sidebar y topbar con el mismo diseño que el HRMS (migración de diseño
+// 2026-10-05): riel de categorías con flyout, entrada fija "Inicio", migas de
+// pan (grupo > pantalla) y divisor antes del menú de usuario. Lo propio de
+// Cartera es NAV_GROUPS (módulos de Baía Kristal y Oliv), el nombre de marca y
+// la resolución del item activo por la ruta más específica.
 import { Suspense, useEffect, useRef, useState } from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { ReactLenis } from 'lenis/react';
-import { ChevronRight, Building2, Layers, Settings } from 'lucide-react';
-import { Badge } from '../ui/Badge.jsx';
+import { ChevronRight, Building2, Home, Layers, Settings } from 'lucide-react';
 import { UserMenu } from './UserMenu.jsx';
 import { useAuth } from '../../auth/AuthContext.jsx';
 import { tienePermiso } from '../../utils/permisos.js';
@@ -16,6 +14,10 @@ import styles from './AppShell.module.css';
 
 const ICON_SIZE = 16;
 const ICON_STROKE_WIDTH = 1.75;
+
+function IconInicio() {
+  return <Home size={ICON_SIZE} strokeWidth={ICON_STROKE_WIDTH} aria-hidden="true" />;
+}
 
 function IconBaiaKristal() {
   return <Building2 size={ICON_SIZE} strokeWidth={ICON_STROKE_WIDTH} aria-hidden="true" />;
@@ -108,6 +110,18 @@ export function AppShell() {
   const itemActivo = encontrarItemActivo(location.pathname);
   const activeGroupTitle = itemActivo?.grupoTitulo;
 
+  // Migas de pan del topbar (grupo > pantalla), derivadas del mismo NAV_GROUPS:
+  // un item nuevo aparece solo.
+  const path = location.pathname;
+  let crumb = null;
+  if (path === '/') {
+    crumb = { group: null, label: 'Inicio' };
+  } else if (itemActivo) {
+    crumb = { group: itemActivo.grupoTitulo, label: itemActivo.item.label };
+  } else if (path === '/accesos' || path.startsWith('/accesos/')) {
+    crumb = { group: 'Configuración', label: 'Accesos y configuración' };
+  }
+
   function scheduleClose() {
     closeTimerRef.current = setTimeout(() => setOpenGroup(null), 300);
   }
@@ -148,6 +162,20 @@ export function AppShell() {
           onMouseLeave={scheduleClose}
           onBlurCapture={closeIfFocusLeftNav}
         >
+          <p className={styles.navSection}>Menú</p>
+          {/* Inicio: entrada fija arriba de las categorías, navega directo
+              (nunca abre flyout). `end` para que solo se marque activa en "/"
+              exacto, nunca en cualquier otra ruta (todas empiezan con "/"). */}
+          <NavLink
+            to="/"
+            end
+            className={({ isActive }) => `${styles.navGroupButton} ${isActive ? styles.navGroupButtonActive : ''}`}
+          >
+            <span className={styles.navGroupLabel}>
+              <IconInicio />
+              Inicio
+            </span>
+          </NavLink>
           {NAV_GROUPS.map((group) => {
             // Bloqueo de modulos por rol -- un item sin `permiso` siempre se
             // muestra (enDesarrollo sigue siendo la unica razon para no
@@ -180,24 +208,17 @@ export function AppShell() {
                 </button>
                 {isOpen && (
                   <div className={styles.flyout} role="menu">
-                    {itemsVisibles.map((item) =>
-                      item.enDesarrollo ? (
-                        <span key={item.label} className={styles.navItemDisabled} role="menuitem" aria-disabled="true">
-                          {item.label}
-                          <Badge variant="neutral">En desarrollo</Badge>
-                        </span>
-                      ) : (
-                        <NavLink
-                          key={item.label}
-                          to={item.to}
-                          role="menuitem"
-                          onClick={closeNow}
-                          className={() => `${styles.navItem} ${itemActivo?.item === item ? styles.navItemActive : ''}`}
-                        >
-                          {item.label}
-                        </NavLink>
-                      )
-                    )}
+                    {itemsVisibles.map((item) => (
+                      <NavLink
+                        key={item.label}
+                        to={item.to}
+                        role="menuitem"
+                        onClick={closeNow}
+                        className={() => `${styles.navItem} ${itemActivo?.item === item ? styles.navItemActive : ''}`}
+                      >
+                        {item.label}
+                      </NavLink>
+                    ))}
                   </div>
                 )}
               </div>
@@ -207,6 +228,17 @@ export function AppShell() {
       </aside>
       <main className={styles.main}>
         <div className={styles.topbar}>
+          {crumb && (
+            <nav className={styles.crumb} aria-label="Ubicación">
+              {crumb.group && (
+                <>
+                  <span>{crumb.group}</span>
+                  <ChevronRight size={14} strokeWidth={ICON_STROKE_WIDTH} aria-hidden="true" />
+                </>
+              )}
+              <span className={styles.crumbCurrent}>{crumb.label}</span>
+            </nav>
+          )}
           {/* Accesos: ruta normal (igual que cualquier detalle con Section
               Navigation), no un panel flotante -- ver AccesosLayout.jsx
               (components/layout/), que dibuja el nav vertical dentro de
@@ -233,6 +265,7 @@ export function AppShell() {
               <Settings size={20} strokeWidth={ICON_STROKE_WIDTH} aria-hidden="true" />
             </NavLink>
           )}
+          <span className={styles.topbarDivider} aria-hidden="true" />
           <UserMenu />
         </div>
         <ReactLenis root={false} className={styles.scrollArea} options={{ smoothWheel: true }}>

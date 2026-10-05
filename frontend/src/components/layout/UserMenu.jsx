@@ -1,10 +1,6 @@
-// Copiado de plantilla-arquitectura/componentes/UserMenu.jsx. Adaptado: se
-// quita el link condicional "Mi perfil" (dependía de `usuario.rol ===
-// 'empleado'`, un concepto que no existe en Cartera AED) -- se agrega en
-// cuanto haya una pantalla real de autoservicio.
 import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LogOut } from 'lucide-react';
+import { ChevronDown, LogOut } from 'lucide-react';
 import { useAuth } from '../../auth/AuthContext.jsx';
 import styles from './UserMenu.module.css';
 
@@ -18,6 +14,9 @@ function initials(nombre) {
     .toUpperCase();
 }
 
+// Mismo patron que NotificationBell.jsx (containerRef + onBlurCapture para
+// cerrar al perder el foco, panel absolute anclado a la derecha del
+// trigger) -- vive en .topbar, junto al bell.
 export function UserMenu() {
   const { usuario, logout } = useAuth();
   const navigate = useNavigate();
@@ -45,6 +44,7 @@ export function UserMenu() {
           {initials(usuario.nombre)}
         </span>
         <span className={styles.name}>{usuario.nombre}</span>
+        <ChevronDown size={16} strokeWidth={1.75} aria-hidden="true" className={styles.caret} />
       </button>
 
       {open && (

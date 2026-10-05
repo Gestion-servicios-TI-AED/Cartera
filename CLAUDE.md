@@ -702,5 +702,12 @@ HRMS y se adaptan solo textos/datos). Se hace por pasos, con el HRMS como modelo
   `LoginPage.module.css` y `CambiarPasswordPage.jsx` copiados tal cual;
   `LoginPage.jsx` es el del HRMS con textos de Cartera (slogan, beneficios,
   pie). Se conserva la foto propia de Cartagena en `public/login-hero.jpg`.
-- Pendiente (en orden): componentes base de `components/ui`, `AppShell`/`UserMenu`,
-  Accesos (usuarios/roles), y luego las pantallas de Baía Kristal y Oliv.
+- **Paso 2 — sidebar y topbar (hecho):** `AppShell.module.css`, `UserMenu.module.css`
+  y `UserMenu.jsx` copiados del HRMS (sin el link "Mi perfil", que en Cartera no
+  existe). `AppShell.jsx` conserva `NAV_GROUPS` y la resolución del item activo
+  por ruta más específica, y gana: etiqueta "Menú", entrada fija "Inicio",
+  migas de pan (grupo > pantalla, derivadas de `NAV_GROUPS`; `/accesos/*` →
+  "Configuración") y divisor antes del menú de usuario. No hay campana de
+  notificaciones (Cartera no tiene ese módulo) ni badge de pendientes.
+- Pendiente (en orden): componentes base de `components/ui`, Accesos
+  (usuarios/roles), y luego las pantallas de Baía Kristal y Oliv.
