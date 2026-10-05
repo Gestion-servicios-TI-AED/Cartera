@@ -25,7 +25,6 @@ import { getDashboardRecaudoOliv } from '../../api/olivResumen.js';
 import { formatCOP, formatDate } from '../../utils/format.js';
 import { Checkbox } from '../../components/ui/Checkbox.jsx';
 import { StatTile } from '../dashboard/StatTile.jsx';
-import { useAlturaDisponible } from '../../hooks/useAlturaDisponible.js';
 import dashStyles from '../dashboard/Dashboard.module.css';
 import styles from '../dashboard/DashboardPage.module.css';
 
@@ -385,13 +384,10 @@ export function OlivDashboardPage() {
     }
   }
 
-  // Un solo scroll: la página mide exactamente el alto disponible del AppShell y solo la tabla scrollea.
-  const paginaRef = useRef(null);
-  const altura = useAlturaDisponible(paginaRef);
   const [filtrosAvanzados, setFiltrosAvanzados] = useState(false);
 
   return (
-    <div className={enfocado ? styles.enfocado : styles.page} ref={paginaRef} style={!enfocado && altura ? { height: `${altura}px` } : undefined}>
+    <div className={enfocado ? styles.enfocado : styles.page}>
       <div className={dashStyles.header}>
         <div className={dashStyles.headerText}>
           <h1 className={dashStyles.title}>Dashboard: Plan de pagos vs. Recaudo</h1>

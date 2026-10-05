@@ -407,3 +407,92 @@
   color: var(--color-success-ink);
   margin-left: auto;
 }
+
+/* ── Rediseño al lenguaje del HRMS (2026-10-05) ──────────────────────────── */
+
+.bloque {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  padding: 24px 28px;
+  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.bloqueTitulo {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-title-size);
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+.bloqueSub {
+  margin: 0 0 var(--space-xs);
+  font-size: var(--text-data-size);
+  color: var(--color-ink-muted);
+}
+
+.rangoCard {
+  background: var(--color-surface);
+  border-color: transparent;
+}
+
+.detalle {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.toolbarCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  padding: 20px 24px;
+  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.filtrosGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: var(--space-md);
+  align-items: end;
+}
+
+.campoBusqueda {
+  grid-column: span 2;
+  min-width: 0;
+}
+
+.campoFiltro {
+  min-width: 0;
+}
+
+.toolbarCard .tramiteRow {
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--color-border);
+}
+
+.topCard {
+  background: #fff;
+  border-radius: var(--radius-lg);
+  padding: 16px 24px;
+}
+
+.card {
+  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.tableScroll {
+  overflow-x: auto;
+}
+
+.alertaContraentrega {
+  border-radius: var(--radius-lg);
+}

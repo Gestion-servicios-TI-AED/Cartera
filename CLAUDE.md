@@ -829,5 +829,17 @@ HRMS y se adaptan solo textos/datos). Se hace por pasos, con el HRMS como modelo
   filtros avanzados (fechas, "Ver", "Plan", "Solo con movimientos") se pliegan tras
   el botón "Más filtros"/"Menos filtros" y las 4 cifras se compactan
   (`.kpisCompactos`). En pantalla completa (`enfocado`) no se fija altura.
-- Pendiente (en orden): Inicio, Cartera y Otrosíes (de Baía Kristal y Oliv) --
+  **Corrección (mismo día, pedido del usuario):** el "un solo scroll" del Dashboard
+  se **revirtió** -- ahora scrollea la página principal (como Cartera) y la tabla
+  muestra las 50 filas de la página; solo en pantalla completa (`.enfocado`) la tabla
+  scrollea por dentro. Se conservan los filtros avanzados plegables ("Más filtros") y
+  las cifras compactas. Ya no se usa `useAlturaDisponible` en el Dashboard.
+- **Paso 12 — Cartera en Gestión de Baía Kristal y Oliv (hecho):** vistas
+  (Cuota Inicial / Saldo Contraentrega) con el componente `Tabs`; "Antigüedad de la
+  mora" en tarjeta blanca; filtros en una tarjeta (grilla con etiquetas) con
+  "Trámite / Canje" como control segmentado en la misma tarjeta; Top 10 en tarjeta;
+  tabla en tarjeta con paginación dentro. Estilos en `cartera-mora/CarteraMoraPage.module.css`
+  (compartido con Oliv). Lógica, exportación y menú contextual sin cambios. Limitación
+  conocida: la tabla de Baía Kristal (10 columnas) scrollea en horizontal a 1440px.
+- Pendiente (en orden): Inicio y Otrosíes (de Baía Kristal y Oliv) --
   Cartera ya heredó los estilos de tarjetas/KPIs de `Dashboard.module.css`.

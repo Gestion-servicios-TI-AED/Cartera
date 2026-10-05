@@ -26,6 +26,7 @@ import {
 import { Field, TextInput, Select } from '../../components/ui/Field.jsx';
 import { SortHeader } from '../../components/ui/SortHeader.jsx';
 import { Button } from '../../components/ui/Button.jsx';
+import { Tabs } from '../../components/ui/Tabs.jsx';
 import { Pagination } from '../../components/ui/Pagination.jsx';
 import { ariaSort } from '../../hooks/useSortableTable.js';
 import { usePersistentState } from '../../hooks/usePersistentState.js';
@@ -306,19 +307,15 @@ export function OlivCarteraMoraPage() {
         </Button>
       </div>
 
-      <div className={styles.vistaTabs}>
-        {[{ key: 'inicial', label: 'Cuota Inicial (mora activa)' }, { key: 'contraentrega', label: 'Saldo Contraentrega vencido' }].map((t) => (
-          <button
-            key={t.key}
-            type="button"
-            className={`${styles.vistaTab} ${filtros.vista === t.key ? styles.vistaTabActiva : ''}`}
-            onClick={() => setFiltros((prev) => ({ ...prev, vista: t.key, rango: '' }))}
-          >
-            {t.label}
-            <span className={`${styles.vistaBadge} ${filtros.vista === t.key ? styles.vistaBadgeActiva : ''}`}>{conteos[t.key] ?? 0}</span>
-          </button>
-        ))}
-      </div>
+      <Tabs
+        ariaLabel="Vista de cartera"
+        value={filtros.vista}
+        onChange={(v) => setFiltros((prev) => ({ ...prev, vista: v, rango: '' }))}
+        tabs={[
+          { key: 'inicial', label: 'Cuota Inicial (mora activa)', badge: conteos.inicial ?? 0 },
+          { key: 'contraentrega', label: 'Saldo Contraentrega vencido', badge: conteos.contraentrega ?? 0 },
+        ]}
+      />
 
       {error && <div className={dashStyles.formError}>{error}</div>}
 
@@ -336,7 +333,6 @@ export function OlivCarteraMoraPage() {
             </div>
           ) : (
             <section>
-              <h2 className={dashStyles.sectionTitle}>Resumen</h2>
               <div className={dashStyles.statsGrid}>
                 <StatTile label="Negocios en mora" value={resumen.negociosEnMora ?? 0} description="Negocios con al menos una cuota vencida de la Cuota Inicial." />
                 <StatTile label="Cuotas en mora" value={resumen.totalCuotasEnMora ?? 0} description="Total de cuotas vencidas y no cubiertas por completo, sumando todos los negocios filtrados." />
@@ -347,8 +343,9 @@ export function OlivCarteraMoraPage() {
           )}
 
           {!esContraentrega && porRangoMora.length > 0 && (
-            <section>
-              <h2 className={dashStyles.sectionTitle}>Antigüedad de la mora — mismo criterio que las hojas de la fiduciaria</h2>
+            <section className={styles.bloque}>
+              <h2 className={styles.bloqueTitulo}>Antigüedad de la mora</h2>
+              <p className={styles.bloqueSub}>Mismo criterio que las hojas de la fiduciaria. Haz clic en un rango para filtrar la tabla.</p>
               <div className={styles.rangoGrid}>
                 {porRangoMora.map((r) => (
                   <button
@@ -366,15 +363,14 @@ export function OlivCarteraMoraPage() {
             </section>
           )}
 
-          <section>
-            <h2 className={dashStyles.sectionTitle}>Detalle</h2>
-
-            <div className={dashStyles.filterRow}>
-              <Field className={dashStyles.fieldMd} label={<span className={styles.labelConIcono}><Search size={13} />Buscar</span>}>
+          <section className={styles.detalle}>
+            <div className={styles.toolbarCard}>
+            <div className={styles.filtrosGrid}>
+              <Field className={styles.campoBusqueda} label={<span className={styles.labelConIcono}><Search size={13} />Buscar</span>}>
                 {(p) => <TextInput {...p} value={filtros.search} onChange={(e) => actualizarFiltro('search', e.target.value)} placeholder="Torre, unidad, comprador o referencia…" />}
               </Field>
               {(meta.torresDisponibles?.length ?? 0) > 0 && (
-                <Field className={dashStyles.fieldSm} label={<span className={styles.labelConIcono}><Building2 size={13} />Torre</span>}>
+                <Field className={styles.campoFiltro} label={<span className={styles.labelConIcono}><Building2 size={13} />Torre</span>}>
                   {(p) => (
                     <Select {...p} value={filtros.torre} onChange={(e) => actualizarFiltro('torre', e.target.value)}>
                       <option value="">Todas las torres</option>
@@ -384,7 +380,7 @@ export function OlivCarteraMoraPage() {
                 </Field>
               )}
               {(meta.estadosInmuebleDisponibles?.length ?? 0) > 0 && (
-                <Field className={dashStyles.fieldSm} label={<span className={styles.labelConIcono}><MapPin size={13} />Estado del inmueble</span>}>
+                <Field className={styles.campoFiltro} label={<span className={styles.labelConIcono}><MapPin size={13} />Estado del inmueble</span>}>
                   {(p) => (
                     <Select {...p} value={filtros.estadoInmueble} onChange={(e) => actualizarFiltro('estadoInmueble', e.target.value)}>
                       <option value="">Todos los estados</option>
@@ -403,6 +399,7 @@ export function OlivCarteraMoraPage() {
                 <button className={styles.limpiarFiltros} onClick={clearFilters}><X size={13} /> Limpiar filtros</button>
               )}
             </div>
+            </div>
 
             {!esContraentrega && (
               <div className={styles.topCard}>
@@ -418,7 +415,8 @@ export function OlivCarteraMoraPage() {
               <p className={dashStyles.loadingState}>Cargando…</p>
             ) : (
               <>
-                <div className={dashStyles.tableWrap}>
+                <div className={styles.card}>
+                <div className={styles.tableScroll}>
                   <table className={dashStyles.table}>
                     <thead>
                       {esContraentrega ? (
@@ -480,6 +478,7 @@ export function OlivCarteraMoraPage() {
                 {meta.pagination && (
                   <Pagination page={pagina} pageSize={meta.pagination.limit} total={meta.pagination.total} onPageChange={cargar} />
                 )}
+                </div>
               </>
             )}
           </section>

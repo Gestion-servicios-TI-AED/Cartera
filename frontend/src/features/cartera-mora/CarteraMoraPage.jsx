@@ -19,6 +19,7 @@ import {
 import { Field, TextInput, Select } from '../../components/ui/Field.jsx';
 import { SortHeader } from '../../components/ui/SortHeader.jsx';
 import { Button } from '../../components/ui/Button.jsx';
+import { Tabs } from '../../components/ui/Tabs.jsx';
 import { Pagination } from '../../components/ui/Pagination.jsx';
 import { ariaSort } from '../../hooks/useSortableTable.js';
 import { usePersistentState } from '../../hooks/usePersistentState.js';
@@ -384,19 +385,15 @@ export function CarteraMoraPage() {
         </Button>
       </div>
 
-      <div className={styles.vistaTabs}>
-        {[{ key: 'inicial', label: 'Cuota Inicial (mora activa)' }, { key: 'contraentrega', label: 'Saldo Contraentrega vencido' }].map((t) => (
-          <button
-            key={t.key}
-            type="button"
-            className={`${styles.vistaTab} ${filtros.vista === t.key ? styles.vistaTabActiva : ''}`}
-            onClick={() => setFiltros((prev) => ({ ...prev, vista: t.key, rango: '' }))}
-          >
-            {t.label}
-            <span className={`${styles.vistaBadge} ${filtros.vista === t.key ? styles.vistaBadgeActiva : ''}`}>{conteos[t.key] ?? 0}</span>
-          </button>
-        ))}
-      </div>
+      <Tabs
+        ariaLabel="Vista de cartera"
+        value={filtros.vista}
+        onChange={(v) => setFiltros((prev) => ({ ...prev, vista: v, rango: '' }))}
+        tabs={[
+          { key: 'inicial', label: 'Cuota Inicial (mora activa)', badge: conteos.inicial ?? 0 },
+          { key: 'contraentrega', label: 'Saldo Contraentrega vencido', badge: conteos.contraentrega ?? 0 },
+        ]}
+      />
 
       {error && <div className={dashStyles.formError}>{error}</div>}
 
@@ -414,7 +411,6 @@ export function CarteraMoraPage() {
             </div>
           ) : (
             <section>
-              <h2 className={dashStyles.sectionTitle}>Resumen</h2>
               <div className={dashStyles.statsGrid}>
                 <StatTile label="Negocios en mora" value={resumen.negociosEnMora ?? 0} description="Negocios con al menos una cuota vencida de la Cuota Inicial." />
                 <StatTile label="Cuotas en mora" value={resumen.totalCuotasEnMora ?? 0} description="Total de cuotas vencidas y no cubiertas por completo, sumando todos los negocios filtrados." />
@@ -425,8 +421,9 @@ export function CarteraMoraPage() {
           )}
 
           {!esContraentrega && porRangoMora.length > 0 && (
-            <section>
-              <h2 className={dashStyles.sectionTitle}>Antigüedad de la mora — mismo criterio que las hojas de la fiduciaria</h2>
+            <section className={styles.bloque}>
+              <h2 className={styles.bloqueTitulo}>Antigüedad de la mora</h2>
+              <p className={styles.bloqueSub}>Mismo criterio que las hojas de la fiduciaria. Haz clic en un rango para filtrar la tabla.</p>
               <div className={styles.rangoGrid}>
                 {porRangoMora.map((r) => (
                   <button
@@ -444,15 +441,14 @@ export function CarteraMoraPage() {
             </section>
           )}
 
-          <section>
-            <h2 className={dashStyles.sectionTitle}>Detalle</h2>
-
-            <div className={dashStyles.filterRow}>
-              <Field className={dashStyles.fieldMd} label={<span className={styles.labelConIcono}><Search size={13} />Buscar</span>}>
+          <section className={styles.detalle}>
+            <div className={styles.toolbarCard}>
+            <div className={styles.filtrosGrid}>
+              <Field className={styles.campoBusqueda} label={<span className={styles.labelConIcono}><Search size={13} />Buscar</span>}>
                 {(p) => <TextInput {...p} value={filtros.search} onChange={(e) => actualizarFiltro('search', e.target.value)} placeholder="Torre, comprador o referencia…" />}
               </Field>
               {(meta.etapasDisponibles?.length ?? 0) > 0 && (
-                <Field className={dashStyles.fieldSm} label={<span className={styles.labelConIcono}><Layers size={13} />Etapa</span>}>
+                <Field className={styles.campoFiltro} label={<span className={styles.labelConIcono}><Layers size={13} />Etapa</span>}>
                   {(p) => (
                     <Select {...p} value={filtros.etapa} onChange={(e) => handleEtapaChange(e.target.value)}>
                       <option value="">Todas las etapas</option>
@@ -462,7 +458,7 @@ export function CarteraMoraPage() {
                 </Field>
               )}
               {(meta.frentesDisponibles?.length ?? 0) > 0 && (
-                <Field className={dashStyles.fieldSm} label={<span className={styles.labelConIcono}><MapPin size={13} />Frente</span>}>
+                <Field className={styles.campoFiltro} label={<span className={styles.labelConIcono}><MapPin size={13} />Frente</span>}>
                   {(p) => (
                     <Select {...p} value={filtros.frente} onChange={(e) => handleFrenteChange(e.target.value)}>
                       <option value="">Todos los frentes</option>
@@ -472,7 +468,7 @@ export function CarteraMoraPage() {
                 </Field>
               )}
               {filtros.frente && torreOptions.length > 0 && (
-                <Field className={dashStyles.fieldSm} label={<span className={styles.labelConIcono}><Building size={13} />Torre</span>}>
+                <Field className={styles.campoFiltro} label={<span className={styles.labelConIcono}><Building size={13} />Torre</span>}>
                   {(p) => (
                     <Select {...p} value={filtros.torre} onChange={(e) => actualizarFiltro('torre', e.target.value)}>
                       <option value="">Todas las torres</option>
@@ -494,16 +490,19 @@ export function CarteraMoraPage() {
 
             <div className={styles.tramiteRow}>
               <span className={styles.tramiteLabel}>Trámite / Canje</span>
+              <div className={dashStyles.toggleGroup}>
               {OPCIONES_TRAMITE.map((o) => (
                 <button
                   key={o.value}
                   type="button"
-                  className={`${styles.tramitePill} ${filtros.tramite === o.value ? styles.tramitePillActiva : ''}`}
+                  className={`${dashStyles.toggleButton} ${filtros.tramite === o.value ? dashStyles.toggleButtonActive : ''}`}
                   onClick={() => actualizarFiltro('tramite', o.value)}
                 >
                   {o.label}
                 </button>
               ))}
+              </div>
+            </div>
             </div>
 
             {!esContraentrega && (
@@ -520,7 +519,8 @@ export function CarteraMoraPage() {
               <p className={dashStyles.loadingState}>Cargando…</p>
             ) : (
               <>
-                <div className={dashStyles.tableWrap}>
+                <div className={styles.card}>
+                <div className={styles.tableScroll}>
                   <table className={dashStyles.table}>
                     <thead>
                       {esContraentrega ? (
@@ -584,6 +584,7 @@ export function CarteraMoraPage() {
                 {meta.pagination && (
                   <Pagination page={pagina} pageSize={meta.pagination.limit} total={meta.pagination.total} onPageChange={cargar} />
                 )}
+                </div>
               </>
             )}
           </section>
