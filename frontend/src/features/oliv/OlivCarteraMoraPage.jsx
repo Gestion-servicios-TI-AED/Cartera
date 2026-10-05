@@ -20,7 +20,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import ExcelJS from 'exceljs';
 import {
-  AlertTriangle, Search, Building2, MapPin, X, ChevronUp, ChevronDown,
+  AlertTriangle, Search, Building2, MapPin, X,
   Briefcase, Warehouse, ExternalLink, Download,
 } from 'lucide-react';
 import { Field, TextInput, Select } from '../../components/ui/Field.jsx';
@@ -127,37 +127,6 @@ function fmtPct(v) {
 
 const LIMIT = 50;
 
-function rankColor(i) {
-  if (i === 0) return styles.rank0;
-  if (i === 1) return styles.rank1;
-  if (i === 2) return styles.rank2;
-  return styles.rankDefault;
-}
-
-// Top 10 de la Cuota Inicial en mora: mismos filtros que la tabla de abajo,
-// pero SIEMPRE ordenado por urgencia (días de atraso descendente, el orden
-// por defecto del backend) -- un ranking ejecutivo fijo, no una vista mas.
-function TopCarteraInicial({ filas }) {
-  if (filas.length === 0) {
-    return <p className={styles.topVacio}>Sin negocios en mora con los filtros actuales.</p>;
-  }
-  return (
-    <div className={styles.topGrid}>
-      {filas.map((f, i) => (
-        <div key={f.id} className={styles.topFila}>
-          <span className={`${styles.rankBadge} ${rankColor(i)}`}>{i + 1}</span>
-          <div className={styles.topInfo}>
-            <p className={styles.topComprador} title={f.comprador ?? ''}>{f.comprador ?? '—'}</p>
-            <p className={styles.topUbicacion}>{f.torre != null ? `Torre ${f.torre}` : ''}{f.unidad ? ` ${f.unidad}` : ''}</p>
-          </div>
-          <span className={styles.topDias}>{f.maxDiasAtraso}d</span>
-          <span className={styles.topMonto}>{formatCOP(f.montoEnMora)}</span>
-        </div>
-      ))}
-    </div>
-  );
-}
-
 export function OlivCarteraMoraPage() {
   const [filtros, setFiltros] = usePersistentState('oliv-cartera-mora:filtros', { search: '', torre: '', estadoInmueble: '', vista: 'inicial', rango: '' });
   const [pagina, setPagina] = usePersistentState('oliv-cartera-mora:pagina', 1);
@@ -166,8 +135,6 @@ export function OlivCarteraMoraPage() {
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
   const [exportando, setExportando] = useState(false);
-  const [topFilas, setTopFilas] = useState([]);
-  const [topAbierto, setTopAbierto] = useState(true);
   const [menuContextual, setMenuContextual] = useState(null);
 
   const ultimaPeticionRef = useRef(0);
@@ -201,26 +168,6 @@ export function OlivCarteraMoraPage() {
   }, [filtros, sort]);
 
   useEffect(() => { cargar(1); }, [cargar]);
-
-  // Top 10 de la pestaña Cuota Inicial: carga aparte, siempre en orden de
-  // urgencia (sin sortBy), sin paginar (limit=10), se adapta a los mismos
-  // filtros de arriba.
-  useEffect(() => {
-    if (filtros.vista !== 'inicial') return;
-    let vigente = true;
-    getCarteraMoraOliv({
-      search: filtros.search || undefined,
-      torre: filtros.torre || undefined,
-      estadoInmueble: filtros.estadoInmueble || undefined,
-      rango: filtros.rango || undefined,
-      vista: 'inicial',
-      page: 1,
-      limit: 10,
-    })
-      .then((res) => { if (vigente) setTopFilas(res.data.data); })
-      .catch(() => {});
-    return () => { vigente = false; };
-  }, [filtros]);
 
   useEffect(() => {
     if (!menuContextual) return;
@@ -406,16 +353,6 @@ export function OlivCarteraMoraPage() {
               )}
             </div>
             </div>
-
-            {!esContraentrega && (
-              <div className={styles.topCard}>
-                <button type="button" className={styles.topToggle} onClick={() => setTopAbierto((v) => !v)}>
-                  <span className={styles.topTitulo}>Top 10 — prioridad de gestión (se adapta a los filtros de arriba)</span>
-                  {topAbierto ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-                </button>
-                {topAbierto && <TopCarteraInicial filas={topFilas} />}
-              </div>
-            )}
 
             {cargando ? (
               <p className={dashStyles.loadingState}>Cargando…</p>

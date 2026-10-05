@@ -13,7 +13,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import ExcelJS from 'exceljs';
 import {
-  AlertTriangle, Search, Layers, MapPin, Building, X, ChevronUp, ChevronDown,
+  AlertTriangle, Search, Layers, MapPin, Building, X,
   Briefcase, Warehouse, ExternalLink, Clock, Repeat, Check, Download,
 } from 'lucide-react';
 import { Field, TextInput, Select } from '../../components/ui/Field.jsx';
@@ -143,37 +143,6 @@ function cumpleFiltroTramite(fila, tramite) {
   return true;
 }
 
-function rankColor(i) {
-  if (i === 0) return styles.rank0;
-  if (i === 1) return styles.rank1;
-  if (i === 2) return styles.rank2;
-  return styles.rankDefault;
-}
-
-// Top 10 de la Cuota Inicial en mora: mismos filtros que la tabla de abajo,
-// pero SIEMPRE ordenado por urgencia (días de atraso descendente, el orden
-// por defecto del backend) -- un ranking ejecutivo fijo, no una vista mas.
-function TopCarteraInicial({ filas }) {
-  if (filas.length === 0) {
-    return <p className={styles.topVacio}>Sin negocios en mora con los filtros actuales.</p>;
-  }
-  return (
-    <div className={styles.topGrid}>
-      {filas.map((f, i) => (
-        <div key={f.id} className={styles.topFila}>
-          <span className={`${styles.rankBadge} ${rankColor(i)}`}>{i + 1}</span>
-          <div className={styles.topInfo}>
-            <p className={styles.topComprador} title={f.comprador ?? ''}>{f.comprador ?? '—'}</p>
-            <p className={styles.topUbicacion}>{f.frente}{f.torre != null ? ` Torre ${f.torre}` : ''}{f.unidad ? ` ${f.unidad}` : ''}</p>
-          </div>
-          <span className={styles.topDias}>{f.maxDiasAtraso}d</span>
-          <span className={styles.topMonto}>{formatCOP(f.montoEnMora)}</span>
-        </div>
-      ))}
-    </div>
-  );
-}
-
 export function CarteraMoraPage() {
   const [filtros, setFiltros] = usePersistentState('cartera-mora:filtros', { search: '', etapa: '', frente: '', torre: '', tramite: '', vista: 'inicial', rango: '' });
   const [pagina, setPagina] = usePersistentState('cartera-mora:pagina', 1);
@@ -182,8 +151,6 @@ export function CarteraMoraPage() {
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
   const [exportando, setExportando] = useState(false);
-  const [topFilas, setTopFilas] = useState([]);
-  const [topAbierto, setTopAbierto] = useState(true);
   const [menuContextual, setMenuContextual] = useState(null);
 
   // Contador compartido entre la carga normal y el refresco silencioso tras
@@ -222,28 +189,6 @@ export function CarteraMoraPage() {
   }, [filtros, sort]);
 
   useEffect(() => { cargar(1); }, [cargar]);
-
-  // Top 10 de la pestaña Cuota Inicial: carga aparte, siempre en orden de
-  // urgencia (sin sortBy), sin paginar (limit=10), se adapta a los mismos
-  // filtros de arriba.
-  useEffect(() => {
-    if (filtros.vista !== 'inicial') return;
-    let vigente = true;
-    getCarteraMora({
-      search: filtros.search || undefined,
-      etapa: filtros.etapa || undefined,
-      frente: filtros.frente || undefined,
-      torre: filtros.torre || undefined,
-      rango: filtros.rango || undefined,
-      vista: 'inicial',
-      tramite: filtros.tramite || undefined,
-      page: 1,
-      limit: 10,
-    })
-      .then((res) => { if (vigente) setTopFilas(res.data.data); })
-      .catch(() => {});
-    return () => { vigente = false; };
-  }, [filtros]);
 
   useEffect(() => {
     if (!menuContextual) return;
@@ -515,16 +460,6 @@ export function CarteraMoraPage() {
               </div>
             </div>
             </div>
-
-            {!esContraentrega && (
-              <div className={styles.topCard}>
-                <button type="button" className={styles.topToggle} onClick={() => setTopAbierto((v) => !v)}>
-                  <span className={styles.topTitulo}>Top 10 — prioridad de gestión (se adapta a los filtros de arriba)</span>
-                  {topAbierto ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-                </button>
-                {topAbierto && <TopCarteraInicial filas={topFilas} />}
-              </div>
-            )}
 
             {cargando ? (
               <p className={dashStyles.loadingState}>Cargando…</p>

@@ -880,5 +880,9 @@ HRMS y se adaptan solo textos/datos). Se hace por pasos, con el HRMS como modelo
   por días de atraso (lo que el usuario vio en una captura). Ahora el tercer estado
   vuelve a **Etapa ascendente** (`ORDEN_POR_DEFECTO`) y la clave persistida pasó a
   `cartera-mora:sort-v3` para limpiar cualquier `{key:null}` ya guardado.
+- **Top 10 eliminado (pedido del usuario):** se quitó de Cartera (BK y Oliv) el bloque
+  "Top 10 — prioridad de gestión" (componente, estado, segunda llamada a
+  `getCarteraMora` con `limit=10` y sus estilos). Ya no hay ranking aparte; la tabla
+  sigue siendo la única vista de detalle.
 - Pendiente (en orden): Inicio (de Baía Kristal y Oliv) --
   Cartera ya heredó los estilos de tarjetas/KPIs de `Dashboard.module.css`.
