@@ -17,9 +17,9 @@
 // 3. El menú contextual usa fila.id/inmuebleId/oportunidadId (mismo
 //    contrato que OlivDashboardPage), no negocioId/opportunityId.
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import ExcelJS from 'exceljs';
-import { AlertTriangle, Search, Building2, MapPin, X, Briefcase, Warehouse, ExternalLink, Download, Layers, Banknote, Percent } from 'lucide-react';
+import { AlertTriangle, Search, Building2, MapPin, X, Briefcase, Warehouse, ExternalLink, Download, Layers, Banknote, Percent, CheckCircle2 } from 'lucide-react';
 import { Field, TextInput, Select } from '../../components/ui/Field.jsx';
 import { SortHeader } from '../../components/ui/SortHeader.jsx';
 import { Button } from '../../components/ui/Button.jsx';
@@ -129,6 +129,7 @@ export function OlivCarteraMoraPage() {
   const [pagina, setPagina] = usePersistentState('oliv-cartera-mora:pagina', 1);
 
   // Enlaces desde Inicio (?vista=&rango=): aplican esos filtros una vez y limpian la URL.
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   useEffect(() => {
     const vista = searchParams.get('vista');
@@ -203,6 +204,15 @@ export function OlivCarteraMoraPage() {
       if (prev.direction === 'asc') return { key, direction: 'desc' };
       return { key: null, direction: null };
     });
+  }
+
+  // Clic en la fila abre el registro (negocio o, si no tiene negocio, el inmueble). Se ignora si el
+  // clic fue sobre un enlace/botón o si el usuario estaba seleccionando texto.
+  function abrirFila(e, fila) {
+    if (e.target.closest('a, button, input, select')) return;
+    if (window.getSelection()?.toString()) return;
+    const destino = `/oliv/negocios/${fila.id}`;
+    if (destino) navigate(destino);
   }
 
   function abrirMenuContextual(e, fila) {
@@ -282,6 +292,12 @@ export function OlivCarteraMoraPage() {
       ) : (
         <>
           {esContraentrega ? (
+            (resumen.negociosEnMora ?? 0) === 0 ? (
+              <div className={`${styles.alertaContraentrega} ${styles.alertaOk}`}>
+                <CheckCircle2 size={28} className={styles.alertaOkIcono} />
+                <p>No hay inmuebles con Saldo Contraentrega vencido con los filtros actuales.</p>
+              </div>
+            ) : (
             <div className={styles.alertaContraentrega}>
               <AlertTriangle size={28} className={styles.alertaIcono} />
               <p>
@@ -289,6 +305,7 @@ export function OlivCarteraMoraPage() {
                 <b className={styles.alertaNumero}>{formatCOP(resumen.totalMontoEnMora)}</b> pendientes.
               </p>
             </div>
+            )
           ) : (
             <section>
               <div className={dashStyles.statsGrid}>
@@ -399,7 +416,7 @@ export function OlivCarteraMoraPage() {
                         <tr><td colSpan={esContraentrega ? 6 : 9} className={styles.sinResultados}>Sin resultados.</td></tr>
                       ) : esContraentrega ? (
                         meta.data.map((f) => (
-                          <tr key={f.id} onContextMenu={(e) => abrirMenuContextual(e, f)} className={styles.filaCtxMenu}>
+                          <tr key={f.id} onClick={(e) => abrirFila(e, f)} onContextMenu={(e) => abrirMenuContextual(e, f)} className={styles.filaCtxMenu}>
                             <td><CeldaDoble arriba="Oliv" abajo={f.torre ?? null} /></td>
                             <td>{f.unidad ?? '—'}</td>
                             <td className={styles.truncar} title={f.comprador ?? ''}>{f.comprador ?? '—'}</td>
@@ -410,7 +427,7 @@ export function OlivCarteraMoraPage() {
                         ))
                       ) : (
                         meta.data.map((f) => (
-                          <tr key={f.id} onContextMenu={(e) => abrirMenuContextual(e, f)} className={styles.filaCtxMenu}>
+                          <tr key={f.id} onClick={(e) => abrirFila(e, f)} onContextMenu={(e) => abrirMenuContextual(e, f)} className={styles.filaCtxMenu}>
                             <td><CeldaDoble arriba="Oliv" abajo={f.torre ?? null} /></td>
                             <td><Link to={`/oliv/negocios/${f.id}`}>{f.unidad ?? f.id}</Link></td>
                             <td className={styles.truncar} title={f.comprador ?? ''}>{f.comprador ?? '—'}</td>

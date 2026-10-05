@@ -23,9 +23,19 @@ function setEnConstruccion(promesa) {
   cacheEnConstruccion = promesa;
 }
 
+// Mismo precalentado en segundo plano que dashboardCache.js (ver precalentar.js).
+let timerPrecalentar = null;
+const ESPERA_PRECALENTAR_MS = 15000;
+
 function invalidarCacheResumenOliv() {
   cache = null;
   cacheEnConstruccion = null;
+  if (process.env.PRECALENTAR_CACHE === 'false') return;
+  clearTimeout(timerPrecalentar);
+  timerPrecalentar = setTimeout(() => {
+    require('../precalentar').precalentarOliv();
+  }, ESPERA_PRECALENTAR_MS);
+  timerPrecalentar.unref?.();
 }
 
 module.exports = { getCache, getEnConstruccion, setCache, setEnConstruccion, invalidarCacheResumenOliv };

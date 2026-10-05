@@ -669,6 +669,7 @@ async function cerrarMesAnteriorSiFalta() {
 }
 
 module.exports = {
+  precalentarCache: obtenerCache,
   obtenerDashboardRecaudo,
   obtenerResumenStats,
   obtenerResumenPorTorre,

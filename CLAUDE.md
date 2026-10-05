@@ -949,6 +949,32 @@ HRMS y se adaptan solo textos/datos). Se hace por pasos, con el HRMS como modelo
   alerta de sincronización enlazaba a `/accesos/sincronizacion` (solo admin) -- para no
   administradores ahora se muestra sin enlace (`to: null`). Accesos rápidos: 3 por fila,
   icono arriba y etiqueta debajo.
+- **Revisión de pendientes (2026-10-05):**
+  - **Precalentado de caches** (`backend/src/modules/precalentar.js`): el cálculo de conciliación
+    vive en MEMORIA del proceso y tarda ~20 s; sin precalentar, el primer usuario tras cada
+    reinicio/deploy -- y tras cada sync/upload/cambio de configuración que lo invalide -- lo
+    esperaba (muy visible en Inicio). Ahora `server.js` calienta Baía Kristal y Oliv 3 s después
+    de escuchar, y `invalidarCacheDashboard()`/`invalidarCacheResumenOliv()` reprograman la
+    reconstrucción en segundo plano con debounce de 15 s. Seguro: si falla solo se registra y el
+    primer request lo reconstruye como siempre. `PRECALENTAR_CACHE=false` lo desactiva. En
+    producción (un solo contenedor Node) aplica igual; con varias réplicas cada una calienta el
+    suyo (cache por proceso). Verificado: `[precalentar] Baía Kristal listo en 21 s`.
+  - **Barrido responsive** (20 pantallas a 1024 y 768 px): ninguna desborda la página. Bug real
+    encontrado: el **tooltip oculto** (`InfoTooltip`, `opacity:0` pero con layout) se extendía
+    fuera del borde derecho y agrandaba el área de scroll 30-65 px en Cartera/Resumen/Negocios a
+    768 px; ahora es `display:none` en reposo (mismo bug existe en el HRMS, que comparte ese
+    componente -- no se tocó aquí). `statsGrid` pasó a `minmax(240px)` para que 4 KPIs formen 2x2 en
+    vez de 3+1.
+  - **Filas de Cartera clicables** (BK y Oliv): clic abre el negocio (BK: `/negocios/:id`, o el
+    inmueble si no tiene negocio; Oliv: `/oliv/negocios/:id`); se ignora si el clic fue sobre un
+    enlace/botón o hay texto seleccionado; el clic derecho conserva el menú contextual. Otrosíes NO:
+    sus filas no traen id de oportunidad/negocio al que abrir.
+  - Saldo Contraentrega sin resultados: aviso verde "No hay inmuebles..." en vez de "0 inmuebles ...
+    $0" en rojo. Verificadas sin hallazgos: detalle de inmueble de Oliv, Resumen de Oliv, Dashboard en
+    pantalla completa (solo scrollea la tabla).
+  - **Decidido NO hacer:** columnas fijas (sticky) en la tabla ancha de Cartera de Baía Kristal --
+    los anchos de columna son variables y el desfase entre columnas fijas rompería el hover y el menú
+    contextual; el scroll horizontal se mantiene.
 - Pendiente: Panel de Alertas con más tipos y filas clicables en Cartera/Otrosíes (ver brechas
   conocidas arriba).
   Cartera ya heredó los estilos de tarjetas/KPIs de `Dashboard.module.css`.

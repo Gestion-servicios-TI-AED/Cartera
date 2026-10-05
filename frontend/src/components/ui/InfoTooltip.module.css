@@ -28,7 +28,7 @@
   left: 50%;
   transform: translate(-50%, 4px);
   width: max-content;
-  max-width: 220px;
+  max-width: min(220px, 60vw);
   background: var(--color-ink);
   color: var(--color-surface);
   font-family: var(--font-body);
@@ -38,6 +38,10 @@
   padding: var(--space-sm) var(--space-md);
   border-radius: var(--radius-sm);
   box-shadow: var(--shadow-floating);
+  /* display:none en reposo: un tooltip oculto pero con layout (opacity:0) se extendia
+     fuera del borde derecho y agrandaba el area de scroll de la pagina en pantallas
+     angostas (bug real a 768px). */
+  display: none;
   opacity: 0;
   pointer-events: none;
   transition: opacity var(--duration-fast) var(--ease-standard), transform var(--duration-fast) var(--ease-standard);
@@ -45,6 +49,7 @@
 
 .wrapper:hover .bubble,
 .wrapper:focus-visible .bubble {
+  display: block;
   opacity: 1;
   transform: translate(-50%, 0);
   pointer-events: auto;

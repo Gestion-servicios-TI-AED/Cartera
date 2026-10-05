@@ -24,9 +24,21 @@ function setEnConstruccion(promesa) {
   cacheEnConstruccion = promesa;
 }
 
+// Tras invalidar, se reconstruye en segundo plano (debounce: un sync o un upload
+// puede invalidar varias veces seguidas) para que la proxima visita a Inicio/
+// Dashboard/Cartera no pague el calculo completo. Ver `precalentar.js`.
+let timerPrecalentar = null;
+const ESPERA_PRECALENTAR_MS = 15000;
+
 function invalidarCacheDashboard() {
   cache = null;
   cacheEnConstruccion = null;
+  if (process.env.PRECALENTAR_CACHE === 'false') return;
+  clearTimeout(timerPrecalentar);
+  timerPrecalentar = setTimeout(() => {
+    require('../precalentar').precalentarBaiaKristal();
+  }, ESPERA_PRECALENTAR_MS);
+  timerPrecalentar.unref?.();
 }
 
 module.exports = { getCache, getEnConstruccion, setCache, setEnConstruccion, invalidarCacheDashboard };

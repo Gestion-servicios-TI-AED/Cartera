@@ -179,7 +179,8 @@
 /* ── Tabla ───────────────────────────────────────────────────────────────── */
 
 .filaCtxMenu {
-  cursor: context-menu;
+  /* clic abre el registro; el clic derecho abre el menú contextual */
+  cursor: pointer;
 }
 
 /* Columnas numericas de la tabla de detalle -- centradas (no a la derecha
@@ -656,4 +657,15 @@
   background: var(--color-surface-sunken);
   color: var(--color-ink);
   text-decoration: none;
+}
+
+/* Sin inmuebles con Saldo Contraentrega vencido: aviso en verde en vez de "0 inmuebles ... $0" en rojo */
+.alertaOk {
+  background: var(--color-success-surface);
+  border-color: var(--color-success-ink);
+}
+
+.alertaOkIcono {
+  color: var(--color-success-ink);
+  flex-shrink: 0;
 }

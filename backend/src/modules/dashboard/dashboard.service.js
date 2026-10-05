@@ -800,6 +800,7 @@ async function obtenerResumenStats() {
 }
 
 module.exports = {
+  precalentarCache: obtenerCache,
   resolverNegociosYOportunidades,
   obtenerDashboardRecaudo,
   obtenerCarteraMora,
