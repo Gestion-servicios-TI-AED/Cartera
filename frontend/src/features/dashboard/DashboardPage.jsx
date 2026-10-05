@@ -549,7 +549,7 @@ export function DashboardPage() {
         </div>
         <Checkbox label="Solo con movimientos" checked={Boolean(filtros.conMovimientos)} onChange={(e) => actualizarFiltro('conMovimientos', e.target.checked)} />
         {hasFilters && (
-          <button className={styles.limpiarResaltado} onClick={clearFilters}>
+          <button className={styles.limpiarFiltros} onClick={clearFilters}>
             <X size={13} /> Limpiar filtros
           </button>
         )}

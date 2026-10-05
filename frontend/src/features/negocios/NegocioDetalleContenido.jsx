@@ -23,6 +23,8 @@ import { obtenerConciliacionCompleta } from './obtenerConciliacionCompleta.js';
 import { exportarEstadoCuenta } from './estadoCuentaPdf.js';
 import { formatExcelDate } from '../../utils/format.js';
 import styles from './NegocioDetallePage.module.css';
+import { DetalleHero, HeroBadges, HeroBoton, HeroSaldo } from '../../components/layout/DetalleHero.jsx';
+import { Briefcase } from 'lucide-react';
 
 // ── Helpers de presentación (idénticos a Negocios.jsx del legado) ──────────
 
@@ -577,49 +579,37 @@ export function NegocioDetalleContenido({ id }) {
 
   return (
     <div className={styles.detalle}>
-      <div className={styles.headerCard}>
-        <div className={styles.headerRow}>
-          <div className={styles.headerInfo}>
-            <p className={styles.eyebrow}>{negocio.referencia ? 'Referencia' : 'Project Code'}</p>
-            <h1 className={styles.titulo}>{negocio.referencia || negocio.projectCode || '—'}</h1>
-            {(negocio.referencia && (negocio.projectCode || nomenclatura || proyectoInfo?.etapa || pisoInfo)) && (
-              <p className={styles.subtitulo2}>
-                {negocio.projectCode ? (
-                  <span>{negocio.projectCode}</span>
-                ) : (
-                  <>
-                    {nomenclatura && <span>Apto {nomenclatura}</span>}
-                    {nomenclatura && (proyectoInfo?.etapa || pisoInfo) && <span className={styles.puntoSep}>·</span>}
-                    {proyectoInfo?.etapa && <span>Etapa {proyectoInfo.etapa}</span>}
-                    {proyectoInfo?.etapa && pisoInfo && <span className={styles.puntoSep}>·</span>}
-                    {pisoInfo?.torre && <span>Torre {pisoInfo.torre}</span>}
-                    {pisoInfo?.torre && pisoInfo?.piso && <span className={styles.puntoSep}>·</span>}
-                    {pisoInfo?.piso && <span>Piso {pisoInfo.piso}</span>}
-                  </>
-                )}
-              </p>
-            )}
-          </div>
-          <div className={styles.headerAcciones}>
-            <div className={styles.headerBadges}>
-              {negocio.estado && <Badge variant={estadoVariant}>{negocio.estado}</Badge>}
-              {!negocio.tieneNegocio && <Badge variant="neutral">Sin negocio</Badge>}
-              <span className={styles.contadorMov}>{negocio.totalMovimientos} mov.</span>
-              {negocio.oportunidad && (
-                <button onClick={handleExportarEstadoCuenta} disabled={exportando} title="Exportar estado de cuenta (PDF)" className={styles.botonExportar}>
-                  {exportando ? 'Generando…' : 'Estado de cuenta'}
-                </button>
-              )}
-            </div>
-            {saldoFmt && (
-              <div className={styles.textoDerecha}>
-                <p className={styles.eyebrow}>Total abonado</p>
-                <p className={`${styles.saldoTotal} ${saldo > 0 ? styles.textoExito : ''}`}>{saldoFmt}</p>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
+      <DetalleHero
+        icon={Briefcase}
+        titulo={negocio.referencia || negocio.projectCode || '—'}
+        subtitulo={negocio.referencia && (negocio.projectCode || nomenclatura || proyectoInfo?.etapa || pisoInfo) ? (
+          negocio.projectCode ? (
+            <span>{negocio.projectCode}</span>
+          ) : (
+            <>
+              {nomenclatura && <span>Apto {nomenclatura}</span>}
+              {nomenclatura && (proyectoInfo?.etapa || pisoInfo) && <span className={styles.puntoSep}>·</span>}
+              {proyectoInfo?.etapa && <span>Etapa {proyectoInfo.etapa}</span>}
+              {proyectoInfo?.etapa && pisoInfo && <span className={styles.puntoSep}>·</span>}
+              {pisoInfo?.torre && <span>Torre {pisoInfo.torre}</span>}
+              {pisoInfo?.torre && pisoInfo?.piso && <span className={styles.puntoSep}>·</span>}
+              {pisoInfo?.piso && <span>Piso {pisoInfo.piso}</span>}
+            </>
+          )
+        ) : (negocio.referencia ? 'Referencia' : 'Project Code')}
+        meta={`${negocio.totalMovimientos} movimientos`}
+      >
+        <HeroBadges>
+          {negocio.estado && <Badge variant={estadoVariant}>{negocio.estado}</Badge>}
+          {!negocio.tieneNegocio && <Badge variant="neutral">Sin negocio</Badge>}
+          {negocio.oportunidad && (
+            <HeroBoton onClick={handleExportarEstadoCuenta} disabled={exportando} title="Exportar estado de cuenta (PDF)">
+              {exportando ? 'Generando…' : 'Estado de cuenta'}
+            </HeroBoton>
+          )}
+        </HeroBadges>
+        {saldoFmt && <HeroSaldo valor={saldoFmt} positivo={saldo > 0} />}
+      </DetalleHero>
 
       <Tabs
         ariaLabel="Secciones del negocio"

@@ -7,6 +7,8 @@ import { getInmuebleOliv } from '../../api/oliv.js';
 import { formatCOP } from '../../utils/format.js';
 import { PROPIEDADES_OCULTAS, esUrl, etiquetaPropiedad, formatearPropiedad } from './inmuebleEtiquetas.js';
 import styles from '../inventario/InventarioDetallePage.module.css';
+import { DetalleHero, HeroBadges, HeroBoton } from '../../components/layout/DetalleHero.jsx';
+import { Warehouse } from 'lucide-react';
 
 export function OlivInventarioDetalleContenido({ id }) {
   const [item, setItem] = useState(null);
@@ -57,23 +59,16 @@ export function OlivInventarioDetalleContenido({ id }) {
 
   return (
     <div className={styles.detalle}>
-      <div className={styles.headerCard}>
-        <div className={styles.headerRow}>
-          <div className={styles.headerInfo}>
-            <p className={styles.eyebrow}>Unidad</p>
-            <h1 className={styles.titulo}>{item.codigoUnidad || '—'}</h1>
-            <p className={styles.subtitulo2}>{[item.proyecto, item.torre && `Torre ${item.torre}`, item.piso != null && `Piso ${item.piso}`].filter(Boolean).join(' · ')}</p>
-          </div>
-          <div className={styles.headerBadges}>
-            <EstadoInventarioBadge estado={item.estado} />
-          </div>
-        </div>
-        {item.planoLink && (
-          <p className={styles.refRecaudo}>
-            <a href={item.planoLink} target="_blank" rel="noreferrer">Ver plano</a>
-          </p>
-        )}
-      </div>
+      <DetalleHero
+        icon={Warehouse}
+        titulo={item.codigoUnidad || '—'}
+        subtitulo={[item.proyecto, item.torre && `Torre ${item.torre}`, item.piso != null && `Piso ${item.piso}`].filter(Boolean).join(' · ') || 'Unidad'}
+      >
+        <HeroBadges>
+          <EstadoInventarioBadge estado={item.estado} />
+          {item.planoLink && <HeroBoton onClick={() => window.open(item.planoLink, '_blank', 'noreferrer')}>Ver plano</HeroBoton>}
+        </HeroBadges>
+      </DetalleHero>
 
       {kpis.length > 0 && (
         <div className={styles.kpiGrid}>

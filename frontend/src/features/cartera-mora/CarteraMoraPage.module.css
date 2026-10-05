@@ -10,23 +10,6 @@
   gap: 5px;
 }
 
-.limpiarFiltros {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  border: none;
-  background: none;
-  color: var(--color-primary);
-  font-size: var(--text-data-size);
-  font-weight: 500;
-  cursor: pointer;
-  padding-bottom: 9px;
-}
-
-.limpiarFiltros:hover {
-  color: var(--color-primary-hover);
-  text-decoration: underline;
-}
 
 /* ── Antigüedad de la mora (tarjetas por rango, click filtra la tabla) ──── */
 
@@ -651,4 +634,26 @@
 .card .barraMoraPista {
   flex: none;
   width: 100%;
+}
+
+.limpiarFiltros {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px dashed var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-ink-secondary);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.limpiarFiltros:hover {
+  background: var(--color-surface-sunken);
+  color: var(--color-ink);
+  text-decoration: none;
 }

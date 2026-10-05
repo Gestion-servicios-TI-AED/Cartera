@@ -20,6 +20,8 @@ import { estadoToken } from '../../utils/estados.js';
 import { separarUnidadesAdicionales } from '../../utils/unidadesAdicionales.js';
 import { formatExcelDate } from '../../utils/format.js';
 import styles from './ApartamentoDetallePage.module.css';
+import { DetalleHero, HeroBadges, HeroSaldo } from '../../components/layout/DetalleHero.jsx';
+import { Building2 } from 'lucide-react';
 
 function formatCOP(val) {
   if (val == null || val === '') return null;
@@ -172,33 +174,23 @@ export function ApartamentoDetallePage() {
     <div className={styles.page}>
       <BackLink to={`/fiducia/${id}`}>{encargo?.nombre ?? 'Encargo'}</BackLink>
 
-      <div className={styles.headerCard}>
-        <div className={styles.headerRow}>
-          <div className={styles.headerInfo}>
-            <p className={styles.eyebrow}>Referencia</p>
-            <h1 className={styles.titulo}>{negocio.referencia}</h1>
-            {(negocio.datos?.Nomenclatura || negocio.datos?.Inventario) && (
-              <p className={styles.subtitulo2}>
-                {negocio.datos.Nomenclatura && <span>Apto {negocio.datos.Nomenclatura}</span>}
-                {negocio.datos.Nomenclatura && negocio.datos.Inventario && <span className={styles.puntoSep}>·</span>}
-                {negocio.datos.Inventario && <span>{negocio.datos.Inventario}</span>}
-              </p>
-            )}
-          </div>
-          <div className={styles.headerAcciones}>
-            <div className={styles.headerBadges}>
-              {negocio.estado && <Badge variant={estadoVariant}>{negocio.estado}</Badge>}
-              <span className={styles.contadorMov}>{totalMovimientos} mov.</span>
-            </div>
-            {saldoFmt && (
-              <div className={styles.textoDerecha}>
-                <p className={styles.eyebrow}>Total abonado</p>
-                <p className={`${styles.saldoTotal} ${saldo > 0 ? styles.textoExito : ''}`}>{saldoFmt}</p>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
+      <DetalleHero
+        icon={Building2}
+        titulo={negocio.referencia}
+        subtitulo={(negocio.datos?.Nomenclatura || negocio.datos?.Inventario) ? (
+          <>
+            {negocio.datos.Nomenclatura && <span>Apto {negocio.datos.Nomenclatura}</span>}
+            {negocio.datos.Nomenclatura && negocio.datos.Inventario && <span className={styles.puntoSep}>·</span>}
+            {negocio.datos.Inventario && <span>{negocio.datos.Inventario}</span>}
+          </>
+        ) : 'Referencia'}
+        meta={`${totalMovimientos} movimientos`}
+      >
+        <HeroBadges>
+          {negocio.estado && <Badge variant={estadoVariant}>{negocio.estado}</Badge>}
+        </HeroBadges>
+        {saldoFmt && <HeroSaldo valor={saldoFmt} positivo={saldo > 0} />}
+      </DetalleHero>
 
       <Tabs
         ariaLabel="Secciones de la unidad"

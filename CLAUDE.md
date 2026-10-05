@@ -904,5 +904,17 @@ HRMS y se adaptan solo textos/datos). Se hace por pasos, con el HRMS como modelo
   Hourglass/neutral para lo por recaudar o pendiente, AlertTriangle/warning para cuotas
   vencidas, Building2 y KeyRound para inmuebles disponibles y vendidos). `StatTileConHint`
   de cada Resumen replica el mismo marcado que `dashboard/StatTile.jsx`.
+- **Segunda auditoría contra el HRMS (2026-10-05):** (1) las vistas de **detalle de
+  Negocio, Inmueble y Unidad** (BK y Oliv, 5 pantallas) usaban una tarjeta blanca simple
+  en vez del **Detail Hero** que el HRMS exige en todo detalle; ahora usan el banner de
+  marca (nuevo `components/layout/DetalleHero.jsx` + `HeroBadges`/`HeroBoton`/`HeroSaldo`,
+  con el ícono de la entidad como avatar, badges y "Estado de cuenta" a la derecha);
+  (2) "Limpiar filtros" era un enlace de texto en Dashboard, Cartera y Otrosíes; ahora es el
+  **botón punteado** del resto de listados. **Brechas conocidas que NO se implementaron**
+  (requieren datos/decisión del negocio, no solo estilo): el **panel de Alertas** que el HRMS
+  pide en todo dashboard, las filas de Cartera/Otrosíes **no son clicables** (el registro se
+  abre desde el enlace de la unidad y el menú contextual) y las **acciones de fila con
+  `RowIconButtons`** (el componente está copiado pero Cartera no tiene tablas con
+  editar/activar).
 - Pendiente (en orden): Inicio (de Baía Kristal y Oliv) --
   Cartera ya heredó los estilos de tarjetas/KPIs de `Dashboard.module.css`.

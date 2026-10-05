@@ -6,6 +6,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { EstadoInventarioBadge } from '../../components/ui/EstadoInventarioBadge.jsx';
 import { getInventarioItem } from '../../api/inventario.js';
 import styles from './InventarioDetallePage.module.css';
+import { DetalleHero, HeroBadges } from '../../components/layout/DetalleHero.jsx';
+import { Warehouse } from 'lucide-react';
 
 // Convierte un valor crudo de Zoho a texto mostrable, sin reformatear lo que
 // ya viene limpio. Objetos lookup (Owner, Proyecto…) muestran su nombre;
@@ -68,19 +70,16 @@ export function InventarioDetalleContenido({ id }) {
 
   return (
     <div className={styles.detalle}>
-      <div className={styles.headerCard}>
-        <div className={styles.headerRow}>
-          <div className={styles.headerInfo}>
-            <p className={styles.eyebrow}>Referencia</p>
-            <h1 className={styles.titulo}>{item.nombre || '—'}</h1>
-            <p className={styles.subtitulo2}>{[item.torre && item.proyecto && item.torre.startsWith(item.proyecto) ? item.torre : [item.proyecto, item.torre].filter(Boolean).join(' · '), item.piso].filter(Boolean).join(' · ')}</p>
-          </div>
-          <div className={styles.headerBadges}>
-            <EstadoInventarioBadge estado={item.estado} />
-          </div>
-        </div>
-        {item.referenciaRecaudo && <p className={styles.refRecaudo}>Ref. recaudo: {item.referenciaRecaudo}</p>}
-      </div>
+      <DetalleHero
+        icon={Warehouse}
+        titulo={item.nombre || '—'}
+        subtitulo={[item.torre && item.proyecto && item.torre.startsWith(item.proyecto) ? item.torre : [item.proyecto, item.torre].filter(Boolean).join(' · '), item.piso].filter(Boolean).join(' · ') || 'Inmueble'}
+        meta={item.referenciaRecaudo ? `Ref. recaudo: ${item.referenciaRecaudo}` : undefined}
+      >
+        <HeroBadges>
+          <EstadoInventarioBadge estado={item.estado} />
+        </HeroBadges>
+      </DetalleHero>
 
       {kpis.length > 0 && (
         <div className={styles.kpiGrid}>

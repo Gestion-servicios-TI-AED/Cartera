@@ -44,6 +44,8 @@ import { exportarEstadoCuentaOliv } from './estadoCuentaPdfOliv.js';
 import { formatCOP, formatDate, formatDateTime } from '../../utils/format.js';
 import { formatCelda } from '../../utils/formatCelda.js';
 import styles from '../negocios/NegocioDetallePage.module.css';
+import { DetalleHero, HeroBadges, HeroBoton, HeroSaldo } from '../../components/layout/DetalleHero.jsx';
+import { Briefcase } from 'lucide-react';
 
 function badgeConciliacion(c) {
   if (c.atrasada) return { txt: 'Atrasada', variant: 'danger' };
@@ -396,31 +398,23 @@ export function OlivNegocioDetalleContenido({ id }) {
 
   return (
     <div className={styles.detalle}>
-      <div className={styles.headerCard}>
-        <div className={styles.headerRow}>
-          <div className={styles.headerInfo}>
-            <p className={styles.eyebrow}>Referencia</p>
-            <h1 className={styles.titulo}>{negocio.referencia || '—'}</h1>
-            {negocio.proyecto && <p className={styles.subtitulo2}><span>{negocio.proyecto}</span></p>}
-          </div>
-          <div className={styles.headerAcciones}>
-            <div className={styles.headerBadges}>
-              {negocio.estado && <Badge variant="neutral">{negocio.estado}</Badge>}
-              {!negocio.tieneNegocio && <Badge variant="neutral">Sin negocio</Badge>}
-              <span className={styles.contadorMov}>{negocio.totalMovimientos} mov.</span>
-              {negocio.conciliacion && (
-                <button onClick={handleExportarEstadoCuenta} disabled={exportando} title="Exportar estado de cuenta (PDF)" className={styles.botonExportar}>
-                  {exportando ? 'Generando…' : 'Estado de cuenta'}
-                </button>
-              )}
-            </div>
-            <div className={styles.textoDerecha}>
-              <p className={styles.eyebrow}>Total abonado</p>
-              <p className={styles.saldoTotal}>{saldoFmt ?? '—'}</p>
-            </div>
-          </div>
-        </div>
-      </div>
+      <DetalleHero
+        icon={Briefcase}
+        titulo={negocio.referencia || '—'}
+        subtitulo={negocio.proyecto || 'Referencia'}
+        meta={`${negocio.totalMovimientos} movimientos`}
+      >
+        <HeroBadges>
+          {negocio.estado && <Badge variant="neutral">{negocio.estado}</Badge>}
+          {!negocio.tieneNegocio && <Badge variant="neutral">Sin negocio</Badge>}
+          {negocio.conciliacion && (
+            <HeroBoton onClick={handleExportarEstadoCuenta} disabled={exportando} title="Exportar estado de cuenta (PDF)">
+              {exportando ? 'Generando…' : 'Estado de cuenta'}
+            </HeroBoton>
+          )}
+        </HeroBadges>
+        <HeroSaldo valor={saldoFmt ?? '—'} />
+      </DetalleHero>
 
       <Tabs
         ariaLabel="Secciones del negocio"

@@ -152,22 +152,6 @@
   white-space: nowrap;
 }
 
-.limpiarFiltros {
-  align-self: flex-start;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  border: none;
-  background: none;
-  color: var(--color-primary);
-  font-size: var(--text-data-size);
-  font-weight: 500;
-  cursor: pointer;
-}
-
-.limpiarFiltros:hover {
-  text-decoration: underline;
-}
 
 
 .card {
@@ -322,4 +306,26 @@
 
 .table tbody tr:hover {
   background: var(--color-surface-sunken);
+}
+
+.limpiarFiltros {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px dashed var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-ink-secondary);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.limpiarFiltros:hover {
+  background: var(--color-surface-sunken);
+  color: var(--color-ink);
+  text-decoration: none;
 }
