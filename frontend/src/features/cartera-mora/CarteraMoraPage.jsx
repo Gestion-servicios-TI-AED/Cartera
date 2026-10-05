@@ -12,10 +12,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import ExcelJS from 'exceljs';
-import {
-  AlertTriangle, Search, Layers, MapPin, Building, X,
-  Briefcase, Warehouse, ExternalLink, Clock, Repeat, Check, Download,
-} from 'lucide-react';
+import { AlertTriangle, Search, Layers, MapPin, Building, X, Briefcase, Warehouse, ExternalLink, Clock, Repeat, Check, Download, Banknote, Percent } from 'lucide-react';
 import { Field, TextInput, Select } from '../../components/ui/Field.jsx';
 import { SortHeader } from '../../components/ui/SortHeader.jsx';
 import { Button } from '../../components/ui/Button.jsx';
@@ -364,10 +361,10 @@ export function CarteraMoraPage() {
           ) : (
             <section>
               <div className={dashStyles.statsGrid}>
-                <StatTile label="Negocios en mora" value={resumen.negociosEnMora ?? 0} description="Negocios con al menos una cuota vencida de la Cuota Inicial." />
-                <StatTile label="Cuotas en mora" value={resumen.totalCuotasEnMora ?? 0} description="Total de cuotas vencidas y no cubiertas por completo, sumando todos los negocios filtrados." />
-                <StatTile label="Monto en mora" value={formatCOP(resumen.totalMontoEnMora)} description="Suma del valor pendiente de todas las cuotas en mora." />
-                <StatTile label="% mora del portafolio" value={fmtPct(resumen.pctMoraPortafolio)} description="Monto en mora sobre el total esperado a la fecha, para los negocios filtrados." />
+                <StatTile label="Negocios en mora" icon={Briefcase} tone="primary" value={resumen.negociosEnMora ?? 0} description="Negocios con al menos una cuota vencida de la Cuota Inicial." />
+                <StatTile label="Cuotas en mora" icon={Layers} tone="neutral" value={resumen.totalCuotasEnMora ?? 0} description="Total de cuotas vencidas y no cubiertas por completo, sumando todos los negocios filtrados." />
+                <StatTile label="Monto en mora" icon={Banknote} tone="warning" warning={(resumen.totalMontoEnMora ?? 0) > 0} value={formatCOP(resumen.totalMontoEnMora)} description="Suma del valor pendiente de todas las cuotas en mora." />
+                <StatTile label="% mora del portafolio" icon={Percent} tone="neutral" value={fmtPct(resumen.pctMoraPortafolio)} description="Monto en mora sobre el total esperado a la fecha, para los negocios filtrados." />
               </div>
             </section>
           )}

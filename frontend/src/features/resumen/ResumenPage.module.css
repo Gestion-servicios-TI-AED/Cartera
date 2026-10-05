@@ -59,6 +59,10 @@
 }
 
 /* Tarjeta de cifra dentro de un bloque: sin segundo marco, solo fondo */
+.tileBloque:hover {
+  box-shadow: none !important;
+}
+
 .tileBloque {
   background: var(--color-surface) !important;
   border-color: transparent !important;

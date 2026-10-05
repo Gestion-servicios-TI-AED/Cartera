@@ -1,14 +1,23 @@
 import { InfoTooltip } from '../../components/ui/InfoTooltip.jsx';
 import styles from './Dashboard.module.css';
 
-export function StatTile({ label, value, description }) {
+// KPI del dashboard, mismo diseño que el StatTile del HRMS (2026-10-05): icono
+// en una pastilla tintada según `tone` (primary | success | warning | neutral),
+// tooltip arriba a la derecha, cifra grande y etiqueta. `warning` tiñe la cifra
+// cuando es algo que requiere atención.
+export function StatTile({ label, value, description, icon: Icon, warning, tone = 'primary' }) {
   return (
     <div className={styles.statTile}>
-      <span className={styles.statValue}>{value}</span>
-      <div className={styles.statLabelRow}>
-        <span className={styles.statLabel}>{label}</span>
+      <div className={styles.statTop}>
+        {Icon && (
+          <span className={`${styles.iconChip} ${styles[`tone_${tone}`]}`}>
+            <Icon size={20} strokeWidth={1.75} aria-hidden="true" />
+          </span>
+        )}
         {description && <InfoTooltip text={description} />}
       </div>
+      <span className={`${styles.statValue} ${warning ? styles.statValueWarning : ''}`}>{value}</span>
+      <span className={styles.statLabel}>{label}</span>
     </div>
   );
 }

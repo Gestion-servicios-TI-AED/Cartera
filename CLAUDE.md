@@ -884,5 +884,19 @@ HRMS y se adaptan solo textos/datos). Se hace por pasos, con el HRMS como modelo
   "Top 10 — prioridad de gestión" (componente, estado, segunda llamada a
   `getCarteraMora` con `limit=10` y sus estilos). Ya no hay ranking aparte; la tabla
   sigue siendo la única vista de detalle.
+- **Auditoría contra el HRMS (2026-10-05):** `tokens.css`, `index.css` y todos los
+  `components/ui/*.css` ya eran idénticos al HRMS; lo que faltaba era: (1) el **StatTile
+  de los KPIs** -- ahora igual que el HRMS (pastilla de icono tintada por `tone`
+  primary/success/warning/neutral arriba a la izquierda, tooltip arriba a la derecha,
+  cifra grande, etiqueta debajo, sombra al pasar el mouse; `warning` tiñe la cifra).
+  Aplicado a los KPIs del Dashboard y de Cartera (BK y Oliv); la cifra sigue ajustándose
+  al ancho con container queries por los montos largos; (2) el **hover de fila**
+  (`--color-surface-sunken`) que faltaba en las tablas de `Dashboard.module.css`
+  (Cartera/Resumen) y Otrosíes; (3) `DESIGN.md` y `.impeccable/design.json`, que estaban
+  desactualizados respecto a la versión actual del HRMS (se copiaron completos). Se
+  quitó `.kpisCompactos` (ya no aplica desde que el Dashboard vuelve a scrollear la
+  página). No se tocaron los tiles de Resumen (11 cifras dentro de bloques; el
+  HRMS limita a 5 KPIs por pantalla) ni los `kpiCard` de las listas, que siguen el
+  patrón del listado de Usuarios del HRMS.
 - Pendiente (en orden): Inicio (de Baía Kristal y Oliv) --
   Cartera ya heredó los estilos de tarjetas/KPIs de `Dashboard.module.css`.

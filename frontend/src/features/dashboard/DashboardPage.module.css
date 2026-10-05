@@ -381,18 +381,6 @@
   color: var(--color-ink);
 }
 
-.kpisCompactos {
-  gap: var(--space-sm);
-}
-
-.kpisCompactos > * {
-  padding: 10px 18px !important;
-  flex-direction: column-reverse;
-}
-
-.kpisCompactos > * > span:first-child {
-  font-size: clamp(0.95rem, 7cqw, 1.25rem) !important;
-}
 
 /* Vista normal: scrollea la página principal (como Cartera) y la tabla muestra todas sus filas.
    En pantalla completa (.enfocado) la tabla sí scrollea por dentro. */

@@ -319,3 +319,7 @@
   padding-left: 10px;
   padding-right: 10px;
 }
+
+.table tbody tr:hover {
+  background: var(--color-surface-sunken);
+}

@@ -111,31 +111,70 @@
   /* Contenedor de consulta: la cifra se ajusta al ancho real de la tarjeta, así un
      monto largo ($ 301.770.576.xxx) nunca se corta. */
   container-type: inline-size;
+  padding: 20px 22px;
   background: #fff;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
-  padding: 20px 24px;
+  transition: box-shadow var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard);
+}
+
+.statTile:hover {
+  border-color: var(--color-border-strong);
+  box-shadow: 0 8px 22px color-mix(in srgb, var(--color-brand-deep) 8%, transparent);
+}
+
+.statTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.iconChip {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: var(--radius-md);
+}
+
+.tone_primary {
+  background: var(--color-info-surface);
+  color: var(--color-primary);
+}
+
+.tone_success {
+  background: var(--color-success-surface);
+  color: var(--color-success-ink);
+}
+
+.tone_warning {
+  background: var(--color-warning-surface);
+  color: var(--color-warning-ink);
+}
+
+.tone_neutral {
+  background: var(--color-surface-hover);
+  color: var(--color-brand-deep);
+}
+
+.statValueWarning {
+  color: var(--color-warning-ink);
 }
 
 .statValue {
   font-family: var(--font-display);
-  font-size: clamp(1.05rem, 8.4cqw, 1.75rem);
+  font-size: clamp(1.25rem, 9.5cqw, 2.25rem);
   font-weight: 600;
-  line-height: 1.15;
+  line-height: 1.05;
   color: var(--color-ink);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
 
-.statLabelRow {
-  display: flex;
-  align-items: center;
-  gap: var(--space-xs);
-}
-
 .statLabel {
   font-size: var(--text-data-size);
-  font-weight: 400;
+  font-weight: 500;
   color: var(--color-ink-muted);
 }
 
@@ -332,4 +371,8 @@
   gap: var(--space-md);
   font-size: var(--text-data-size);
   color: var(--color-ink-muted);
+}
+
+.table tbody tr:hover {
+  background: var(--color-surface-sunken);
 }
