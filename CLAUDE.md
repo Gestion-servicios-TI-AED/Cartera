@@ -751,13 +751,19 @@ HRMS y se adaptan solo textos/datos). Se hace por pasos, con el HRMS como modelo
   `WizardLayout.module.css`) con iniciales, contacto/proyecto, última sync, etapa y
   referencia de recaudo; cada bloque es una tarjeta de sección; el `Accordion`
   pasa a tarjeta redonda con más aire. No cambió ninguna lógica ni endpoint.
-- **Paso 6 — Negocios de Baía Kristal y Oliv (hecho):** el maestro-detalle ya hablaba un
-  lenguaje parecido, así que el cambio es de CSS (Oliv comparte los 3 módulos:
-  `NegociosPage`, `NegociosSidebar`, `NegocioDetallePage`). El panel derecho deja de
-  ser una caja con marco (cada bloque es su propia tarjeta); el encabezado del
-  negocio pasa a banner degradado como el hero de las fichas; las tarjetas de
-  estadísticas son KPI (cifra arriba, etiqueta abajo) con títulos de desglose en
-  tipografía de sección; la lista lateral es una tarjeta redondeada blanca. JSX:
-  solo se cambió la clase de los títulos "Por estado/etapa/frente".
+- **Paso 6 — Negocios de Baía Kristal y Oliv (hecho, rediseño estructural):** ya no es
+  lista lateral + panel. `/negocios` (y `/oliv/negocios`) es una **página de lista a
+  ancho completo**: encabezado con total y acciones (Exportar / Reconstruir desde
+  Fiducia en BK), tarjetas de resumen (KPIs, con el desglose por estado/etapa/frente
+  plegado), filtros con etiqueta + "Limpiar filtros" y una tabla paginada (inmueble,
+  frente·etapa, comprador con avatar, estado, saldo). `/negocios/:id` es el
+  **detalle como ruta propia**: BackLink + banner degradado + pestañas
+  (Resumen / Financiero / Conciliación / Movimientos) en vez de 6 acordeones; el
+  contenido de cada pestaña solo se monta al abrirla (Conciliación y Movimientos
+  cargan datos). Una sola ruta (`NegociosPage`) decide lista vs detalle por `:id`,
+  así los enlaces `/negocios/${id}` de otros módulos siguen funcionando. Piezas
+  nuevas: `components/ui/Tabs.jsx` y `Accordion collapsible={false}` (tarjeta de
+  sección fija). Se eliminaron `NegociosSidebar`, su CSS y `OlivNegociosSidebar`.
+  Oliv no tiene KPIs/exportar (no hay endpoint de stats ni sincronización propia).
 - Pendiente (en orden): Inicio, Dashboard, Inmuebles, Encargos, Movimientos,
   Resumen, Cartera y Otrosíes (de Baía Kristal y Oliv).

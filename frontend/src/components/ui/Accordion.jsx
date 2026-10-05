@@ -7,8 +7,26 @@
 import { useState } from 'react';
 import styles from './Accordion.module.css';
 
-export function Accordion({ icon: Icon, title, badge, children, defaultOpen = true }) {
+// `collapsible={false}`: la sección queda siempre abierta, sin chevron (tarjeta de
+// sección fija, para detalles organizados en pestañas).
+export function Accordion({ icon: Icon, title, badge, children, defaultOpen = true, collapsible = true }) {
   const [open, setOpen] = useState(defaultOpen);
+  if (!collapsible) {
+    return (
+      <div className={styles.card}>
+        <div className={`${styles.header} ${styles.headerFijo}`}>
+          {Icon && (
+            <span className={styles.icon}>
+              <Icon size={15} strokeWidth={2} />
+            </span>
+          )}
+          <span className={styles.title}>{title}</span>
+          {badge != null && badge !== 0 && <span className={styles.badge}>{badge}</span>}
+        </div>
+        <div className={styles.body}>{children}</div>
+      </div>
+    );
+  }
   return (
     <div className={styles.card}>
       <button type="button" className={styles.header} onClick={() => setOpen((o) => !o)}>

@@ -66,3 +66,12 @@
 .body {
   border-top: 1px solid var(--color-border);
 }
+
+/* Variante sin colapsar: el encabezado no es clicable. */
+.headerFijo {
+  cursor: default;
+}
+
+.headerFijo:hover {
+  background: transparent;
+}

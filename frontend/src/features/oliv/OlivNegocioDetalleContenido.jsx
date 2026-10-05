@@ -38,6 +38,7 @@ import { useEffect, useState } from 'react';
 import { ChevronRight } from 'lucide-react';
 import { Badge } from '../../components/ui/Badge.jsx';
 import { Accordion } from '../../components/ui/Accordion.jsx';
+import { Tabs } from '../../components/ui/Tabs.jsx';
 import { getNegocioOliv } from '../../api/oliv.js';
 import { exportarEstadoCuentaOliv } from './estadoCuentaPdfOliv.js';
 import { formatCOP, formatDate, formatDateTime } from '../../utils/format.js';
@@ -341,6 +342,7 @@ function PlanDePagosOliv({ cotizacion }) {
 }
 
 export function OlivNegocioDetalleContenido({ id }) {
+  const [tab, setTab] = useState('resumen');
   const [negocio, setNegocio] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -420,7 +422,21 @@ export function OlivNegocioDetalleContenido({ id }) {
         </div>
       </div>
 
-      <Accordion title="Comprador" badge={negocio.comprador?.nombre ? 1 : 0}>
+      <Tabs
+        ariaLabel="Secciones del negocio"
+        value={tab}
+        onChange={setTab}
+        tabs={[
+          { key: 'resumen', label: 'Resumen' },
+          { key: 'financiero', label: 'Financiero' },
+          { key: 'conciliacion', label: 'Conciliación' },
+          { key: 'movimientos', label: 'Movimientos', badge: negocio.totalMovimientos },
+        ]}
+      />
+
+      {tab === 'resumen' && (
+        <>
+      <Accordion collapsible={false} title="Comprador" badge={negocio.comprador?.nombre ? 1 : 0}>
         {negocio.comprador?.nombre ? (
           <div className={styles.listaCompradores}>
             <div className={styles.filaComprador}>
@@ -437,30 +453,42 @@ export function OlivNegocioDetalleContenido({ id }) {
           <p className={styles.sinDatosPad}>Sin comprador registrado</p>
         )}
       </Accordion>
-
-      <Accordion title="Info del apartamento" badge={negocio.inmueble || negocio.cotizacionAceptada ? 1 : 0}>
+      <Accordion collapsible={false} title="Info del apartamento" badge={negocio.inmueble || negocio.cotizacionAceptada ? 1 : 0}>
         {negocio.inmueble || negocio.cotizacionAceptada ? (
           <InfoApartamentoGrid inmueble={negocio.inmueble} cotizacion={negocio.cotizacionAceptada} />
         ) : (
           <p className={styles.sinDatosPad}>Sin inmueble asociado</p>
         )}
       </Accordion>
+        </>
+      )}
 
-      <Accordion title="Estructura financiera y abonos" badge={negocio.estructuraFinanciera ? 1 : 0} defaultOpen={false}>
+      {tab === 'financiero' && (
+        <>
+      <Accordion collapsible={false} title="Estructura financiera y abonos" badge={negocio.estructuraFinanciera ? 1 : 0}>
         <EstructuraFinancieraSection estructura={negocio.estructuraFinanciera} />
       </Accordion>
-
-      <Accordion title="Conciliación" defaultOpen={false}>
-        <ConciliacionSection conciliacion={negocio.conciliacion} />
-      </Accordion>
-
-      <Accordion title="Historial de movimientos" badge={negocio.totalMovimientos} defaultOpen={false}>
-        <HistorialMovimientosSection movimientos={negocio.historialMovimientos} />
-      </Accordion>
-
-      <Accordion title="Forma y propuesta de pago" defaultOpen={false}>
+      <Accordion collapsible={false} title="Forma y propuesta de pago">
         <PlanDePagosOliv cotizacion={negocio.cotizacionAceptada} />
       </Accordion>
+        </>
+      )}
+
+      {tab === 'conciliacion' && (
+        <>
+      <Accordion collapsible={false} title="Conciliación">
+        <ConciliacionSection conciliacion={negocio.conciliacion} />
+      </Accordion>
+        </>
+      )}
+
+      {tab === 'movimientos' && (
+        <>
+      <Accordion collapsible={false} title="Historial de movimientos" badge={negocio.totalMovimientos}>
+        <HistorialMovimientosSection movimientos={negocio.historialMovimientos} />
+      </Accordion>
+        </>
+      )}
     </div>
   );
 }

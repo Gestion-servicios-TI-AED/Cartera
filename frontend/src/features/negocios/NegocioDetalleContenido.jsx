@@ -7,6 +7,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { Badge } from '../../components/ui/Badge.jsx';
 import { Accordion } from '../../components/ui/Accordion.jsx';
+import { Tabs } from '../../components/ui/Tabs.jsx';
 import { Pagination } from '../../components/ui/Pagination.jsx';
 import { ConceptoHint } from '../../components/ui/ConceptoHint.jsx';
 import { ListaInfo, ListaFinanciera } from '../../components/ui/DatosFinancieros.jsx';
@@ -503,6 +504,7 @@ function ConciliacionSection({ negocio }) {
 // ── Contenido principal ──────────────────────────────────────────────────
 
 export function NegocioDetalleContenido({ id }) {
+  const [tab, setTab] = useState('resumen');
   const [negocio, setNegocio] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -619,7 +621,21 @@ export function NegocioDetalleContenido({ id }) {
         </div>
       </div>
 
-      <Accordion title="Comprador" badge={negocio.compradores?.length}>
+      <Tabs
+        ariaLabel="Secciones del negocio"
+        value={tab}
+        onChange={setTab}
+        tabs={[
+          { key: 'resumen', label: 'Resumen' },
+          { key: 'financiero', label: 'Financiero' },
+          { key: 'conciliacion', label: 'Conciliación' },
+          { key: 'movimientos', label: 'Movimientos', badge: negocio.totalMovimientos },
+        ]}
+      />
+
+      {tab === 'resumen' && (
+        <>
+      <Accordion collapsible={false} title="Comprador" badge={negocio.compradores?.length}>
         {negocio.compradores && negocio.compradores.length > 0 ? (
           <div className={styles.listaCompradores}>
             {negocio.compradores.map((c, i) => {
@@ -640,26 +656,38 @@ export function NegocioDetalleContenido({ id }) {
           <p className={styles.sinDatosPad}>Sin compradores registrados</p>
         )}
       </Accordion>
-
-      <Accordion title="Info del apartamento" badge={aptoEntries.length}>
+      <Accordion collapsible={false} title="Info del apartamento" badge={aptoEntries.length}>
         {aptoEntries.length > 0 ? <ListaInfo entries={aptoEntries} hoja="resumen" format={formatCell} /> : <p className={styles.sinDatosPad}>Sin datos del apartamento</p>}
       </Accordion>
+        </>
+      )}
 
-      <Accordion title="Estructura financiera y abonos" badge={finEntries.length} defaultOpen={false}>
+      {tab === 'financiero' && (
+        <>
+      <Accordion collapsible={false} title="Estructura financiera y abonos" badge={finEntries.length}>
         {finEntries.length > 0 ? <ListaFinanciera entries={finEntries} format={formatCell} /> : <p className={styles.sinDatosPad}>Sin datos financieros en este archivo</p>}
       </Accordion>
-
-      <Accordion title="Conciliación" defaultOpen={false}>
-        <ConciliacionSection key={id} negocio={negocio} />
-      </Accordion>
-
-      <Accordion title="Historial de movimientos" badge={negocio.totalMovimientos} defaultOpen={false}>
-        <MovimientosSection key={id} id={id} />
-      </Accordion>
-
-      <Accordion title="Forma y propuesta de pago" defaultOpen={false}>
+      <Accordion collapsible={false} title="Forma y propuesta de pago">
         {negocio.oportunidad ? <PlanDePagosZoho oportunidad={negocio.oportunidad} /> : <p className={styles.sinDatosPad}>Sin oportunidad de Zoho vinculada a esta referencia.</p>}
       </Accordion>
+        </>
+      )}
+
+      {tab === 'conciliacion' && (
+        <>
+      <Accordion collapsible={false} title="Conciliación">
+        <ConciliacionSection key={id} negocio={negocio} />
+      </Accordion>
+        </>
+      )}
+
+      {tab === 'movimientos' && (
+        <>
+      <Accordion collapsible={false} title="Historial de movimientos" badge={negocio.totalMovimientos}>
+        <MovimientosSection key={id} id={id} />
+      </Accordion>
+        </>
+      )}
     </div>
   );
 }
