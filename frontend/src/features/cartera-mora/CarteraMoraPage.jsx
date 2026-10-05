@@ -28,7 +28,7 @@ import { updateFlagsNegocio } from '../../api/negocios.js';
 import { formatCOP, formatDate } from '../../utils/format.js';
 import { etiquetaEtapa } from '../../utils/etapas.js';
 import { StatTile } from '../dashboard/StatTile.jsx';
-import { ChipDias, BarraMora, ValorVencido } from './CarteraCeldas.jsx';
+import { CeldaDoble, ChipDias, BarraMora, ValorVencido } from './CarteraCeldas.jsx';
 import dashStyles from '../dashboard/Dashboard.module.css';
 import styles from './CarteraMoraPage.module.css';
 
@@ -559,7 +559,7 @@ export function CarteraMoraPage() {
                       ) : esContraentrega ? (
                         meta.data.map((f) => (
                           <tr key={f.id} onContextMenu={(e) => abrirMenuContextual(e, f)} className={styles.filaCtxMenu}>
-                            <td>{[f.frente, f.torre != null ? `Torre ${f.torre}` : null].filter(Boolean).join(' / ') || '—'}</td>
+                            <td><CeldaDoble arriba={f.frente} abajo={f.torre != null ? `Torre ${f.torre}` : null} /></td>
                             <td>{f.unidad ?? '—'}</td>
                             <td>{f.referencia ?? '—'}</td>
                             <td className={styles.truncar} title={f.comprador ?? ''}>{f.comprador ?? '—'}</td>
@@ -571,7 +571,7 @@ export function CarteraMoraPage() {
                         meta.data.map((f) => (
                           <tr key={f.id} onContextMenu={(e) => abrirMenuContextual(e, f)} className={styles.filaCtxMenu}>
                             <td>{f.etapa ? etiquetaEtapa(f.etapa) : '—'}</td>
-                            <td>{[f.frente, f.torre != null ? `Torre ${f.torre}` : null].filter(Boolean).join(' / ') || '—'}</td>
+                            <td><CeldaDoble arriba={f.frente} abajo={f.torre != null ? `Torre ${f.torre}` : null} /></td>
                             <td>{f.negocioId ? <Link to={`/negocios/${f.negocioId}`}>{f.unidad ?? f.id}</Link> : (f.unidad ?? '—')}</td>
                             <td>{f.referencia ?? '—'}</td>
                             <td className={styles.truncar} title={f.comprador ?? ''}>{f.comprador ?? '—'}</td>

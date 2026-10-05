@@ -745,3 +745,28 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+
+.dobleArriba {
+  margin: 0;
+  font-weight: 500;
+  color: var(--color-ink);
+  white-space: nowrap;
+}
+
+/* % en mora: número arriba, barra debajo */
+.card .barraMora {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
+  min-width: 84px;
+}
+
+.card .barraMoraValor {
+  width: auto;
+  text-align: left;
+}
+
+.card .barraMoraPista {
+  flex: none;
+  width: 100%;
+}

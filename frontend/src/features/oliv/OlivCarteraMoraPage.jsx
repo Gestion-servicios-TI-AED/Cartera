@@ -33,7 +33,7 @@ import { usePersistentState } from '../../hooks/usePersistentState.js';
 import { getCarteraMoraOliv } from '../../api/olivResumen.js';
 import { formatCOP, formatDate } from '../../utils/format.js';
 import { StatTile } from '../dashboard/StatTile.jsx';
-import { ChipDias, BarraMora, ValorVencido } from '../cartera-mora/CarteraCeldas.jsx';
+import { CeldaDoble, ChipDias, BarraMora, ValorVencido } from '../cartera-mora/CarteraCeldas.jsx';
 import dashStyles from '../dashboard/Dashboard.module.css';
 import styles from '../cartera-mora/CarteraMoraPage.module.css';
 
@@ -454,7 +454,7 @@ export function OlivCarteraMoraPage() {
                       ) : esContraentrega ? (
                         meta.data.map((f) => (
                           <tr key={f.id} onContextMenu={(e) => abrirMenuContextual(e, f)} className={styles.filaCtxMenu}>
-                            <td>{f.torre ?? '—'}</td>
+                            <td><CeldaDoble arriba="Oliv" abajo={f.torre ?? null} /></td>
                             <td>{f.unidad ?? '—'}</td>
                             <td>{f.referenciaRecaudo ?? ''}</td>
                             <td className={styles.truncar} title={f.comprador ?? ''}>{f.comprador ?? '—'}</td>
@@ -465,7 +465,7 @@ export function OlivCarteraMoraPage() {
                       ) : (
                         meta.data.map((f) => (
                           <tr key={f.id} onContextMenu={(e) => abrirMenuContextual(e, f)} className={styles.filaCtxMenu}>
-                            <td>{f.torre ?? '—'}</td>
+                            <td><CeldaDoble arriba="Oliv" abajo={f.torre ?? null} /></td>
                             <td><Link to={`/oliv/negocios/${f.id}`}>{f.unidad ?? f.id}</Link></td>
                             <td>{f.referenciaRecaudo ?? ''}</td>
                             <td className={styles.truncar} title={f.comprador ?? ''}>{f.comprador ?? '—'}</td>

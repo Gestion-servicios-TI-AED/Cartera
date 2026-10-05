@@ -864,5 +864,8 @@ HRMS y se adaptan solo textos/datos). Se hace por pasos, con el HRMS como modelo
   realces (chip de días, valor vencido en rojo, barra de %) y por eso la tabla vuelve a
   scrollear en horizontal en pantallas angostas. Las celdas `CeldaComprador`/
   `CeldaInmueble` quedan solo para Otrosíes.
+- **Ajuste final de Cartera:** Frente/Torre en **doble fila** (`CeldaDoble`: frente
+  arriba, "Torre N" debajo; en Oliv "Oliv" arriba y la torre debajo) para que todas
+  las filas se vean uniformes, y el % en mora con el número arriba y la barra debajo.
 - Pendiente (en orden): Inicio (de Baía Kristal y Oliv) --
   Cartera ya heredó los estilos de tarjetas/KPIs de `Dashboard.module.css`.

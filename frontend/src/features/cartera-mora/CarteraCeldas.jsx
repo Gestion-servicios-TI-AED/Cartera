@@ -55,3 +55,13 @@ export function BarraMora({ pct }) {
 export function ValorVencido({ valor }) {
   return <span className={styles.valorVencido}>{formatCOP(valor)}</span>;
 }
+
+// Doble fila uniforme: dato principal arriba, detalle debajo (ej. Frente / Torre).
+export function CeldaDoble({ arriba, abajo }) {
+  return (
+    <div className={styles.inmueble}>
+      <p className={styles.dobleArriba}>{arriba ?? '—'}</p>
+      {abajo ? <p className={styles.personaSub}>{abajo}</p> : null}
+    </div>
+  );
+}
