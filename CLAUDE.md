@@ -812,5 +812,14 @@ HRMS y se adaptan solo textos/datos). Se hace por pasos, con el HRMS como modelo
   Inventario) es una tarjeta con título y las cifras sin segundo marco, y el
   Consolidado, la tendencia y el pie de sync son tarjetas del mismo estilo. La
   lógica y los gráficos (ApexCharts) no cambian.
-- Pendiente (en orden): Inicio, Dashboard, Cartera y Otrosíes (de Baía Kristal y
-  Oliv) -- Dashboard y Cartera ya heredaron los estilos de tarjetas/KPIs.
+- **Paso 11 — Dashboard de Baía Kristal y Oliv (hecho):** barra de filtros en **dos zonas**
+  dentro de una tarjeta (arriba: búsqueda + etapa/frente/torre; abajo: fechas,
+  controles segmentados "Ver" y "Plan" y "Solo con movimientos" como `Checkbox`),
+  **4 cifras del portafolio filtrado** sobre la tabla (valor, abonado, por recaudar,
+  en mora -- salen de `totalesColumnasFijas`, que el backend ya calculaba sobre
+  todo el filtro, no solo la página) y la tabla grande en tarjeta con
+  **encabezado discreto** (antes una banda azul oscuro) conservando columnas fijas,
+  orden, resaltado, menú contextual, pantalla completa y exportación. Estilos en
+  `dashboard/DashboardPage.module.css` (compartido con Oliv).
+- Pendiente (en orden): Inicio, Cartera y Otrosíes (de Baía Kristal y Oliv) --
+  Cartera ya heredó los estilos de tarjetas/KPIs de `Dashboard.module.css`.

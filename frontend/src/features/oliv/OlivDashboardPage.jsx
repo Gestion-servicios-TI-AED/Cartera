@@ -23,6 +23,8 @@ import { usePersistentState } from '../../hooks/usePersistentState.js';
 import { useModoEnfocado } from '../../hooks/useModoEnfocado.js';
 import { getDashboardRecaudoOliv } from '../../api/olivResumen.js';
 import { formatCOP, formatDate } from '../../utils/format.js';
+import { Checkbox } from '../../components/ui/Checkbox.jsx';
+import { StatTile } from '../dashboard/StatTile.jsx';
 import dashStyles from '../dashboard/Dashboard.module.css';
 import styles from '../dashboard/DashboardPage.module.css';
 
@@ -407,12 +409,13 @@ export function OlivDashboardPage() {
 
       {error && <div className={dashStyles.formError}>{error}</div>}
 
-      <div className={dashStyles.filterRow}>
-        <Field className={dashStyles.fieldMd} label={<span className={styles.labelConIcono}><Search size={13} />Buscar</span>}>
+      <div className={styles.toolbarCard}>
+        <div className={styles.filtrosGrid}>
+        <Field className={styles.campoBusqueda} label={<span className={styles.labelConIcono}><Search size={13} />Buscar</span>}>
           {(p) => <TextInput {...p} value={filtros.search} onChange={(e) => actualizarFiltro('search', e.target.value)} placeholder="Unidad, referencia o comprador…" />}
         </Field>
         {(meta.torresDisponibles?.length ?? 0) > 0 && (
-          <Field className={dashStyles.fieldSm} label={<span className={styles.labelConIcono}><Building2 size={13} />Torre</span>}>
+          <Field className={styles.campoFiltro} label={<span className={styles.labelConIcono}><Building2 size={13} />Torre</span>}>
             {(p) => (
               <Select {...p} value={filtros.torre} onChange={(e) => actualizarFiltro('torre', e.target.value)}>
                 <option value="">Todas las torres</option>
@@ -422,7 +425,7 @@ export function OlivDashboardPage() {
           </Field>
         )}
         {(meta.estadosInmuebleDisponibles?.length ?? 0) > 0 && (
-          <Field className={dashStyles.fieldSm} label={<span className={styles.labelConIcono}><MapPin size={13} />Estado del inmueble</span>}>
+          <Field className={styles.campoFiltro} label={<span className={styles.labelConIcono}><MapPin size={13} />Estado del inmueble</span>}>
             {(p) => (
               <Select {...p} value={filtros.estadoInmueble} onChange={(e) => actualizarFiltro('estadoInmueble', e.target.value)}>
                 <option value="">Todos los estados</option>
@@ -431,8 +434,10 @@ export function OlivDashboardPage() {
             )}
           </Field>
         )}
+        </div>
+        <div className={styles.controlesFila}>
         {meses.length > 0 && (
-          <Field className={styles.fieldMesito} label={<span className={styles.labelConIcono}><CalendarRange size={13} />Desde</span>}>
+          <Field className={styles.campoFiltro} label={<span className={styles.labelConIcono}><CalendarRange size={13} />Desde</span>}>
             {(p) => (
               <TextInput {...p} type="month" value={filtros.mesDesde} min={meses[0]} max={filtros.mesHasta || meses[meses.length - 1]}
                 onChange={(e) => actualizarFiltro('mesDesde', e.target.value)} />
@@ -440,7 +445,7 @@ export function OlivDashboardPage() {
           </Field>
         )}
         {meses.length > 0 && (
-          <Field className={styles.fieldMesito} label={<span className={styles.labelConIcono}><CalendarRange size={13} />Hasta</span>}>
+          <Field className={styles.campoFiltro} label={<span className={styles.labelConIcono}><CalendarRange size={13} />Hasta</span>}>
             {(p) => (
               <TextInput {...p} type="month" value={filtros.mesHasta} min={filtros.mesDesde || meses[0]} max={meses[meses.length - 1]}
                 onChange={(e) => actualizarFiltro('mesHasta', e.target.value)} />
@@ -463,22 +468,26 @@ export function OlivDashboardPage() {
             ))}
           </div>
         </div>
-        <button
-          type="button"
-          className={`${styles.toggleConIcono} ${filtros.conMovimientos ? styles.toggleConIconoActivo : ''}`}
-          onClick={() => actualizarFiltro('conMovimientos', !filtros.conMovimientos)}
-        >
-          <History size={13} /> Solo con movimientos
-        </button>
+        <Checkbox label="Solo con movimientos" checked={Boolean(filtros.conMovimientos)} onChange={(e) => actualizarFiltro('conMovimientos', e.target.checked)} />
         {hasFilters && (
           <button className={styles.limpiarResaltado} onClick={clearFilters}>
             <X size={13} /> Limpiar filtros
           </button>
         )}
+        </div>
       </div>
 
       {meses.length > 0 && mesesFiltrados.length === 0 && (
         <p className={styles.avisoRango}>No hay meses en el rango seleccionado — ajusta Desde/Hasta.</p>
+      )}
+
+      {meta.totalesColumnasFijas && !cargando && (
+        <div className={dashStyles.statsGrid}>
+          <StatTile label="Valor del portafolio filtrado" value={formatCOP(meta.totalesColumnasFijas.valorInmueble ?? 0)} />
+          <StatTile label="Total abonado" value={formatCOP(meta.totalesColumnasFijas.totalAbonado ?? 0)} />
+          <StatTile label="Por recaudar" value={formatCOP(meta.totalesColumnasFijas.pendienteRecaudar ?? 0)} />
+          <StatTile label={`En mora (${meta.totalesColumnasFijas.cuotasEnMora ?? 0} cuotas)`} value={formatCOP(meta.totalesColumnasFijas.montoEnMora ?? 0)} />
+        </div>
       )}
 
       <div className={styles.card}>

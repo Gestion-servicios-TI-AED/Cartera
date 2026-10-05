@@ -96,9 +96,9 @@
 }
 
 .card {
-  background: var(--color-surface);
+  background: #fff;
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -143,15 +143,19 @@
 }
 
 .thFija {
-  background: var(--color-brand-deep);
-  color: var(--color-primary-ink-on);
+  background: var(--color-surface);
+  color: var(--color-ink-muted);
+  font-size: var(--text-label-size);
+  font-weight: var(--text-label-weight);
+  letter-spacing: var(--text-label-tracking);
+  text-transform: uppercase;
   cursor: pointer;
   user-select: none;
   vertical-align: bottom;
 }
 
 .thFija:hover {
-  filter: brightness(1.1);
+  background: var(--color-surface-sunken);
 }
 
 .thFijaContenido {
@@ -161,7 +165,7 @@
 }
 
 .iconoActivo {
-  color: var(--color-primary-ink-on);
+  color: var(--color-primary);
   opacity: 1;
 }
 
@@ -195,13 +199,13 @@
 }
 
 .bordeDerFuerte {
-  border-right: 3px solid var(--color-brand-deep);
+  border-right: 2px solid var(--color-border-strong);
 }
 
 .sticky {
   position: sticky;
   z-index: 1;
-  background: var(--color-surface);
+  background: #fff;
 }
 
 /* `.megaTable thead th.sticky` pesa mas que `.thFija`/`.sticky` solas (mismo
@@ -213,7 +217,7 @@
    "viajaba" con el scroll horizontal en vez de quedarse en su sitio. */
 .megaTable thead .sticky {
   z-index: 3;
-  background: var(--color-brand-deep);
+  background: var(--color-surface);
 }
 
 .celdaMesImpar {
@@ -304,4 +308,45 @@
 .contextMenuItem:disabled {
   color: var(--color-ink-muted);
   cursor: not-allowed;
+}
+
+/* ── Barra de filtros: zona de campos + zona de controles ───────────────── */
+
+.toolbarCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  padding: 20px 24px;
+  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.filtrosGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: var(--space-md);
+  align-items: end;
+}
+
+.campoBusqueda {
+  grid-column: span 2;
+  min-width: 0;
+}
+
+.campoFiltro {
+  min-width: 0;
+}
+
+.controlesFila {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: var(--space-md) var(--space-xl);
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--color-border);
+}
+
+.controlesFila .campoFiltro {
+  width: 170px;
 }
