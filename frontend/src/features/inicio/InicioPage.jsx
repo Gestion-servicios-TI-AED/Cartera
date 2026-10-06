@@ -158,8 +158,6 @@ export function InicioPage() {
   const disponibles = datos ? ['baia', 'oliv'].filter((k) => datos[k]) : [];
   const activo = disponibles.includes(proyecto) ? proyecto : disponibles[0];
   const actual = activo ? datos[activo] : null;
-  const otroKey = activo === 'baia' ? 'oliv' : 'baia';
-  const otro = datos?.[otroKey] ?? null;
   const grupo = ACCESOS_RAPIDOS[activo] ?? null;
 
   const primerNombre = (usuario?.nombre ?? '').split(' ')[0];
@@ -212,11 +210,9 @@ export function InicioPage() {
             <div className={dashStyles.statsGrid}>
               {actual.kpis.map((kpi) => {
                 const cfg = ICONOS_KPI[kpi.key] ?? { icon: Layers, tone: 'neutral' };
-                const valorOtro = otro?.kpis.find((k) => k.key === kpi.key);
-                const sub = [kpi.sub, valorOtro ? `${otro.nombre}: ${formatearValor(valorOtro)}` : null].filter(Boolean).join(' · ');
                 return (
                   <Link key={kpi.key} to={kpi.to} className={styles.kpiLink}>
-                    <StatTile label={kpi.label} value={formatearValor(kpi)} sub={sub || undefined} icon={cfg.icon} tone={cfg.tone} warning={kpi.advertencia} />
+                    <StatTile label={kpi.label} value={formatearValor(kpi)} sub={kpi.sub} icon={cfg.icon} tone={cfg.tone} warning={kpi.advertencia} />
                   </Link>
                 );
               })}
