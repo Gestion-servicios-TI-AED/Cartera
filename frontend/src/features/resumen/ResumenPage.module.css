@@ -100,11 +100,11 @@
   min-height: 1.4em;
 }
 
-/* Mismas columnas en todos los bloques de KPIs: con auto-fit, un bloque de 3
-   tarjetas las estiraba más anchas que uno de 4 (y la cifra, que escala con el
-   ancho, se veía más grande). auto-fill conserva el ancho de columna. */
-.kpiSecciones .gridKpi {
-  grid-template-columns: repeat(auto-fill, minmax(min(240px, 100%), 1fr));
+/* Alto uniforme: el rótulo de cada tarjeta reserva siempre 2 líneas, así una
+   tarjeta cuyo rótulo salta de línea (o no) mide igual que las demás. El ancho
+   sí se adapta: cada bloque reparte su fila completa entre sus tarjetas. */
+.tileBloque > span:last-child {
+  min-height: 2lh;
 }
 
 /* ── Tendencia ───────────────────────────────────────────────────────── */

@@ -626,7 +626,7 @@ export function ResumenPage() {
       {/* KPIs gerenciales */}
       <div className={styles.kpiSecciones}>
         <KpiBloque storageKey="resumen:kpi100" titulo={`Total (100%) — ${labelVentana}`} resumen={kpisRecaudo ? `Totalidad ${fmtMoney(kpisRecaudo.totalidad100)} · Recaudado ${fmtMoney(kpisRecaudo.recaudado100)} · Por recaudar ${fmtMoney(kpisRecaudo.porRecaudar100)}` : null}>
-          <div className={`${dashStyles.statsGrid} ${styles.gridKpi}`}>
+          <div className={dashStyles.statsGrid}>
             <StatTileConHint label="Totalidad del 100%" icon={Target} tone="primary" value={kpisRecaudo ? fmtMoney(kpisRecaudo.totalidad100) : '—'} description={`Total esperado de todo el plan de pagos (Cuota Inicial más Saldo), dentro del periodo seleccionado (${labelVentana}).`} />
             <StatTileConHint label="Recaudado del 100%" icon={CheckCircle2} tone="success" value={kpisRecaudo ? fmtMoney(kpisRecaudo.recaudado100) : '—'} description={`Todo lo realmente recaudado, sin importar a qué cuota se aplicó, dentro del periodo seleccionado (${labelVentana}).`} />
             <StatTileConHint label="Por recaudar (100%)" icon={Hourglass} tone="neutral" value={kpisRecaudo ? fmtMoney(kpisRecaudo.porRecaudar100) : '—'} description={`Plan de pagos esperado menos lo recaudado real, dentro del periodo seleccionado (${labelVentana}).`} />
@@ -635,7 +635,7 @@ export function ResumenPage() {
         </KpiBloque>
 
         <KpiBloque storageKey="resumen:kpi30" titulo={`Cuota inicial (30%) — ${labelVentana}`} resumen={kpisRecaudo ? `Totalidad ${fmtMoney(kpisRecaudo.totalidad30)} · Recaudado ${fmtMoney(kpisRecaudo.recaudado30)} · Por recaudar ${fmtMoney(kpisRecaudo.porRecaudar30)}` : null}>
-          <div className={`${dashStyles.statsGrid} ${styles.gridKpi}`}>
+          <div className={dashStyles.statsGrid}>
             <StatTileConHint label="Totalidad del 30%" icon={Target} tone="primary" value={kpisRecaudo ? fmtMoney(kpisRecaudo.totalidad30) : '—'} description={`Total esperado de la Cuota Inicial según el plan de pagos, dentro del periodo seleccionado (${labelVentana}).`} />
             <StatTileConHint label="Recaudado del 30%" icon={CheckCircle2} tone="success" value={kpisRecaudo ? fmtMoney(kpisRecaudo.recaudado30) : '—'} description={`Lo realmente recaudado hacia la Cuota Inicial, dentro del periodo seleccionado (${labelVentana}).`} />
             <StatTileConHint label="Por recaudar (30%)" icon={Hourglass} tone="neutral" value={kpisRecaudo ? fmtMoney(kpisRecaudo.porRecaudar30) : '—'} description={`Cuota Inicial esperada menos lo recaudado real, dentro del periodo seleccionado (${labelVentana}).`} />
@@ -644,7 +644,7 @@ export function ResumenPage() {
         </KpiBloque>
 
         <KpiBloque storageKey="resumen:kpi70" titulo={`Saldo contraentrega (70%) — ${labelVentana}`} resumen={kpisRecaudo ? `Totalidad ${fmtMoney(kpisRecaudo.totalidad70)} · Recaudado ${fmtMoney(kpisRecaudo.recaudado70)} · Pendiente ${fmtMoney(kpisRecaudo.pendienteContraentrega)}` : null}>
-          <div className={`${dashStyles.statsGrid} ${styles.gridKpi}`}>
+          <div className={dashStyles.statsGrid}>
             <StatTileConHint label="Totalidad del 70%" icon={Target} tone="primary" value={kpisRecaudo ? fmtMoney(kpisRecaudo.totalidad70) : '—'} description={`Total esperado del Saldo Contraentrega según conciliación, dentro del periodo seleccionado (${labelVentana}).`} />
             <StatTileConHint label="Saldo recaudado contraentrega" icon={Wallet} tone="success" value={kpisRecaudo ? fmtMoney(kpisRecaudo.recaudado70) : '—'} description={`Lo realmente recaudado hacia el Saldo Contraentrega, dentro del periodo seleccionado (${labelVentana}).`} />
             <StatTileConHint label="Saldo pendiente contraentrega" icon={Hourglass} tone="neutral" value={kpisRecaudo ? fmtMoney(kpisRecaudo.pendienteContraentrega) : '—'} description={`Saldo Contraentrega según conciliación, menos lo recaudado real, dentro del periodo seleccionado (${labelVentana}).`} />
@@ -653,7 +653,7 @@ export function ResumenPage() {
 
         <div>
           <h3 className={styles.kpiSeccionTitulo}>Inventario y ventas (actual)</h3>
-          <div className={`${dashStyles.statsGrid} ${styles.gridKpi}`}>
+          <div className={dashStyles.statsGrid}>
             <StatTileConHint label="Inmuebles disponibles (actual)" icon={Building2} tone="primary" value={kpisActuales ? fmtMoney(kpisActuales.valorDisponible) : '—'} sub={kpisActuales ? `${kpisActuales.cantidadDisponible} unidades` : undefined} description="Valor y cantidad de los inmuebles cuyo negocio en la fiducia NO está en Prometido, Opcionado, Vendido ni Escritura autorizada, a hoy (misma regla que 'Uni. disponible' del Consolidado)." />
             <StatTileConHint label="Inmuebles vendidos (actual)" icon={KeyRound} tone="success" value={kpisActuales ? fmtMoney(kpisActuales.valorVendidos) : '—'} sub={kpisActuales ? `${kpisActuales.cantidadVendidos} unidades` : undefined} description="Valor y cantidad de los inmuebles cuyo negocio en la fiducia está en Prometido, Opcionado, Vendido o Escritura autorizada, a hoy." />
           </div>
