@@ -385,9 +385,11 @@ export function OlivResumenPage() {
       return { esperado, recaudado };
     };
     if (!planRecaudo) return null;
+    const total = sumarVentana(planRecaudo.totalesDia, planRecaudo.totales);
     const inicial = sumarVentana(planRecaudo.totalesDiaInicial, planRecaudo.totalesInicial);
     const contraentrega = sumarVentana(planRecaudo.totalesDiaContraentrega, planRecaudo.totalesContraentrega);
     return {
+      totalidad100: total.esperado, recaudado100: total.recaudado, porRecaudar100: Math.max(0, total.esperado - total.recaudado),
       totalidad30: inicial.esperado, recaudado30: inicial.recaudado, porRecaudar30: Math.max(0, inicial.esperado - inicial.recaudado),
       totalidad70: contraentrega.esperado, recaudado70: contraentrega.recaudado, pendienteContraentrega: Math.max(0, contraentrega.esperado - contraentrega.recaudado),
     };
@@ -396,7 +398,7 @@ export function OlivResumenPage() {
   const kpisActuales = useMemo(() => {
     const t = planRecaudo?.totalesColumnasFijas;
     if (!t) return null;
-    return { valorDisponible: t.valorDisponible, cantidadDisponible: t.cantidadDisponible, cuotasEnMoraInicial: t.cuotasEnMoraInicial, montoEnMoraInicial: t.montoEnMoraInicial, valorVendidos: t.valorVendidos, cantidadVendidos: t.cantidadVendidos };
+    return { cuotasEnMora: t.cuotasEnMora, montoEnMora: t.montoEnMora, valorDisponible: t.valorDisponible, cantidadDisponible: t.cantidadDisponible, cuotasEnMoraInicial: t.cuotasEnMoraInicial, montoEnMoraInicial: t.montoEnMoraInicial, valorVendidos: t.valorVendidos, cantidadVendidos: t.cantidadVendidos };
   }, [planRecaudo]);
 
   const labelVentana = rangoTendencia === 'anio' ? `Año ${anioSeleccionado}` : (RANGOS_TENDENCIA.find((r) => r.key === rangoTendencia)?.label ?? '');
@@ -570,6 +572,16 @@ export function OlivResumenPage() {
 
       {/* KPIs gerenciales */}
       <div className={styles.kpiSecciones}>
+        <div>
+          <h3 className={styles.kpiSeccionTitulo}>Total (100%) — {labelVentana}</h3>
+          <div className={dashStyles.statsGrid}>
+            <StatTileConHint label="Totalidad del 100%" icon={Target} tone="primary" value={kpisRecaudo ? fmtMoney(kpisRecaudo.totalidad100) : '—'} description={`Total esperado de todo el plan de pagos (Cuota Inicial más Saldo), dentro del periodo seleccionado (${labelVentana}).`} />
+            <StatTileConHint label="Recaudado del 100%" icon={CheckCircle2} tone="success" value={kpisRecaudo ? fmtMoney(kpisRecaudo.recaudado100) : '—'} description={`Todo lo realmente recaudado, sin importar a qué cuota se aplicó, dentro del periodo seleccionado (${labelVentana}).`} />
+            <StatTileConHint label="Por recaudar (100%)" icon={Hourglass} tone="neutral" value={kpisRecaudo ? fmtMoney(kpisRecaudo.porRecaudar100) : '—'} description={`Plan de pagos esperado menos lo recaudado real, dentro del periodo seleccionado (${labelVentana}).`} />
+            <StatTileConHint label="Cuotas vencidas (100%) (actual)" icon={AlertTriangle} tone="warning" value={kpisActuales ? String(kpisActuales.cuotasEnMora) : '—'} sub={kpisActuales ? fmtMoney(kpisActuales.montoEnMora) : undefined} description="Cuotas atrasadas de todo el plan de pagos (Cuota Inicial y Saldo), a hoy -- no cambia con el filtro de periodo." />
+          </div>
+        </div>
+
         <div>
           <h3 className={styles.kpiSeccionTitulo}>Cuota inicial (30%) — {labelVentana}</h3>
           <div className={dashStyles.statsGrid}>
