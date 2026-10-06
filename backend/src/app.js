@@ -6,6 +6,7 @@ const cookieParser = require('cookie-parser');
 const env = require('./config/env');
 const routes = require('./routes/index');
 const errorHandler = require('./middlewares/errorHandler');
+const requestLogger = require('./middlewares/requestLogger');
 
 const app = express();
 
@@ -16,6 +17,7 @@ const corsOrigins = env.CORS_ORIGIN.split(',').map((origin) => origin.trim());
 app.use(cors({ origin: corsOrigins, credentials: true }));
 app.use(cookieParser());
 app.use(express.json());
+app.use(requestLogger);
 
 // Toda la API vive bajo /api (varias rutas coinciden exactamente con una
 // pagina del frontend, ej. /negocios/:id -- sin el prefijo, un refresh del

@@ -2,6 +2,18 @@ const app = require('./app');
 const sequelize = require('./config/db');
 const env = require('./config/env');
 
+// Red de seguridad: un rechazo de promesa sin captura (en Node 20 por defecto
+// tumba el proceso entero) se registra y la app sigue sirviendo a los demás
+// usuarios. Una excepción síncrona sin captura SÍ deja el proceso en estado
+// dudoso: se registra y se sale para que Docker/Coolify lo reinicie limpio.
+process.on('unhandledRejection', (razon) => {
+  console.error('[unhandledRejection]', razon); // eslint-disable-line no-console
+});
+process.on('uncaughtException', (err) => {
+  console.error('[uncaughtException]', err); // eslint-disable-line no-console
+  process.exit(1);
+});
+
 async function start() {
   await sequelize.authenticate();
   console.log('Conectado a PostgreSQL (Sequelize)'); // eslint-disable-line no-console
