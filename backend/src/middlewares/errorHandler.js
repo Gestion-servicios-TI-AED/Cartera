@@ -12,6 +12,12 @@ function errorHandler(err, req, res, next) { // eslint-disable-line no-unused-va
   if (err.name === 'SequelizeValidationError') {
     return res.status(422).json({ success: false, error: { message: 'Datos invalidos', details: err.errors?.map((e) => e.message) } });
   }
+  // Base de datos caída u ocupada (pool agotado, conexión rechazada): 503, no 500,
+  // para que el cliente lo trate como "intenta de nuevo" y NO como sesión inválida.
+  if (['SequelizeConnectionError', 'SequelizeConnectionRefusedError', 'SequelizeConnectionTimedOutError', 'SequelizeHostNotFoundError', 'SequelizeHostNotReachableError', 'SequelizeConnectionAcquireTimeoutError'].includes(err.name)) {
+    console.error(`[db] ${err.name}: ${err.message}`); // eslint-disable-line no-console
+    return res.status(503).json({ success: false, error: { message: 'El servidor está ocupado en este momento. Intenta de nuevo en unos segundos.' } });
+  }
   if (err instanceof ApiError) {
     return res.status(err.statusCode).json({ success: false, error: { message: err.message, ...(err.details ? { details: err.details } : {}) } });
   }

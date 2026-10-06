@@ -8,6 +8,7 @@ import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { ReactLenis } from 'lenis/react';
 import { ChevronRight, Building2, Home, Layers, Settings } from 'lucide-react';
 import { UserMenu } from './UserMenu.jsx';
+import { ErrorBoundary } from '../ErrorBoundary.jsx';
 import { useAuth } from '../../auth/AuthContext.jsx';
 import { tienePermiso } from '../../utils/permisos.js';
 import styles from './AppShell.module.css';
@@ -270,7 +271,9 @@ export function AppShell() {
         </div>
         <ReactLenis root={false} className={styles.scrollArea} options={{ smoothWheel: true }}>
           <Suspense fallback={<div className={styles.routeLoading}>Cargando...</div>}>
-            <Outlet />
+            <ErrorBoundary resetKey={location.pathname}>
+              <Outlet />
+            </ErrorBoundary>
           </Suspense>
         </ReactLenis>
       </main>

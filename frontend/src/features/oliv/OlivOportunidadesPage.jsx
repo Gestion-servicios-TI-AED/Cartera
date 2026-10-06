@@ -52,6 +52,7 @@ function SyncStatusBar() {
   const [status, setStatus] = useState(null);
   const [hubspotConfigurado, setHubspotConfigurado] = useState(null);
   const [sincronizando, setSincronizando] = useState(false);
+  const [errorSync, setErrorSync] = useState(null);
 
   const cargarEstado = useCallback(() => {
     getSyncStatusOportunidadesOliv().then((res) => setStatus(res.data)).catch(() => {});
@@ -66,7 +67,15 @@ function SyncStatusBar() {
 
   async function handleSync() {
     setSincronizando(true);
-    await iniciarSyncOportunidadesOliv();
+    setErrorSync(null);
+    try {
+      await iniciarSyncOportunidadesOliv();
+    } catch (err) {
+      // Un fallo al iniciar el sync (permiso, red, servidor) se muestra aquí; nunca toca la sesión.
+      setErrorSync(err.message);
+      setSincronizando(false);
+      return;
+    }
     setTimeout(() => {
       cargarEstado();
       setSincronizando(false);
@@ -92,7 +101,8 @@ function SyncStatusBar() {
             <span className={styles.syncOk}>({status.registrosSync} reg.)</span>
           </span>
         )}
-        {hubspotConfigurado && !corriendo && status?.status === 'error' && (
+        {errorSync && <span className={styles.syncError}>No se pudo iniciar la sincronización: {errorSync}</span>}
+        {hubspotConfigurado && !corriendo && !errorSync && status?.status === 'error' && (
           <span className={styles.syncError}>Error en sync: {status.errorMsg?.slice(0, 80)}</span>
         )}
       </div>

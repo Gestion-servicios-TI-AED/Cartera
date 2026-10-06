@@ -20,7 +20,7 @@ function esRutaPermitidaConCambioPendiente(originalUrl) {
 // resuelve aca UNA VEZ por request contra roles.es_admin (no contra el
 // string 'ADMIN') -- pedido explicito del usuario (2026-09-18): renombrar
 // ese rol no debe romper el bypass de administrador de nadie.
-async function requireAuth(req, res, next) {
+async function requireAuthInterno(req, res, next) {
   const token = req.cookies?.[ACCESS_COOKIE_NAME];
   if (!token) return next(new ApiError(401, 'No autenticado'));
 
@@ -50,6 +50,12 @@ async function requireAuth(req, res, next) {
   next();
 }
 
+// Express 4 no captura los rechazos de un middleware async: un fallo de base de
+// datos aquí (pool agotado, conexión caída) dejaba la petición colgada y, en
+// Node 20, tumbaba el proceso entero por "unhandled rejection". Se envuelve
+// para que cualquier error vaya a next(err) y responda como error normal.
+const requireAuth = (req, res, next) => requireAuthInterno(req, res, next).catch(next);
+
 // Restringido a esAdmin (ver la nota de requireAuth).
 function requireAdmin(req, res, next) {
   if (!req.usuario?.esAdmin) return next(new ApiError(403, 'Acceso restringido a administradores'));
@@ -62,11 +68,13 @@ function requireAdmin(req, res, next) {
 // Roles aplica de inmediato sin relogin.
 function requireModulo(claveOClaves) {
   const claves = Array.isArray(claveOClaves) ? claveOClaves : [claveOClaves];
-  return async (req, res, next) => {
-    const permisosPorRol = await getRolesPermisos();
-    if (claves.some((c) => tienePermiso(req.usuario?.roles, c, permisosPorRol, req.usuario?.esAdmin))) return next();
-    return next(new ApiError(403, 'No tienes permiso para este modulo'));
-  };
+  return (req, res, next) =>
+    getRolesPermisos()
+      .then((permisosPorRol) => {
+        if (claves.some((c) => tienePermiso(req.usuario?.roles, c, permisosPorRol, req.usuario?.esAdmin))) return next();
+        return next(new ApiError(403, 'No tienes permiso para este modulo'));
+      })
+      .catch(next);
 }
 
 // SOLO para la subida automática de archivos de la fiduciaria (n8n, todos los días ~12:00 hora de Colombia): acepta

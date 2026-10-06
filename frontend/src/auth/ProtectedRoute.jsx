@@ -19,10 +19,23 @@ import { tienePermiso } from '../utils/permisos.js';
 // 2026-09-18, pedido explicito del usuario aplicado a los 3 proyectos. El
 // backend (requireModulo) es el limite real, esto es solo UX.
 export function ProtectedRoute({ soloAdmin = false, permiso = null }) {
-  const { usuario, cargando } = useAuth();
+  const { usuario, cargando, errorConexion, refrescarPerfil } = useAuth();
   const location = useLocation();
 
   if (cargando) return null;
+  // No se pudo leer la sesión por un fallo de conexión (no por falta de sesión):
+  // se queda aquí y reintenta solo, en vez de mandar al login.
+  if (!usuario && errorConexion) {
+    return (
+      <div role="alert" style={{ minHeight: '100vh', display: 'grid', placeItems: 'center', padding: 24, textAlign: 'center' }}>
+        <div>
+          <h1 style={{ fontSize: 20, margin: '0 0 8px' }}>No se pudo conectar con el servidor</h1>
+          <p style={{ margin: '0 0 16px', color: 'var(--color-ink-secondary)' }}>Tu sesión sigue abierta. Estamos reintentando automáticamente.</p>
+          <button type="button" onClick={refrescarPerfil} style={{ padding: '8px 16px', cursor: 'pointer' }}>Reintentar ahora</button>
+        </div>
+      </div>
+    );
+  }
   if (!usuario) return <Navigate to="/login" state={{ from: location }} replace />;
   // Cambio de contraseña pendiente: no se puede usar ninguna otra pantalla hasta hacerlo.
   if (usuario.debe_cambiar_password && location.pathname !== '/cambiar-password') {
