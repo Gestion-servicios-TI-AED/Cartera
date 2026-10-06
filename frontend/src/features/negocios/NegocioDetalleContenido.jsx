@@ -635,7 +635,7 @@ export function NegocioDetalleContenido({ id }) {
                   <div className={styles.avatar}>{nombre.charAt(0).toUpperCase()}</div>
                   <div className={styles.compradorInfo}>
                     <p className={styles.compradorNombre}>{nombre}</p>
-                    {(c.nro_id ?? c.nroId) && <p className={styles.mutedSmall}>{c.nro_id ?? c.nroId}</p>}
+                    {(c.nro_id ?? c.nroId) && <p className={styles.mutedSmall}>Identificación: {c.nro_id ?? c.nroId}</p>}
                   </div>
                   {c.porcentaje != null && <span className={styles.compradorPct}>{c.porcentaje}%</span>}
                 </div>
