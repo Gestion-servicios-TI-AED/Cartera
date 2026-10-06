@@ -24,6 +24,10 @@ export function ProtectedRoute({ soloAdmin = false, permiso = null }) {
 
   if (cargando) return null;
   if (!usuario) return <Navigate to="/login" state={{ from: location }} replace />;
+  // Cambio de contraseña pendiente: no se puede usar ninguna otra pantalla hasta hacerlo.
+  if (usuario.debe_cambiar_password && location.pathname !== '/cambiar-password') {
+    return <Navigate to="/cambiar-password" replace />;
+  }
   if (soloAdmin && !usuario.esAdmin) return <Navigate to="/" replace />;
   if (permiso) {
     const permisos = Array.isArray(permiso) ? permiso : [permiso];

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Check, Circle, Eye, EyeOff, Lock } from 'lucide-react';
 import { cambiarPassword } from '../../api/auth.js';
+import { useAuth } from '../../auth/AuthContext.jsx';
 import styles from './LoginPage.module.css';
 
 // Rediseno (2026-10-03): misma tarjeta que el login (sin panel de marca, porque
@@ -18,6 +19,7 @@ const REQUISITOS = [
 
 export function CambiarPasswordPage() {
   const navigate = useNavigate();
+  const { refrescarPerfil } = useAuth();
   const [nueva, setNueva] = useState('');
   const [confirmacion, setConfirmacion] = useState('');
   const [ver, setVer] = useState(false);
@@ -37,6 +39,9 @@ export function CambiarPasswordPage() {
     setEnviando(true);
     try {
       await cambiarPassword(nueva);
+      // Actualiza el perfil en memoria (debe_cambiar_password ya es false); si no,
+      // ProtectedRoute seguiría devolviendo a esta pantalla.
+      await refrescarPerfil();
       navigate('/', { replace: true });
     } catch (err) {
       setError(err.details?.requisitos_faltantes?.join(', ') ?? err.message ?? 'No se pudo cambiar la contraseña');

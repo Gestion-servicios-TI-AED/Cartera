@@ -8,6 +8,11 @@ const ApiError = require('../utils/ApiError');
 const Usuario = require('../modules/usuario/usuario.model');
 const { tienePermiso, getRolesPermisos, resolverEsAdmin } = require('../utils/permisos');
 
+function esRutaPermitidaConCambioPendiente(originalUrl) {
+  const ruta = String(originalUrl).split('?')[0];
+  return /\/api\/auth\//.test(ruta) || /\/api\/usuarios\/me$/.test(ruta);
+}
+
 // Lee el access_token de la cookie httpOnly, decodifica el JWT y adjunta el
 // usuario activo a req.usuario. Los permisos se re-leen de la BD (nunca se
 // confia en el claim del JWT) para que un token manipulado no pueda escalar
@@ -29,6 +34,15 @@ async function requireAuth(req, res, next) {
 
   const usuario = await Usuario.findOne({ where: { email: payload.sub, activo: true } });
   if (!usuario) return next(new ApiError(401, 'Usuario no encontrado'));
+
+  // Cambio de contraseña pendiente (cuenta nueva o contraseña temporal
+  // regenerada): hasta que lo haga, solo puede usar las rutas de /auth y leer su
+  // propio perfil. Sin esto la pantalla "Crea tu contraseña" era solo una
+  // sugerencia: con la sesión ya abierta se podía entrar a cualquier módulo y la
+  // contraseña temporal quedaba vigente.
+  if (usuario.debe_cambiar_password && !esRutaPermitidaConCambioPendiente(req.originalUrl)) {
+    return next(new ApiError(403, 'Debes cambiar tu contraseña antes de continuar', { codigo: 'CAMBIO_PASSWORD_PENDIENTE' }));
+  }
 
   usuario.esAdmin = await resolverEsAdmin(usuario.roles);
 
