@@ -412,3 +412,43 @@
 .syncResumen {
   margin-left: auto;
 }
+
+/* Encabezado clicable de un bloque de KPIs desglosable */
+.kpiBloqueHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  color: inherit;
+  font: inherit;
+}
+
+.kpiBloqueResumen {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--text-data-size);
+  color: var(--color-ink-secondary);
+}
+
+.kpiBloqueHeader > .kpiSeccionTitulo {
+  flex-shrink: 0;
+}
+
+.kpiBloqueChevron {
+  margin-left: auto;
+  flex-shrink: 0;
+  color: var(--color-ink-muted);
+  transition: transform var(--duration-fast) var(--ease-standard);
+}
+
+.kpiBloqueChevronAbierto {
+  transform: rotate(180deg);
+}
