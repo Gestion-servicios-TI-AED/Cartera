@@ -2,6 +2,7 @@
 // lectura). requireAdmin/requireModulo van DESPUES, solo en rutas
 // restringidas -- ver ARQUITECTURA-BACKEND.md, "Login y autenticación" y
 // "Roles y permisos dinámicos".
+const crypto = require('crypto');
 const { decodeToken, ACCESS_COOKIE_NAME } = require('../utils/security');
 const ApiError = require('../utils/ApiError');
 const Usuario = require('../modules/usuario/usuario.model');
@@ -54,4 +55,23 @@ function requireModulo(claveOClaves) {
   };
 }
 
-module.exports = { requireAuth, requireAdmin, requireModulo };
+// SOLO para la subida automática de archivos de la fiduciaria (n8n, todos los días ~12:00 hora de Colombia): acepta
+// o bien la sesión normal de un usuario con el módulo, o bien la cabecera `X-API-Key` igual a la variable de entorno
+// INTEGRACION_API_KEY. La llave NO abre ninguna otra ruta. Si la variable no está definida (o tiene menos de 32
+// caracteres) la vía por llave queda deshabilitada. Comparación en tiempo constante.
+function requireAuthOIntegracion(claveOClaves) {
+  const exigirModulo = requireModulo(claveOClaves);
+  return (req, res, next) => {
+    const recibida = req.get('x-api-key');
+    if (!recibida) return requireAuth(req, res, (err) => (err ? next(err) : exigirModulo(req, res, next)));
+    const esperada = process.env.INTEGRACION_API_KEY;
+    if (!esperada || esperada.length < 32) return next(new ApiError(401, 'La integración por API key no está configurada'));
+    const a = Buffer.from(recibida);
+    const b = Buffer.from(esperada);
+    if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) return next(new ApiError(401, 'API key inválida'));
+    req.usuario = { id: null, nombre: 'Integración (n8n)', roles: ['INTEGRACION'], esAdmin: false, integracion: true };
+    return next();
+  };
+}
+
+module.exports = { requireAuth, requireAdmin, requireModulo, requireAuthOIntegracion };

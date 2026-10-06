@@ -1040,3 +1040,14 @@ HRMS y se adaptan solo textos/datos). Se hace por pasos, con el HRMS como modelo
 - Pendiente: Panel de Alertas con más tipos y filas clicables en Cartera/Otrosíes (ver brechas
   conocidas arriba).
   Cartera ya heredó los estilos de tarjetas/KPIs de `Dashboard.module.css`.
+
+## Carga diaria de la fiduciaria vía n8n (2026-10-06)
+
+Los Excel de la fiduciaria llegan todos los días ~12:00 (hora de Colombia) por n8n a
+`POST /api/fiducia/upload`. Antes solo aceptaba sesión por cookie, que n8n no tiene.
+`middlewares/auth.js#requireAuthOIntegracion` acepta la sesión normal (con el módulo
+`encargos`) **o** la cabecera `X-API-Key` igual a `INTEGRACION_API_KEY` (≥ 32 caracteres,
+comparación en tiempo constante). La llave solo abre esa ruta; sin la variable, la vía
+queda deshabilitada. Verificado a nivel de middleware (llave correcta/incorrecta/corta/sin credenciales).
+n8n debe apuntar a `https://<dominio-gateway>/cartera/api/fiducia/upload` (multipart, campo `archivo`
++ opcionales `nombre, codigo, emailId, emailAsunto, emailFecha`; máx. 50 MB).

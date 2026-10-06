@@ -1,13 +1,14 @@
 // Montado en /fiducia (ver routes/index.js).
 const express = require('express');
 const multer = require('multer');
-const { requireAuth, requireModulo } = require('../../middlewares/auth');
+const { requireAuth, requireModulo, requireAuthOIntegracion } = require('../../middlewares/auth');
 const controller = require('./fiducia.controller');
 
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 50 * 1024 * 1024 } });
 
-router.post('/upload', requireAuth, requireModulo('encargos'), upload.single('archivo'), controller.upload);
+// Subida de archivos: sesión de usuario con el módulo `encargos` O la llave de integración de n8n (X-API-Key).
+router.post('/upload', requireAuthOIntegracion('encargos'), upload.single('archivo'), controller.upload);
 
 router.get('/encargos', requireAuth, requireModulo(['encargos', 'oportunidades']), controller.listEncargos);
 router.get('/encargos/:id', requireAuth, requireModulo('encargos'), controller.getEncargo);

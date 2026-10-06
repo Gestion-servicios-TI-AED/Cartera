@@ -90,3 +90,8 @@ refresco directo en ruta profunda, logo, API y cookies (`path=/cartera/`, `Secur
 
 **Antes de que los usuarios la usen (corte):** correr la pasada final de `backend/scripts/migracion/README.md`
 (Baía Kristal sigue recibiendo movimientos en la base legada hasta ese momento).
+
+### Carga automática desde n8n
+
+Variable de entorno `INTEGRACION_API_KEY` (≥ 32 caracteres). n8n envía `X-API-Key: <llave>` a
+`POST /cartera/api/fiducia/upload` (multipart, campo `archivo`).
