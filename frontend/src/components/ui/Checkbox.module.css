@@ -1,4 +1,9 @@
 .checkbox {
+  /* Ancla del input oculto (position:absolute): sin esto su contenedor era
+     la raíz de la página, no la etiqueta, y al hacer clic el navegador lo
+     enfocaba en una posición vieja y desplazaba el área con scroll hacia
+     abajo (bug en Roles > permisos de Oliv). */
+  position: relative;
   display: inline-flex;
   align-items: center;
   gap: var(--space-sm);
