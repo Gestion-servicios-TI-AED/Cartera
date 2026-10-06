@@ -1008,6 +1008,27 @@ HRMS y se adaptan solo textos/datos). Se hace por pasos, con el HRMS como modelo
   apuntar las variables del despliegue a la base nueva y reiniciar el servidor.
   **Idea pendiente, NO empezar sin orden del usuario:** "Normalización de movimientos fiduciarios"
   (sacar el jsonb `datos` a columnas; ver notas en memoria).
+- **Normalización de `movimientos_fiduciarios` (2026-10-05/06) -- pasos 0 a 6 hechos; faltan 7 y 8.** Se sacó el
+  jsonb `datos` a 22 columnas reales para las líneas de movimiento (forma A, 96 %); las de estado por unidad
+  (forma B, 4 %) y cualquier forma desconocida se quedan en `datos`; lo no convertible va a `datos_extra`. Diseño
+  y resultados en `backend/scripts/migracion/normalizacion/DISENO.md`. Migraciones `20261006120000`
+  (columnas) y `20261006120100` (disparador `mf_llenar_columnas_tg` + `mf_llenar_columnas()` + `mf_datos()`);
+  scripts `paso1_medicion.js`, `paso2_perfil_datos.js`, `paso4_rellenar.js`, `paso5_verificar.js`.
+  **Hallazgos:** las fechas del Excel son seriales (`44208` = 2021-01-14), no DD/MM/AAAA; `% Participación 1` viene
+  siempre `" "`; el filtro de fechas de `fiducia.service.js` esperaba DD/MM/AAAA y nunca devolvía filas (ahora usa
+  `fecha_contable`); `propietario` estaba cortado a 255 (6.567 filas; ahora `text` completo); el endpoint
+  `/fiducia/movimientos` NO lo consume ninguna pantalla (la página Movimientos usa `negocio_movimientos` y el visor
+  de hojas lee `hojas_fiduciarias.filas`), solo la subida de Excel lo escribe. **Verificado en la base nueva de
+  producción (5440):** 0 diferencias al reconstruir `datos` en las 3.089.180 filas, suma de Valor idéntica a la copia
+  del respaldo (13.623.342.804.147,70). Respaldo previo: carpeta `Respaldos-Cartera` del usuario (fuera del repo).
+  **Código (paso 6, commit `4e6f127`):** modelo + `fiducia.service.js` (devuelve `datos` con `mf_datos()`, búsqueda
+  sobre columnas, filtro de fechas); el escritor `fiducia.upload.js` NO cambia (lo cubre el disparador). Probado A/B
+  contra el código anterior (9/10 consultas idénticas; las diferencias son las buscadas) y con la app local
+  apuntando a la base nueva: 18 pantallas + encargos/hojas/unidad sin errores (hay 560 encargos sin hojas en la base
+  vieja y en la nueva por igual: es un dato del origen, no un defecto de la migración). **Pendiente:** paso 7
+  (desplegar y observar) y paso 8 = VACIAR `datos` solo en filas forma A (la columna pasa a NULL-able y el disparador
+  la pone en NULL tras llenar las columnas), con respaldo nuevo y autorización expresa; la tabla baja de ~4,7 GB a
+  ~2 GB. El `.env` de desarrollo sigue apuntando a `cartera_aed_v2` (sin las columnas nuevas).
 - Pendiente: Panel de Alertas con más tipos y filas clicables en Cartera/Otrosíes (ver brechas
   conocidas arriba).
   Cartera ya heredó los estilos de tarjetas/KPIs de `Dashboard.module.css`.
