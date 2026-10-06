@@ -437,7 +437,7 @@ export function OlivNegocioDetalleContenido({ id }) {
               <div className={styles.avatar}>{negocio.comprador.nombre.charAt(0).toUpperCase()}</div>
               <div className={styles.compradorInfo}>
                 <p className={styles.compradorNombre}>{negocio.comprador.nombre}</p>
-                {negocio.comprador.cedula && <p className={styles.mutedSmall}>Identificación: {negocio.comprador.cedula}</p>}
+                {negocio.comprador.cedula && <p className={styles.mutedSmall}>C.C. {negocio.comprador.cedula}</p>}
                 {negocio.comprador.email && <p className={styles.mutedSmall}>{negocio.comprador.email}</p>}
                 {negocio.comprador.telefono && <p className={styles.mutedSmall}>{negocio.comprador.telefono}</p>}
               </div>
