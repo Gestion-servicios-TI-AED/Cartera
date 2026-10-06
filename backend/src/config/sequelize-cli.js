@@ -1,4 +1,4 @@
-require('dotenv').config();
+require('./env'); // carga .env y expande DATABASE_URL a PG*
 
 module.exports = {
   development: {
