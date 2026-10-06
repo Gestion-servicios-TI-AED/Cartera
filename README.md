@@ -71,3 +71,22 @@ docker run --rm -p 3000:3000 --env-file backend/.env -e NODE_ENV=production -e C
 > En **Git Bash para Windows**, un build-arg que empieza con `/` (ej. `VITE_BASE_PATH=/cartera/`) se convierte en una ruta de Windows; antepón `MSYS_NO_PATHCONV=1` al comando. Desde PowerShell o desde Coolify no pasa.
 >
 > Si el `docker build` se hace desde Windows, `.gitattributes` fuerza fin de línea LF en `entrypoint.sh` y el `Dockerfile`; sin eso el contenedor falla con `/bin/bash^M: bad interpreter`.
+
+## Despliegue en Coolify detrás del gateway (Plataforma AED)
+
+Probado localmente (2026-10-06) con la imagen real de Cartera detrás de un nginx que quita el prefijo `/cartera/`
+(igual que el gateway): landing -> tarjeta -> login -> Inicio -> Dashboard/Cartera/Negocios/Encargos/Unidad/Oliv,
+refresco directo en ruta profunda, logo, API y cookies (`path=/cartera/`, `Secure`, `HttpOnly`), sin errores de JS ni de red.
+
+**Orden:**
+1. **Cartera (recurso propio en Coolify):** repositorio `Gestion-servicios-TI-AED/Cartera`, rama `main`, *Build Pack: Dockerfile*,
+   Base Directory `/`, Ports Exposes `3000`, y un **dominio público propio** (es el `CARTERA_UPSTREAM` del gateway).
+   *Build arguments:* `VITE_API_BASE_URL=/cartera/api` y `VITE_BASE_PATH=/cartera/`. *Variables de entorno:* las de `backend/.env`
+   salvo `PORT`, `NODE_ENV`, `FRONTEND_URL`, `ADMIN_*`, `LEGACY_DATABASE_URL`; `PG*` apuntan a la base nueva;
+   `JWT_SECRET` nuevo y propio; `CORS_ORIGIN` = dominio del gateway (con `https://`).
+2. **Gateway:** definir `CARTERA_UPSTREAM` = dominio público de Cartera **sin** `https://`, y redeployar.
+3. Los usuarios entran por `https://<dominio-del-gateway>/cartera/`. Con `VITE_BASE_PATH=/cartera/` el dominio propio de
+   Cartera ya **no** sirve la app directamente (los assets quedan bajo `/cartera/`); solo sirve de upstream.
+
+**Antes de que los usuarios la usen (corte):** correr la pasada final de `backend/scripts/migracion/README.md`
+(Baía Kristal sigue recibiendo movimientos en la base legada hasta ese momento).
