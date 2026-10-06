@@ -95,6 +95,16 @@
 .statSub {
   font-size: var(--text-data-size);
   color: var(--color-ink-muted);
+  /* Siempre ocupa su línea (con espacio duro si no hay texto): todas las
+     tarjetas miden lo mismo, tengan o no subtítulo. */
+  min-height: 1.4em;
+}
+
+/* Mismas columnas en todos los bloques de KPIs: con auto-fit, un bloque de 3
+   tarjetas las estiraba más anchas que uno de 4 (y la cifra, que escala con el
+   ancho, se veía más grande). auto-fill conserva el ancho de columna. */
+.kpiSecciones .gridKpi {
+  grid-template-columns: repeat(auto-fill, minmax(min(240px, 100%), 1fr));
 }
 
 /* ── Tendencia ───────────────────────────────────────────────────────── */
