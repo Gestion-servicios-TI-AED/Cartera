@@ -1025,10 +1025,18 @@ HRMS y se adaptan solo textos/datos). Se hace por pasos, con el HRMS como modelo
   sobre columnas, filtro de fechas); el escritor `fiducia.upload.js` NO cambia (lo cubre el disparador). Probado A/B
   contra el código anterior (9/10 consultas idénticas; las diferencias son las buscadas) y con la app local
   apuntando a la base nueva: 18 pantallas + encargos/hojas/unidad sin errores (hay 560 encargos sin hojas en la base
-  vieja y en la nueva por igual: es un dato del origen, no un defecto de la migración). **Pendiente:** paso 7
-  (desplegar y observar) y paso 8 = VACIAR `datos` solo en filas forma A (la columna pasa a NULL-able y el disparador
-  la pone en NULL tras llenar las columnas), con respaldo nuevo y autorización expresa; la tabla baja de ~4,7 GB a
-  ~2 GB. El `.env` de desarrollo sigue apuntando a `cartera_aed_v2` (sin las columnas nuevas).
+  vieja y en la nueva por igual: es un dato del origen, no un defecto de la migración). **Pasos 7 y 8 hechos (ver abajo).** El `.env` de desarrollo sigue apuntando a `cartera_aed_v2` (sin las columnas nuevas).
+- **Normalización de `movimientos_fiduciarios` -- PASO 8 HECHO en producción (2026-10-06).** Migración
+  `20261006130000` (`datos` pasa a admitir NULL y el disparador `mf_llenar_columnas()` lo deja en NULL en las filas
+  tipo A solo si `mf_datos(NEW)` reproduce EXACTAMENTE el original; `down` lo re-materializa y es reversible).
+  `paso8_vaciar_datos.js` (guarda por fila + VACUUM FULL) y `paso8_verificar.js` (hash por bloques contra una copia
+  intacta). Resultado en la base nueva (5440): 2.969.077 filas A vaciadas, 0 conservaron `datos`; **tabla 4.739 MB ->
+  1.855 MB y base completa 4.945 MB -> 2.061 MB** (la base de la migración original pesaba 3.245 MB); los 31 bloques
+  (3.089.180 filas) idénticos al original; 18 pantallas + encargos/hojas/unidad sin errores. Las filas tipo B y las
+  formas desconocidas (y cualquier fila A que no se reconstruya idéntica) conservan su `datos`. Para LEER el objeto
+  original siempre `mf_datos(fila)`, nunca la columna `datos` cruda. Respaldos previos en la carpeta
+  `Respaldos-Cartera` del usuario (710 MB, 2026-10-06, validado con `pg_restore --list`). La pasada final de la
+  migración (`pasadaFinalMovimientos.js`) sigue funcionando: inserta `datos` y el disparador lo convierte/vacía.
 - Pendiente: Panel de Alertas con más tipos y filas clicables en Cartera/Otrosíes (ver brechas
   conocidas arriba).
   Cartera ya heredó los estilos de tarjetas/KPIs de `Dashboard.module.css`.
