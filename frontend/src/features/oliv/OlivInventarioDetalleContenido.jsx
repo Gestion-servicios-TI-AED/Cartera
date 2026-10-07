@@ -7,6 +7,7 @@ import { getInmuebleOliv } from '../../api/oliv.js';
 import { formatCOP } from '../../utils/format.js';
 import { PROPIEDADES_OCULTAS, esUrl, etiquetaPropiedad, formatearPropiedad } from './inmuebleEtiquetas.js';
 import styles from '../inventario/InventarioDetallePage.module.css';
+import { Vinculados } from '../../components/Vinculados.jsx';
 import { DetalleHero, HeroBadges, HeroBoton } from '../../components/layout/DetalleHero.jsx';
 import { Warehouse } from 'lucide-react';
 
@@ -69,6 +70,8 @@ export function OlivInventarioDetalleContenido({ id }) {
           {item.planoLink && <HeroBoton onClick={() => window.open(item.planoLink, '_blank', 'noreferrer')}>Ver plano</HeroBoton>}
         </HeroBadges>
       </DetalleHero>
+
+      <Vinculados proyecto="oliv" tipo="inmueble" id={id} />
 
       {kpis.length > 0 && (
         <div className={styles.kpiGrid}>

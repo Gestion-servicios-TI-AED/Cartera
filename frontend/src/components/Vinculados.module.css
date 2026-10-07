@@ -1,0 +1,153 @@
+.franja {
+  display: flex;
+  align-items: stretch;
+  gap: var(--space-md);
+  padding: 12px 16px;
+  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.titulo {
+  align-self: center;
+  flex-shrink: 0;
+  font-size: var(--text-label-size);
+  font-weight: var(--text-label-weight);
+  letter-spacing: var(--text-label-tracking);
+  text-transform: uppercase;
+  color: var(--color-ink-muted);
+}
+
+.piezas {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
+  gap: var(--space-sm);
+}
+
+.pieza {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: inherit;
+  text-decoration: none;
+  background: var(--color-surface);
+}
+
+.icono {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-md);
+  background: var(--color-surface-sunken);
+  color: var(--color-ink-secondary);
+}
+
+.texto {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+
+.etiqueta {
+  font-size: var(--text-label-size);
+  font-weight: var(--text-label-weight);
+  letter-spacing: var(--text-label-tracking);
+  text-transform: uppercase;
+  color: var(--color-ink-muted);
+}
+
+.valor {
+  font-size: var(--text-data-size);
+  font-weight: 600;
+  color: var(--color-ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.detalle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--text-label-size);
+  color: var(--color-ink-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chevron {
+  flex-shrink: 0;
+  color: var(--color-ink-muted);
+  transition: transform var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);
+}
+
+.enlace {
+  cursor: pointer;
+  transition: border-color var(--duration-fast) var(--ease-standard), box-shadow var(--duration-fast) var(--ease-standard);
+}
+
+.enlace:hover,
+.enlace:focus-visible {
+  border-color: var(--color-primary);
+  box-shadow: 0 6px 18px color-mix(in srgb, var(--color-brand-deep) 8%, transparent);
+}
+
+.enlace:hover .chevron,
+.enlace:focus-visible .chevron {
+  color: var(--color-primary);
+  transform: translateX(2px);
+}
+
+.enlace:hover .icono {
+  background: color-mix(in srgb, var(--color-primary) 12%, white);
+  color: var(--color-primary);
+}
+
+/* Donde estás: relleno de marca suave, sin enlace. */
+.actual {
+  border-color: var(--color-primary);
+  background: color-mix(in srgb, var(--color-primary) 6%, white);
+}
+
+.actual .icono {
+  background: var(--color-primary);
+  color: var(--color-primary-ink-on);
+}
+
+.actual .detalle {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.vacia,
+.bloqueada,
+.cargando {
+  border-style: dashed;
+  background: transparent;
+}
+
+.vacia .etiqueta,
+.vacia .detalle,
+.bloqueada .etiqueta,
+.bloqueada .detalle {
+  color: var(--color-ink-muted);
+  opacity: 0.8;
+}
+
+@media (max-width: 720px) {
+  .franja {
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+}

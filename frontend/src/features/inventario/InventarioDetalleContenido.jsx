@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { EstadoInventarioBadge } from '../../components/ui/EstadoInventarioBadge.jsx';
 import { getInventarioItem } from '../../api/inventario.js';
 import styles from './InventarioDetallePage.module.css';
+import { Vinculados } from '../../components/Vinculados.jsx';
 import { DetalleHero, HeroBadges } from '../../components/layout/DetalleHero.jsx';
 import { Warehouse } from 'lucide-react';
 
@@ -80,6 +81,8 @@ export function InventarioDetalleContenido({ id }) {
           <EstadoInventarioBadge estado={item.estado} />
         </HeroBadges>
       </DetalleHero>
+
+      <Vinculados proyecto="baia" tipo="inmueble" id={id} />
 
       {kpis.length > 0 && (
         <div className={styles.kpiGrid}>

@@ -41,6 +41,7 @@ import { Accordion } from '../../components/ui/Accordion.jsx';
 import { Tabs } from '../../components/ui/Tabs.jsx';
 import { getNegocioOliv } from '../../api/oliv.js';
 import { exportarEstadoCuentaOliv } from './estadoCuentaPdfOliv.js';
+import { Vinculados } from '../../components/Vinculados.jsx';
 import { formatCOP, formatDate, formatDateTime } from '../../utils/format.js';
 import { formatCelda } from '../../utils/formatCelda.js';
 import styles from '../negocios/NegocioDetallePage.module.css';
@@ -415,6 +416,8 @@ export function OlivNegocioDetalleContenido({ id }) {
         </HeroBadges>
         <HeroSaldo valor={saldoFmt ?? '—'} />
       </DetalleHero>
+
+      <Vinculados proyecto="oliv" tipo="negocio" id={id} />
 
       <Tabs
         ariaLabel="Secciones del negocio"

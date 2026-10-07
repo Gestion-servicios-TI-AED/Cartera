@@ -24,6 +24,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { BackLink } from '../../components/ui/BackLink.jsx';
+import { Vinculados } from '../../components/Vinculados.jsx';
 import { StageBadge } from '../../components/ui/StageBadge.jsx';
 import { Accordion } from '../../components/ui/Accordion.jsx';
 import { Tabs } from '../../components/ui/Tabs.jsx';
@@ -143,6 +144,8 @@ export function OlivOportunidadDetallePage() {
           {op.referenciaRecaudo && <span className={styles.refBadge}>Ref. {op.referenciaRecaudo}</span>}
         </div>
       </section>
+
+      <Vinculados proyecto="oliv" tipo="oportunidad" id={id} />
 
       <div className={styles.kpiGrid}>
         <div className={styles.kpiCard}>

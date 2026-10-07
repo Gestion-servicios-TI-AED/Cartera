@@ -21,6 +21,7 @@ import { obtenerProyecto, desglosarPiso } from '../../utils/proyectos.js';
 import { separarUnidadesAdicionales } from '../../utils/unidadesAdicionales.js';
 import { obtenerConciliacionCompleta } from './obtenerConciliacionCompleta.js';
 import { exportarEstadoCuenta } from './estadoCuentaPdf.js';
+import { Vinculados } from '../../components/Vinculados.jsx';
 import { formatExcelDate } from '../../utils/format.js';
 import styles from './NegocioDetallePage.module.css';
 import { DetalleHero, HeroBadges, HeroBoton, HeroSaldo } from '../../components/layout/DetalleHero.jsx';
@@ -610,6 +611,8 @@ export function NegocioDetalleContenido({ id }) {
         </HeroBadges>
         {saldoFmt && <HeroSaldo valor={saldoFmt} positivo={saldo > 0} />}
       </DetalleHero>
+
+      <Vinculados proyecto="baia" tipo="negocio" id={id} />
 
       <Tabs
         ariaLabel="Secciones del negocio"

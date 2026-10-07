@@ -1,0 +1,167 @@
+// "Registros vinculados": dado un registro (Oportunidad, Negocio o Inmueble)
+// devuelve los otros dos con lo mínimo para pintar un enlace (a dónde ir, un
+// título y un detalle corto), para la franja "Vinculados" de las pantallas de
+// detalle. No duplica reglas de cruce: reutiliza las que ya usan Negocios
+// (Baía Kristal) y Negocios/Oportunidades (Oliv).
+//
+// Baía Kristal cruza por la REFERENCIA DE RECAUDO (Negocio.referencia =
+// Oportunidad.referencia_recaudo = InventarioItem.referencia_recaudo) y, si el
+// inmueble no la tiene, por la nomenclatura (Negocio.datos.Nomenclatura =
+// InventarioItem.datos.C_digo_inmueble). Oliv: la oportunidad apunta al
+// inmueble por `inmueble_hubspot_id`, y el "negocio" ES la oportunidad cuando
+// llegó a la etapa mínima (ver olivNegocio.service.js).
+//
+// Cada vínculo se entrega solo si el usuario puede abrir el módulo destino; si
+// no, llega como { restringido: true } (el frontend lo muestra bloqueado, sin
+// revelar nombres de un módulo al que no tiene acceso).
+const { Op, QueryTypes } = require('sequelize');
+const sequelize = require('../../config/db');
+const ApiError = require('../../utils/ApiError');
+const { tienePermiso, getRolesPermisos } = require('../../utils/permisos');
+const { limpiarNombreContacto, ETAPA_MINIMA_ORDER } = require('../../utils/olivHelpers');
+const Negocio = require('../negocio/negocio.model');
+const Oportunidad = require('../oportunidad/oportunidad.model');
+const InventarioItem = require('../inventario/inventarioItem.model');
+const { findOportunidadByReferencia, resolverNegocioIdDesdeInmueble } = require('../negocio/negocio.service');
+const olivOportunidad = require('../olivOportunidad/olivOportunidad.model');
+const OlivInmueble = require('../olivInmueble/olivInmueble.model');
+
+const TIPOS = ['oportunidad', 'negocio', 'inmueble'];
+const MODULOS = {
+  baia: { oportunidad: 'oportunidades', negocio: 'negocios', inmueble: 'inventario' },
+  oliv: { oportunidad: 'oliv-oportunidades', negocio: 'oliv-negocios', inmueble: 'oliv-inmuebles' },
+};
+
+// ── Baía Kristal ─────────────────────────────────────────────────────────
+
+async function inmuebleDeNegocio(negocio) {
+  if (negocio.referencia) {
+    const porReferencia = await InventarioItem.findOne({ where: { referencia_recaudo: negocio.referencia }, order: [['id', 'ASC']] });
+    if (porReferencia) return porReferencia;
+  }
+  const nomenclatura = negocio.datos?.Nomenclatura;
+  if (nomenclatura != null) {
+    const rows = await sequelize.query("SELECT id FROM inventario_items WHERE datos->>'C_digo_inmueble' = $1 ORDER BY id ASC LIMIT 1", {
+      bind: [String(nomenclatura)],
+      type: QueryTypes.SELECT,
+    });
+    if (rows[0]) return InventarioItem.findByPk(rows[0].id);
+  }
+  return null;
+}
+
+async function resolverBaia(tipo, id) {
+  let oportunidad = null; // { id, dealName, stage }
+  let negocio = null;
+  let inmueble = null;
+
+  if (tipo === 'oportunidad') {
+    const opp = await Oportunidad.findByPk(id, { attributes: ['id', 'deal_name', 'stage', 'referencia_recaudo'] });
+    if (!opp) throw new ApiError(404, 'Oportunidad no encontrada');
+    oportunidad = { id: opp.id, dealName: opp.deal_name, stage: opp.stage };
+    const referencia = opp.referencia_recaudo;
+    if (referencia) {
+      negocio = await Negocio.findOne({ where: { referencia } });
+      inmueble = await InventarioItem.findOne({ where: { referencia_recaudo: referencia }, order: [['id', 'ASC']] });
+    }
+  } else if (tipo === 'inmueble') {
+    inmueble = await InventarioItem.findByPk(id);
+    if (!inmueble) throw new ApiError(404, 'Inmueble no encontrado');
+    const negocioId = await resolverNegocioIdDesdeInmueble(inmueble);
+    if (negocioId) negocio = await Negocio.findByPk(negocioId);
+  } else if (String(id).startsWith('inv-')) {
+    inmueble = await InventarioItem.findByPk(String(id).slice(4));
+    if (!inmueble) throw new ApiError(404, 'Negocio no encontrado');
+    const negocioId = await resolverNegocioIdDesdeInmueble(inmueble);
+    if (negocioId) negocio = await Negocio.findByPk(negocioId);
+  } else if (String(id).startsWith('neg-')) {
+    negocio = await Negocio.findByPk(String(id).slice(4));
+    if (!negocio) throw new ApiError(404, 'Negocio no encontrado');
+  } else {
+    throw new ApiError(404, 'Negocio no encontrado');
+  }
+
+  // Completa lo que falte con lo que ya se sabe.
+  if (!inmueble && negocio) inmueble = await inmuebleDeNegocio(negocio);
+  if (!oportunidad) {
+    const opp = await findOportunidadByReferencia(negocio?.referencia ?? inmueble?.referencia_recaudo ?? null);
+    if (opp) oportunidad = { id: opp.id, dealName: opp.dealName, stage: opp.stage };
+  }
+
+  return {
+    oportunidad: oportunidad
+      ? { to: `/oportunidades/${oportunidad.id}`, titulo: oportunidad.dealName, detalle: oportunidad.stage }
+      : null,
+    negocio: negocio
+      ? {
+          // Mismo id que usa el listado de Negocios: por inmueble si hay uno.
+          to: inmueble ? `/negocios/inv-${inmueble.id}` : `/negocios/neg-${negocio.id}`,
+          titulo: negocio.referencia ? `Ref. ${negocio.referencia}` : 'Negocio',
+          detalle: negocio.estado,
+        }
+      : null,
+    inmueble: inmueble
+      ? { to: `/inventario/${inmueble.id}`, titulo: inmueble.datos?.Product_Name || inmueble.nombre || `Inmueble ${inmueble.id}`, detalle: inmueble.estado }
+      : null,
+  };
+}
+
+// ── Oliv ─────────────────────────────────────────────────────────────────
+
+async function oportunidadDeInmueble(inmueble) {
+  return olivOportunidad.findOne({
+    where: { inmueble_hubspot_id: inmueble.hubspot_id, stage_order: { [Op.gte]: ETAPA_MINIMA_ORDER } },
+    order: [['actualizado_en', 'DESC']],
+  });
+}
+
+async function resolverOliv(tipo, id) {
+  let opp = null;
+  let inmueble = null;
+  const texto = String(id);
+
+  if (tipo === 'oportunidad' || (tipo === 'negocio' && texto.startsWith('op-'))) {
+    opp = await olivOportunidad.findByPk(texto.replace(/^op-/, ''));
+    if (!opp) throw new ApiError(404, 'Oportunidad no encontrada');
+    if (opp.inmueble_hubspot_id) inmueble = await OlivInmueble.findOne({ where: { hubspot_id: opp.inmueble_hubspot_id } });
+  } else if (tipo === 'inmueble' || (tipo === 'negocio' && texto.startsWith('inm-'))) {
+    inmueble = await OlivInmueble.findByPk(texto.replace(/^inm-/, ''));
+    if (!inmueble) throw new ApiError(404, 'Inmueble no encontrado');
+    opp = await oportunidadDeInmueble(inmueble);
+  } else {
+    throw new ApiError(404, 'Negocio no encontrado');
+  }
+
+  // Todo lo que se sincroniza ya está en la etapa mínima, pero se respeta la
+  // misma condición que usa el detalle de Negocios.
+  const esNegocio = opp && opp.stage_order >= ETAPA_MINIMA_ORDER;
+  return {
+    oportunidad: opp ? { to: `/oliv/oportunidades/${opp.id}`, titulo: opp.deal_name, detalle: opp.stage } : null,
+    negocio: esNegocio
+      ? {
+          to: inmueble ? `/oliv/negocios/inm-${inmueble.id}` : `/oliv/negocios/op-${opp.id}`,
+          titulo: opp.referencia_recaudo ? `Ref. ${opp.referencia_recaudo}` : opp.deal_name,
+          detalle: limpiarNombreContacto(opp.nombre_contacto, opp.proyecto) || null,
+        }
+      : null,
+    inmueble: inmueble ? { to: `/oliv/inmuebles/${inmueble.id}`, titulo: inmueble.codigo_unidad, detalle: inmueble.estado } : null,
+  };
+}
+
+// ── Público ──────────────────────────────────────────────────────────────
+
+async function obtener({ proyecto, tipo, id }, usuario) {
+  if (!MODULOS[proyecto] || !TIPOS.includes(tipo)) throw new ApiError(400, 'Proyecto o tipo inválido');
+  const vinculos = proyecto === 'baia' ? await resolverBaia(tipo, id) : await resolverOliv(tipo, id);
+
+  const permisosPorRol = await getRolesPermisos();
+  const resultado = {};
+  for (const t of TIPOS) {
+    if (t === tipo) continue; // el registro actual no se enlaza a sí mismo
+    const v = vinculos[t];
+    resultado[t] = v && !tienePermiso(usuario.roles, MODULOS[proyecto][t], permisosPorRol, usuario.esAdmin) ? { restringido: true } : v;
+  }
+  return resultado;
+}
+
+module.exports = { obtener };
