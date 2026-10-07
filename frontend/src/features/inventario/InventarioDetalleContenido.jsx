@@ -9,6 +9,7 @@ import styles from './InventarioDetallePage.module.css';
 import { Vinculados } from '../../components/Vinculados.jsx';
 import { DetalleHero, HeroBadges } from '../../components/layout/DetalleHero.jsx';
 import { Warehouse } from 'lucide-react';
+import { VARIABLES_OCULTAS, etiquetaVariable } from './variablesInmueble.js';
 
 // Convierte un valor crudo de Zoho a texto mostrable, sin reformatear lo que
 // ya viene limpio. Objetos lookup (Owner, Proyecto…) muestran su nombre;
@@ -19,10 +20,6 @@ function formatValor(v) {
   if (Array.isArray(v)) return v.length ? v.map((x) => (typeof x === 'object' ? x.name || JSON.stringify(x) : String(x))).join(', ') : null;
   if (typeof v === 'object') return v.name || v.display_label || JSON.stringify(v);
   return String(v);
-}
-
-function toLabel(key) {
-  return key.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
 export function InventarioDetalleContenido({ id }) {
@@ -40,11 +37,11 @@ export function InventarioDetalleContenido({ id }) {
       .finally(() => setCargando(false));
   }, [id]);
 
-  const entries = useMemo(() => Object.entries(item?.datos || {}).filter(([, v]) => formatValor(v) !== null), [item]);
+  const entries = useMemo(() => Object.entries(item?.datos || {}).filter(([k, v]) => !VARIABLES_OCULTAS.has(k) && formatValor(v) !== null), [item]);
   const visibles = useMemo(() => {
     const q = busqueda.trim().toLowerCase();
     if (!q) return entries;
-    return entries.filter(([k, v]) => `${toLabel(k)} ${formatValor(v)}`.toLowerCase().includes(q));
+    return entries.filter(([k, v]) => `${etiquetaVariable(k)} ${formatValor(v)}`.toLowerCase().includes(q));
   }, [entries, busqueda]);
 
   if (cargando) {
@@ -114,7 +111,7 @@ export function InventarioDetalleContenido({ id }) {
           <div className={styles.columnas}>
             {visibles.map(([k, v]) => (
               <div key={k} className={styles.fila}>
-                <span className={styles.miniLabel}>{toLabel(k)}</span>
+                <span className={styles.miniLabel}>{etiquetaVariable(k)}</span>
                 <span className={styles.valor}>{formatValor(v)}</span>
               </div>
             ))}
