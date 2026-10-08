@@ -12,7 +12,7 @@
 // Torre + Estado del inmueble son planos e independientes.
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, Fragment } from 'react';
 import ExcelJS from 'exceljs';
-import { Search, Building2, MapPin, X, Download, CalendarRange, Maximize2, Minimize2, History, Briefcase, Warehouse, ExternalLink, ChevronUp, ChevronDown, ChevronsUpDown, Wallet, Hourglass, AlertTriangle } from 'lucide-react';
+import { Search, Building2, MapPin, X, Download, CalendarRange, Maximize2, Minimize2, History, Briefcase, Warehouse, ExternalLink, ChevronUp, ChevronDown, ChevronsUpDown, Wallet, Hourglass, AlertTriangle, TrendingUp } from 'lucide-react';
 import { Field, TextInput, Select } from '../../components/ui/Field.jsx';
 import { Button } from '../../components/ui/Button.jsx';
 import { Pagination } from '../../components/ui/Pagination.jsx';
@@ -491,6 +491,7 @@ export function OlivDashboardPage() {
           <StatTile label="Valor del portafolio filtrado" value={formatCOP(meta.totalesColumnasFijas.valorInmueble ?? 0)} icon={Building2} tone="primary" />
           <StatTile label="Total abonado" value={formatCOP(meta.totalesColumnasFijas.totalAbonado ?? 0)} icon={Wallet} tone="success" />
           <StatTile label="Por recaudar" value={formatCOP(meta.totalesColumnasFijas.pendienteRecaudar ?? 0)} icon={Hourglass} tone="neutral" />
+          <StatTile label="Valor proyectado" value={formatCOP((meta.totalesColumnasFijas.totalAbonado ?? 0) + (meta.totalesColumnasFijas.pendienteRecaudar ?? 0))} icon={TrendingUp} tone="primary" />
           <StatTile label={`En mora (${meta.totalesColumnasFijas.cuotasEnMora ?? 0} cuotas)`} value={formatCOP(meta.totalesColumnasFijas.montoEnMora ?? 0)} icon={AlertTriangle} tone="warning" warning={(meta.totalesColumnasFijas.montoEnMora ?? 0) > 0} />
         </div>
       )}
