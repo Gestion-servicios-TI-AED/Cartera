@@ -572,7 +572,7 @@ export function NegocioDetalleContenido({ id }) {
   const aptoEntries = [
     ...(proyectoInfo?.etapa ? [['Etapa', proyectoInfo.etapa]] : []),
     ...(negocio.codigoInmueble ? [['Código de Inmueble', negocio.codigoInmueble]] : []),
-    ...(negocio.projectCode ? [['Project Code', negocio.projectCode]] : []),
+    ...(negocio.nomenclaturaCompleta ? [['Nomenclatura completa', negocio.nomenclaturaCompleta]] : []),
     ...aptoEntriesBase,
   ];
 
@@ -582,10 +582,10 @@ export function NegocioDetalleContenido({ id }) {
     <div className={styles.detalle}>
       <DetalleHero
         icon={Briefcase}
-        titulo={negocio.referencia || negocio.projectCode || '—'}
-        subtitulo={negocio.referencia && (negocio.projectCode || nomenclatura || proyectoInfo?.etapa || pisoInfo) ? (
-          negocio.projectCode ? (
-            <span>{negocio.projectCode}</span>
+        titulo={negocio.referencia || negocio.nomenclaturaCompleta || '—'}
+        subtitulo={negocio.referencia && (negocio.nomenclaturaCompleta || nomenclatura || proyectoInfo?.etapa || pisoInfo) ? (
+          negocio.nomenclaturaCompleta ? (
+            <span>{negocio.nomenclaturaCompleta}</span>
           ) : (
             <>
               {nomenclatura && <span>Apto {nomenclatura}</span>}
@@ -597,7 +597,7 @@ export function NegocioDetalleContenido({ id }) {
               {pisoInfo?.piso && <span>Piso {pisoInfo.piso}</span>}
             </>
           )
-        ) : (negocio.referencia ? 'Referencia' : 'Project Code')}
+        ) : (negocio.referencia ? 'Referencia' : 'Nomenclatura completa')}
         meta={`${negocio.totalMovimientos} movimientos`}
       >
         <HeroBadges>

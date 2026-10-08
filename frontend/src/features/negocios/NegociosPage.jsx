@@ -428,7 +428,7 @@ function NegociosLista() {
                 ) : (
                   filas.map((n) => {
                     const nomenclatura = n.datos?.Nomenclatura;
-                    const titulo = n.projectCode || (nomenclatura ? `Apto ${nomenclatura}` : n.referencia) || n.id;
+                    const titulo = n.nomenclaturaCompleta || (nomenclatura ? `Apto ${nomenclatura}` : n.referencia) || n.id;
                     const comprador = cleanNombre(n.compradores?.[0]?.nombre);
                     const extra = (n.compradores?.length ?? 0) - 1;
                     const saldoNum = parseSaldo(n.datos?.['Saldo Actual'] ?? n.saldoActual);

@@ -14,25 +14,22 @@ const Negocio = require('./negocio.model');
 const NegocioComprador = require('./negocioComprador.model');
 const { invalidarCacheDashboard } = require('../dashboard/dashboardCache');
 const NegocioMovimiento = require('./negocioMovimiento.model');
-const { PROYECTO_TORRE_EXCLUIDOS, valoresProyectoTorre, compararEtapas, esFrenteSeleccionable, parseProyectoTorre, formatearProyectoTorre, obtenerEtapaTorre, parsePisoNumero } = require('../inventario/inventarioTorres.service');
+const { PROYECTO_TORRE_EXCLUIDOS, valoresProyectoTorre, compararEtapas, esFrenteSeleccionable, parseProyectoTorre, formatearProyectoTorre, obtenerEtapaTorre, parsePisoNumero, nomenclaturaCompleta, nomenclaturaCompletaSQL } = require('../inventario/inventarioTorres.service');
 const { elegirOportunidadVigente } = require('../../config/estadosOportunidad');
 const Oportunidad = require('../oportunidad/oportunidad.model');
 
 const SIN_PROYECTO = 'Sin proyecto';
 const PATRON_NOMBRE_EXCLUIDO = '*%';
 
-function resolverProjectCode(datos) {
-  if (!datos) return null;
-  if (datos.Project_Code) return datos.Project_Code;
-  if (datos.Proyecto_Torre && datos.Product_Name) return `${datos.Proyecto_Torre} ${datos.Product_Name}`;
-  return null;
-}
-
 const BASE_CTE = `
 WITH inmuebles AS (
   SELECT
     ('inv-' || inv.id) AS id,
     inv.datos AS inventario_datos,
+    inv.proyecto AS inv_proyecto,
+    inv.torre AS inv_torre,
+    inv.piso AS inv_piso,
+    inv.nombre AS inv_nombre,
     neg.id AS negocio_id,
     neg.referencia AS referencia,
     neg.estado AS estado,
@@ -51,6 +48,10 @@ huerfanos AS (
   SELECT
     ('neg-' || n.id) AS id,
     NULL::jsonb AS inventario_datos,
+    NULL::text AS inv_proyecto,
+    NULL::text AS inv_torre,
+    NULL::text AS inv_piso,
+    NULL::text AS inv_nombre,
     n.id AS negocio_id,
     n.referencia AS referencia,
     n.estado AS estado,
@@ -89,7 +90,7 @@ async function construirFiltroCombinado({ search, estado, etapa, frente, torre, 
     condiciones.push(`(
       c.referencia ILIKE $${idx}
       OR c.negocio_datos->>'Nomenclatura' ILIKE $${idx}
-      OR c.inventario_datos->>'Project_Code' ILIKE $${idx}
+      OR ${nomenclaturaCompletaSQL('c')} ILIKE $${idx}
       OR c.inventario_datos->>'Proyecto_Torre' ILIKE $${idx}
       OR c.inventario_datos->>'Product_Name' ILIKE $${idx}
       OR EXISTS (
@@ -137,7 +138,7 @@ async function list({ search, estado, etapa, frente, torre, saldoPendiente, conM
     sequelize.query(
       `${BASE_CTE}
        SELECT
-         c.id, c.inventario_datos, c.negocio_id, c.referencia, c.estado, c.saldo_actual, c.negocio_datos,
+         c.id, c.inventario_datos, c.inv_proyecto, c.inv_torre, c.inv_piso, c.inv_nombre, c.negocio_id, c.referencia, c.estado, c.saldo_actual, c.negocio_datos,
          COALESCE((
            SELECT jsonb_agg(jsonb_build_object('id', comp.id, 'nombre', comp.nombre, 'nroId', comp.nro_id, 'porcentaje', comp.porcentaje, 'orden', comp.orden) ORDER BY comp.orden)
            FROM negocio_compradores comp WHERE comp.negocio_id = c.negocio_id
@@ -145,7 +146,7 @@ async function list({ search, estado, etapa, frente, torre, saldoPendiente, conM
          (SELECT COUNT(*)::int FROM negocio_movimientos m WHERE m.negocio_id = c.negocio_id) AS total_movimientos
        FROM combinado c
        ${whereSQL}
-       ORDER BY c.inventario_datos->>'Proyecto_Torre' ASC NULLS LAST, c.inventario_datos->>'Project_Code' ASC NULLS LAST
+       ORDER BY c.inventario_datos->>'Proyecto_Torre' ASC NULLS LAST, c.inv_nombre ASC NULLS LAST
        LIMIT $${idx} OFFSET $${idx + 1}`,
       { bind: [...bind, limitNum, (pageNum - 1) * limitNum], type: QueryTypes.SELECT }
     ),
@@ -166,7 +167,7 @@ async function list({ search, estado, etapa, frente, torre, saldoPendiente, conM
       datos: f.negocio_datos,
       compradores: f.compradores,
       totalMovimientos: f.total_movimientos,
-      projectCode: resolverProjectCode(f.inventario_datos),
+      nomenclaturaCompleta: nomenclaturaCompleta({ proyecto: f.inv_proyecto, torre: f.inv_torre, piso: f.inv_piso, nombre: f.inv_nombre, datos: f.inventario_datos }),
       proyectoTorre: info ? formatearProyectoTorre(info) : null,
       etapa: info ? obtenerEtapaTorre(f.inventario_datos.Proyecto_Torre) : SIN_PROYECTO,
     };
@@ -248,7 +249,7 @@ async function getById(id) {
       totalMovimientos,
       oportunidad,
       codigoInmueble: inmueble.datos?.C_digo_inmueble ?? null,
-      projectCode: resolverProjectCode(inmueble.datos),
+      nomenclaturaCompleta: nomenclaturaCompleta({ proyecto: inmueble.proyecto, torre: inmueble.torre, piso: inmueble.piso, nombre: inmueble.nombre, datos: inmueble.datos }),
       proyectoTorre: info ? formatearProyectoTorre(info) : null,
       frente: info ? info.proyecto : null,
       torre: info ? info.torre : null,
@@ -277,7 +278,7 @@ async function getById(id) {
       totalMovimientos,
       oportunidad,
       codigoInmueble: null,
-      projectCode: null,
+      nomenclaturaCompleta: null,
       proyectoTorre: null,
       frente: null,
       torre: null,

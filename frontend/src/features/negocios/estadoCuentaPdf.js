@@ -142,7 +142,7 @@ export async function exportarEstadoCuenta(negocio, datos) {
   const identificaciones = (negocio.compradores || []).map((c) => c.nro_id ?? c.nroId).filter(Boolean).join('\n') || '—';
   const nombrePrincipal = (negocio.compradores?.[0] && limpiarNombreComprador(negocio.compradores[0].nombre)) || null;
   const nomenclatura = negocio.datos?.Nomenclatura;
-  const inmuebleLabel = negocio.projectCode || (nomenclatura ? `Apto ${nomenclatura}` : null);
+  const inmuebleLabel = negocio.nomenclaturaCompleta || (nomenclatura ? `Apto ${nomenclatura}` : null);
 
   const infoRows = [
     ['Fecha de Generación', hoy],

@@ -63,6 +63,32 @@ function compararEtapas(a, b) {
   return a.localeCompare(b);
 }
 
+// "Nomenclatura completa" de un inmueble: Proyecto + Torre + Piso + Unidad, p. ej.
+// "Kabo Torre 4 Piso 3 3-M". Reemplaza al Project_Code de Zoho en Negocios y en el
+// Estado de Cuenta: ese campo viene mal copiado en varios inmuebles (118 sin
+// valor y casos con el número de OTRA unidad) mientras que estas cuatro piezas
+// existen siempre. La torre sale de Block_Tower ("Torre 4"); si ya empieza con
+// el nombre del proyecto no se repite. Misma regla que la variable
+// "Nomenclatura completa" del detalle de Inmuebles.
+function nomenclaturaCompleta({ proyecto, torre, piso, nombre, datos } = {}) {
+  const torreRaw = datos?.Block_Tower || torre || null;
+  const torreParte = torreRaw && (!proyecto || !String(torreRaw).startsWith(String(proyecto))) ? String(torreRaw).trim() : null;
+  const partes = [proyecto, torreParte, piso, nombre].filter((v) => v != null && String(v).trim() !== '').map((v) => String(v).trim());
+  return partes.length ? partes.join(' ') : null;
+}
+
+// Misma regla en SQL (para buscar por la nomenclatura completa). `alias` es el
+// alias de la fila con las columnas inv_proyecto/inv_torre/inv_piso/inv_nombre e
+// inventario_datos (ver BASE_CTE de negocio.service.js).
+function nomenclaturaCompletaSQL(alias) {
+  const bt = `COALESCE(NULLIF(btrim(${alias}.inventario_datos->>'Block_Tower'), ''), NULLIF(btrim(${alias}.inv_torre), ''))`;
+  return `concat_ws(' ',
+    NULLIF(btrim(${alias}.inv_proyecto), ''),
+    CASE WHEN ${bt} IS NOT NULL AND (NULLIF(btrim(${alias}.inv_proyecto), '') IS NULL OR left(${bt}, length(btrim(${alias}.inv_proyecto))) <> btrim(${alias}.inv_proyecto)) THEN ${bt} END,
+    NULLIF(btrim(${alias}.inv_piso), ''),
+    NULLIF(btrim(${alias}.inv_nombre), ''))`;
+}
+
 function resolverProjectCode(datos) {
   if (!datos) return null;
   if (datos.Project_Code) return datos.Project_Code;
@@ -341,6 +367,8 @@ module.exports = {
   obtenerEtapaTorre,
   compararEtapas,
   resolverProjectCode,
+  nomenclaturaCompleta,
+  nomenclaturaCompletaSQL,
   detectarProjectCodeInconsistentes,
   valoresProyectoTorre,
   pisosPorFrenteTorre,
