@@ -410,7 +410,7 @@ function NegociosLista() {
               <thead>
                 <tr>
                   <th>Inmueble</th>
-                  <th>Frente · Etapa</th>
+                  <th>Nomenclatura completa</th>
                   <th>Comprador</th>
                   <th>Estado</th>
                   <th className={styles.derecha}>Saldo actual</th>
@@ -428,7 +428,7 @@ function NegociosLista() {
                 ) : (
                   filas.map((n) => {
                     const nomenclatura = n.datos?.Nomenclatura;
-                    const titulo = n.nomenclaturaCompleta || (nomenclatura ? `Apto ${nomenclatura}` : n.referencia) || n.id;
+                    const titulo = (nomenclatura ? `Apto ${nomenclatura}` : n.referencia) || n.id;
                     const comprador = cleanNombre(n.compradores?.[0]?.nombre);
                     const extra = (n.compradores?.length ?? 0) - 1;
                     const saldoNum = parseSaldo(n.datos?.['Saldo Actual'] ?? n.saldoActual);
@@ -440,7 +440,7 @@ function NegociosLista() {
                             {n.referencia && n.referencia !== titulo && <span className={styles.detalleSec}>Ref. {n.referencia}</span>}
                           </div>
                         </td>
-                        <td>{n.proyectoTorre ? `${n.proyectoTorre} · ${etiquetaEtapa(n.etapa)}` : <span className={styles.muted}>—</span>}</td>
+                        <td>{n.nomenclaturaCompleta || <span className={styles.muted}>—</span>}</td>
                         <td>
                           {comprador ? (
                             <div className={styles.persona}>
