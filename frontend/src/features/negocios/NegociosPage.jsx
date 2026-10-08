@@ -410,7 +410,7 @@ function NegociosLista() {
               <thead>
                 <tr>
                   <th>Inmueble</th>
-                  <th>Nomenclatura completa</th>
+                  <th>Nomenclatura</th>
                   <th>Comprador</th>
                   <th>Estado</th>
                   <th className={styles.derecha}>Saldo actual</th>
