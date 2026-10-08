@@ -24,7 +24,3 @@ export function iniciarSyncInventario() {
 export function getSyncStatusInventario() {
   return client.get('/inventario/sync/status');
 }
-
-export function verificarProjectCode() {
-  return client.get('/inventario/verificar-project-code');
-}

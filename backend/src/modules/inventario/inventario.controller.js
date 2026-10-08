@@ -1,7 +1,6 @@
 const asyncHandler = require('../../utils/asyncHandler');
 const { ok } = require('../../utils/ApiResponse');
 const service = require('./inventario.service');
-const { detectarProjectCodeInconsistentes } = require('./inventarioTorres.service');
 const { syncInventario, getSyncStatus } = require('./inventario.sync');
 
 const list = asyncHandler(async (req, res) => {
@@ -18,6 +17,4 @@ const iniciarSync = asyncHandler(async (req, res) => {
 
 const syncStatus = asyncHandler(async (req, res) => ok(res, getSyncStatus()));
 
-const verificarProjectCode = asyncHandler(async (req, res) => ok(res, await detectarProjectCodeInconsistentes()));
-
-module.exports = { list, getById, iniciarSync, syncStatus, verificarProjectCode };
+module.exports = { list, getById, iniciarSync, syncStatus };

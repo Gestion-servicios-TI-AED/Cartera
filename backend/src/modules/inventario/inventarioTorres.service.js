@@ -64,12 +64,12 @@ function compararEtapas(a, b) {
 }
 
 // "Nomenclatura completa" de un inmueble: Proyecto + Torre + Piso + Unidad, p. ej.
-// "Kabo Torre 4 Piso 3 3-M". Reemplaza al Project_Code de Zoho en Negocios y en el
-// Estado de Cuenta: ese campo viene mal copiado en varios inmuebles (118 sin
-// valor y casos con el número de OTRA unidad) mientras que estas cuatro piezas
-// existen siempre. La torre sale de Block_Tower ("Torre 4"); si ya empieza con
-// el nombre del proyecto no se repite. Misma regla que la variable
-// "Nomenclatura completa" del detalle de Inmuebles.
+// "Kabo Torre 4 Piso 3 3-M". Reemplaza al Project_Code de Zoho, que ya no se usa
+// en ninguna parte (venía mal copiado en varios inmuebles: 118 sin valor y casos
+// con el número de OTRA unidad), mientras que estas cuatro piezas existen
+// siempre. La torre sale de Block_Tower ("Torre 4"); si ya empieza con el nombre
+// del proyecto no se repite. Misma regla que la variable "Nomenclatura completa"
+// del detalle de Inmuebles.
 function nomenclaturaCompleta({ proyecto, torre, piso, nombre, datos } = {}) {
   const torreRaw = datos?.Block_Tower || torre || null;
   const torreParte = torreRaw && (!proyecto || !String(torreRaw).startsWith(String(proyecto))) ? String(torreRaw).trim() : null;
@@ -87,62 +87,6 @@ function nomenclaturaCompletaSQL(alias) {
     CASE WHEN ${bt} IS NOT NULL AND (NULLIF(btrim(${alias}.inv_proyecto), '') IS NULL OR left(${bt}, length(btrim(${alias}.inv_proyecto))) <> btrim(${alias}.inv_proyecto)) THEN ${bt} END,
     NULLIF(btrim(${alias}.inv_piso), ''),
     NULLIF(btrim(${alias}.inv_nombre), ''))`;
-}
-
-function resolverProjectCode(datos) {
-  if (!datos) return null;
-  if (datos.Project_Code) return datos.Project_Code;
-  if (datos.Proyecto_Torre && datos.Product_Name) return `${datos.Proyecto_Torre} ${datos.Product_Name}`;
-  return null;
-}
-
-// Detecta inmuebles cuyo Project_Code no termina en su propio Product_Name
-// -- señal de que se copió por error de otro inmueble del mismo frente.
-async function detectarProjectCodeInconsistentes() {
-  const rows = await sequelize.query(
-    `SELECT
-       id, zoho_id, referencia_recaudo,
-       datos->>'Proyecto_Torre' AS proyecto_torre,
-       datos->>'Product_Name' AS product_name,
-       datos->>'Project_Code' AS project_code,
-       datos->>'Estado_del_Inmueble' AS estado
-     FROM inventario_items
-     WHERE datos->>'Project_Code' IS NOT NULL AND datos->>'Product_Name' IS NOT NULL`,
-    { type: QueryTypes.SELECT }
-  );
-
-  const inconsistencias = [];
-  for (const r of rows) {
-    const productName = String(r.product_name).trim();
-    const projectCode = String(r.project_code).trim();
-    if (projectCode.endsWith(productName)) continue;
-
-    const info = parseProyectoTorre(r.proyecto_torre);
-    inconsistencias.push({
-      inventarioItemId: r.id,
-      zohoId: r.zoho_id,
-      frente: info?.proyecto ?? null,
-      torre: info?.torre ?? null,
-      proyectoTorre: r.proyecto_torre,
-      productName,
-      projectCodeActual: projectCode,
-      estado: r.estado,
-      referenciaRecaudo: r.referencia_recaudo,
-    });
-  }
-
-  inconsistencias.sort(
-    (a, b) => (a.proyectoTorre ?? '').localeCompare(b.proyectoTorre ?? '') || a.productName.localeCompare(b.productName)
-  );
-
-  const porTorreMap = new Map();
-  for (const inc of inconsistencias) {
-    const key = inc.proyectoTorre ?? 'Sin torre';
-    porTorreMap.set(key, (porTorreMap.get(key) ?? 0) + 1);
-  }
-  const porTorre = [...porTorreMap.entries()].map(([torre, count]) => ({ torre, count })).sort((a, b) => b.count - a.count);
-
-  return { total: inconsistencias.length, porTorre, inconsistencias };
 }
 
 // Valores crudos de Proyecto_Torre, agrupados de varias formas para los
@@ -366,10 +310,8 @@ module.exports = {
   parsePisoNumero,
   obtenerEtapaTorre,
   compararEtapas,
-  resolverProjectCode,
   nomenclaturaCompleta,
   nomenclaturaCompletaSQL,
-  detectarProjectCodeInconsistentes,
   valoresProyectoTorre,
   pisosPorFrenteTorre,
   inmueblesPorReferencia,

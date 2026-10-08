@@ -114,7 +114,8 @@ legado: `utils/zohoAuth.js` + `config/zoho.js`, credenciales compartidas con
 `zoho-payment-tracker/` -- mismo Zoho CRM, solo lectura). `inventarioTorres.service.js`
 es el subconjunto de `inventarioNegocioService.js` (legado) que solo toca
 `InventarioItem` (jerarquía Etapa→Frente→Torre→Piso, detección de
-Project_Code inconsistente) -- las funciones que cruzan con `Negocio`/
+nomenclatura completa = Proyecto + Torre + Piso + Unidad, que reemplaza al Project_Code de
+Zoho: ya no se usa en ninguna parte) -- las funciones que cruzan con `Negocio`/
 `Opportunity` se portan en la fase de Negocios. Filtros por `datos`
 (JSONB) resueltos con SQL crudo vía `sequelize.query`/`replacements`, no
 con los helpers de JSON path del ORM. Simplificación deliberada: sin
@@ -370,7 +371,7 @@ reimplementes desde acá**: la lógica de Otrosíes se extrajo a
 `backend/src/utils/busquedaTolerante.js` y se aplicó a TODOS los buscadores de
 Cartera v2 (param `search`): `oportunidad` (deal_name/referencia_recaudo/
 contact_name), `negocio` (list CTE + movimientos: referencia/Nomenclatura/
-Project_Code/Proyecto_Torre/Product_Name + compradores via EXISTS),
+nomenclatura completa/Proyecto_Torre/Product_Name + compradores via EXISTS),
 `inventario` (SQL crudo con replacements), `fiducia` (encargos, movimientos,
 propietarios, nomenclaturas), `dashboard` (recaudo + cartera-mora, filtro en
 memoria) y `olivOportunidad`/`olivInmueble`/`olivNegocio`/`olivEncargo`.

@@ -1,15 +1,12 @@
 // Puerto de zoho-payment-tracker/frontend/src/pages/Ajustes.jsx -- sección
-// "Sincronización de datos" (SubformsBackfillCard + ProjectCodeReportCard).
+// "Sincronización de datos" (SubformsBackfillCard).
 // Backend: POST/GET /oportunidades/backfill-subforms[/status] (ya existía,
-// sin frontend hasta ahora) y GET /inventario/verificar-project-code (idem).
+// sin frontend hasta ahora).
 import { useCallback, useEffect, useRef, useState } from 'react';
-import ExcelJS from 'exceljs';
-import { RefreshCw, Check, XCircle, FileSearch, Download, AlertTriangle } from 'lucide-react';
+import { RefreshCw, Check, XCircle } from 'lucide-react';
 import { AccesosLayout } from '../../components/layout/AccesosLayout.jsx';
 import { Button } from '../../components/ui/Button.jsx';
-import { Badge } from '../../components/ui/Badge.jsx';
 import { iniciarBackfillSubforms, getBackfillSubformsStatus } from '../../api/oportunidades.js';
-import { verificarProjectCode } from '../../api/inventario.js';
 import styles from './Accesos.module.css';
 import shared from './Usuarios.module.css';
 
@@ -120,113 +117,6 @@ function BackfillSubformsCard() {
   );
 }
 
-// Reporte on-demand: inmuebles cuyo Project_Code de Zoho no le pertenece
-// (copiado de otro apartamento del mismo frente) -- problema de datos en
-// Zoho, no del sync. Solo lo detecta y lo deja descargar en Excel, no
-// corrige nada acá.
-function ProjectCodeReportCard() {
-  const [reporte, setReporte] = useState(null);
-  const [cargando, setCargando] = useState(false);
-  const [error, setError] = useState(null);
-
-  async function handleVerificar() {
-    setCargando(true);
-    setError(null);
-    try {
-      const res = await verificarProjectCode();
-      setReporte(res.data);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setCargando(false);
-    }
-  }
-
-  async function handleDescargar() {
-    if (!reporte) return;
-    const wb = new ExcelJS.Workbook();
-    const ws = wb.addWorksheet('Project Code inconsistentes');
-    ws.columns = [
-      { header: 'Frente', key: 'frente', width: 16 },
-      { header: 'Torre', key: 'torre', width: 8 },
-      { header: 'Unidad (Product Name)', key: 'productName', width: 20 },
-      { header: 'Project Code actual (incorrecto)', key: 'projectCodeActual', width: 30 },
-      { header: 'Estado del inmueble', key: 'estado', width: 16 },
-      { header: 'Referencia de recaudo', key: 'referenciaRecaudo', width: 18 },
-      { header: 'Zoho ID', key: 'zohoId', width: 22 },
-    ];
-    ws.getRow(1).font = { bold: true };
-    for (const inc of reporte.inconsistencias) {
-      ws.addRow({
-        frente: inc.frente ?? '',
-        torre: inc.torre ?? '',
-        productName: inc.productName,
-        projectCodeActual: inc.projectCodeActual,
-        estado: inc.estado ?? '',
-        referenciaRecaudo: inc.referenciaRecaudo ?? '',
-        zohoId: inc.zohoId,
-      });
-    }
-    const buffer = await wb.xlsx.writeBuffer();
-    const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `project-code-inconsistentes-${new Date().toISOString().slice(0, 10)}.xlsx`;
-    a.click();
-    URL.revokeObjectURL(url);
-  }
-
-  return (
-    <section className={shared.sectionCard}>
-      <div>
-        <h2 className={shared.sectionTitle}>Project Code inconsistentes</h2>
-        <p className={shared.sectionHint}>Detecta inmuebles cuyo Project_Code de Zoho no coincide con su propia unidad -- señal de que fue copiado por error de otro apartamento del mismo frente. Problema de datos en Zoho, no de la sincronización.</p>
-      </div>
-
-      <div>
-        <Button variant="secondary" onClick={handleVerificar} disabled={cargando}>
-          <FileSearch size={14} />
-          {cargando ? 'Verificando…' : 'Verificar Project Code'}
-        </Button>
-      </div>
-
-      {error && (
-        <div className={styles.statusError}>
-          <XCircle size={14} /> <span>Error: {error}</span>
-        </div>
-      )}
-
-      {reporte && reporte.total === 0 && (
-        <div className={styles.statusOk}>
-          <Check size={14} /> <span>Sin inconsistencias -- todos los Project_Code coinciden con su propia unidad.</span>
-        </div>
-      )}
-
-      {reporte && reporte.total > 0 && (
-        <>
-          <div className={styles.statusWarning}>
-            <AlertTriangle size={14} /> <span>{reporte.total} inmuebles con Project_Code copiado de otra unidad.</span>
-          </div>
-          <div className={styles.torreLista}>
-            {reporte.porTorre.map((t) => (
-              <div key={t.torre} className={styles.torreFila}>
-                <span>{t.torre}</span>
-                <Badge variant="warning">{t.count}</Badge>
-              </div>
-            ))}
-          </div>
-          <div>
-            <Button variant="secondary" onClick={handleDescargar}>
-              <Download size={13} /> Descargar Excel
-            </Button>
-          </div>
-        </>
-      )}
-    </section>
-  );
-}
-
 export function SincronizacionPage() {
   return (
     <div className={shared.page}>
@@ -239,7 +129,6 @@ export function SincronizacionPage() {
         </div>
 
         <BackfillSubformsCard />
-        <ProjectCodeReportCard />
       </AccesosLayout>
     </div>
   );

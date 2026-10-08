@@ -133,7 +133,7 @@ número de Torre, y esa combinación se traduce a Etapa con esta tabla fija:
 
 | Campo en pantalla | De dónde sale |
 |---|---|
-| "Referencia" o "Project Code" (título grande) | **Zoho — Inventario**, código de proyecto del inmueble encontrado por el cruce Inmueble↔Negocio, si existe; si no, la columna "Referencia" de **Excel Fiducia — Movimientos** |
+| "Referencia" o "Nomenclatura completa" (título grande) | **Calculado** — Proyecto + Torre + Piso + Unidad del inmueble (**Zoho — Inventario**) encontrado por el cruce Inmueble↔Negocio, si existe; si no, la columna "Referencia" de **Excel Fiducia — Movimientos** |
 | Subtítulo (Apto / Etapa / Torre / Piso) | **Calculado** — columna "Nomenclatura" (**Excel Fiducia — Movimientos**) + Etapa/Torre (traducidas de **Zoho — Inventario** con la tabla fija) + Piso (**Zoho — Inventario**) |
 | Insignia de estado | **Excel Fiducia — Movimientos**, columna "Estado" |
 | Insignia "Sin negocio" | **Calculado**, igual que en la lista (cruce Inmueble↔Negocio sin resultado) |
@@ -161,7 +161,7 @@ por separado).
 | Lo que aparezca acá (Nomenclatura, Área, Torre, Piso, Matrícula, Parqueadero, Depósito, Notaría, Fecha de contrato, etc.) | **Excel Fiducia — Movimientos** — cualquier columna de esa hoja que describa la identidad física del apartamento, mostrada con el mismo nombre y valor con que está escrita ahí |
 | Si el Excel no trae nada de eso (respaldo) | **Zoho — Inventario**: campos Código de inmueble, Categoría, Tipo, Área privada, Área construida, Piso, Alcobas, Baños, Estrato |
 | "Etapa" (agregada arriba de la lista) | **Calculado** — traducida de **Zoho — Inventario** con la tabla fija (ver arriba) |
-| "Código de Inmueble" / "Project Code" (agregados arriba) | **Zoho — Inventario** |
+| "Código de Inmueble" / "Nomenclatura completa" (agregados arriba) | **Zoho — Inventario** (la nomenclatura completa se calcula: Proyecto + Torre + Piso + Unidad) |
 
 ## Sección "Estructura financiera y abonos"
 

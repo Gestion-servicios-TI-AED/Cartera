@@ -14,7 +14,7 @@ const NegocioMovimiento = require('../negocio/negocioMovimiento.model');
 const Oportunidad = require('../oportunidad/oportunidad.model');
 const ResumenCarteraMensual = require('./resumenCarteraMensual.model');
 const { construirPlan, normalizarPagos, conciliar, parseMonto, mesKey, diaKey, periodoVacio, acumularPorPeriodo } = require('./conciliacion');
-const { valoresProyectoTorre, compararEtapas, esFrenteSeleccionable, parseProyectoTorre, formatearProyectoTorre, parsePisoNumero, obtenerEtapaTorre, resolverProjectCode, PROYECTO_TORRE_EXCLUIDOS } = require('../inventario/inventarioTorres.service');
+const { valoresProyectoTorre, compararEtapas, esFrenteSeleccionable, parseProyectoTorre, formatearProyectoTorre, parsePisoNumero, obtenerEtapaTorre, nomenclaturaCompleta, PROYECTO_TORRE_EXCLUIDOS } = require('../inventario/inventarioTorres.service');
 const { obtenerFechasEntregaConfiguradas, CLAVE_TODAS } = require('../configuracionFrente/configuracionFrente.service');
 const { elegirOportunidadVigente } = require('../../config/estadosOportunidad');
 const { estaExcluidoDelPortafolio, esNombreMarcadoInvalido } = require('../../config/inventarioExcluido');
@@ -94,7 +94,7 @@ async function construirFilasCompletas() {
   const fechasEntregaConfiguradas = await obtenerFechasEntregaConfiguradas();
 
   const inmueblesSinFiltrar = await sequelize.query(
-    `SELECT id, datos, piso, referencia_recaudo, estado FROM inventario_items
+    `SELECT id, datos, proyecto, torre, piso, nombre, referencia_recaudo, estado FROM inventario_items
      ORDER BY datos->>'Proyecto_Torre' ASC NULLS LAST, datos->>'Product_Name' ASC NULLS LAST`,
     { type: QueryTypes.SELECT }
   );
@@ -221,7 +221,7 @@ async function construirFilasCompletas() {
       etapa,
       frente: info ? info.proyecto : null,
       torre: info ? info.torre : null,
-      nomenclatura: info && inv.datos?.Product_Name ? `${formatearProyectoTorre(info)} ${inv.datos.Product_Name}` : resolverProjectCode(inv.datos),
+      nomenclatura: nomenclaturaCompleta({ proyecto: inv.proyecto, torre: inv.torre, piso: inv.piso, nombre: inv.nombre, datos: inv.datos }),
       unidad: inv.datos?.Product_Name ?? null,
       valorInmueble,
       valorCuotaInicial,
